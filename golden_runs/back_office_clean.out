@@ -1,0 +1,85 @@
+[08/21/26 06:24:11] INFO     Processing request of type            server.py:733
+                             ListToolsRequest                                   
+                    INFO     Processing request of type            server.py:733
+                             ListToolsRequest                                   
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+🔌 Spawning MCP Server via Stdio...
+✅ Connected! Available MCP Tools: ['get_transaction', 'run_fraud_and_compliance_workflow', 'update_transaction_status', 'get_branch_workload', 'propose_staffing_adjustment', 'get_customer_product_affinity', 'trigger_eod_reconciliation', 'get_reconciliation_mismatches', 'resolve_ledger_entry']
+
+{
+  "back_office_clean": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "back_office_router"
+    },
+    {
+      "agent": "back_office_router",
+      "event": "transfer",
+      "to": "back_office_eod_workflow"
+    },
+    {
+      "agent": "validation_checkpoint_agent",
+      "event": "tool_call",
+      "tool": "validate_eod_readiness",
+      "args": {
+        "batch_id": "EOD-2026-04-21-CLEAN"
+      }
+    },
+    {
+      "agent": "eod_processing_agent",
+      "event": "tool_call",
+      "tool": "get_eod_batch",
+      "args": {
+        "batch_id": "EOD-2026-04-21-CLEAN"
+      }
+    },
+    {
+      "agent": "ledger_update_agent",
+      "event": "tool_call",
+      "tool": "apply_ledger_updates",
+      "args": {
+        "batch_id": "EOD-2026-04-21-CLEAN",
+        "posting_instructions": "[{\"action\":\"post\",\"batch_id\":\"EOD-2026-04-21-CLEAN\",\"business_date\":\"2026-04-21\",\"amount\":18250.55,\"ledger\":\"core_ledger\"}]"
+      }
+    },
+    {
+      "agent": "reconciliation_agent",
+      "event": "tool_call",
+      "tool": "get_reconciliation_data",
+      "args": {
+        "batch_id": "EOD-2026-04-21-CLEAN"
+      }
+    },
+    {
+      "agent": "report_writing_agent",
+      "event": "tool_call",
+      "tool": "store_report",
+      "args": {
+        "batch_id": "EOD-2026-04-21-CLEAN",
+        "report_body": "EOD Batch EOD-2026-04-21-CLEAN processed successfully.\nBusiness Date: 2026-04-21\nTotal Amount Posted (core_ledger): $18,250.55\nReconciliation Result: Matched (0.0 difference)\nConfidence: 99%\nRecommendation: Finalize batch, close ledger entries, and archive metadata for audit.\n\nAll control checks passed: ready_flag, status, total_match. Expected items count pending confirmation."
+      }
+    },
+    {
+      "agent": "report_writing_agent",
+      "event": "tool_result",
+      "tool": "store_report",
+      "result": {
+        "report_id": "RPT-B3F1A6A4",
+        "batch_id": "EOD-2026-04-21-CLEAN",
+        "status": "generated",
+        "created_at": "2026-08-21T13:24:30.681860+00:00"
+      }
+    },
+    {
+      "agent": "report_writing_agent",
+      "event": "result",
+      "key": "bo_report_output",
+      "value": {
+        "report_summary": "EOD batch EOD-2026-04-21-CLEAN processed successfully: $18,250.55 posted to core_ledger, reconciliation matched with 0.0 difference, all control checks passed. Expected items count pending confirmation. Recommend finalizing and archiving the batch.",
+        "report_id": "RPT-B3F1A6A4",
+        "downstream_notes": "Finalize the batch, close ledger entries, and archive metadata for audit and reporting."
+      }
+    }
+  ]
+}

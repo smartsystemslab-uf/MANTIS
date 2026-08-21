@@ -1,14 +1,137 @@
-# MANTIS — Modular Agent Network Testbed for Instrumentation and Security in Multi-Agent Banking Systems
+# MANTIS — Modular Agent Network Testbed for Instrumentation and Security
+
 MANTIS is a modular, observable multi-agent security testbed for configuring agents, workflows, tools, attacks, and failures, with end-to-end tracing, evaluation, and reproducible benchmarking.
 
+Currently, MANTIS focuses on banking multi-agent architectures (spanning Front, Mid, and Back-Office workflows) as the primary application domain for security evaluation.
 
-## Developer Guidelines:
-1. For every script you add here, please make sure you have ensure there is 100% unit test coverage. It's REQUIRED to post your unit test code here, since our project is large enough as an open-source project. 
-Learn more about unit test here: https://www.ibm.com/think/topics/unit-testing.
+---
 
-2. Every `.py` file or other executable file added to this project must also have corresponding integration tests codes included in the repository. All integration tests must pass before submission. 
-Learn more about integration test here: https://circleci.com/blog/unit-testing-vs-integration-testing/
+## Repository Structure
 
-3. The use of AI tools and other unit testing tools is encouraged. Please use whichever tools work best for your workflow.
+```
+MANTIS/
+├── README.md                          # This file
+├── banking_baseline_inventory.yaml    # WP0: Full system inventory
+├── baseline_metrics.json              # WP0: Performance and behavioral metrics
+├── golden_runs/                       # WP0: Frozen LLM execution traces
+│   ├── front_office_monitoring.out
+│   ├── mid_office_planning.out
+│   └── back_office_clean.out
+└── refactor_guard_tests/              # WP0: Regression test suite (52 tests)
+    └── test_baseline.py
+```
 
-4. When pushing changes to the repository, please include a brief description of what was changed and why the change was necessary.
+---
+
+## Current Status: WP0 (Baseline Freeze) — Complete
+
+Before beginning the architectural transition to a modular MANTIS framework (WP1), we established a verified baseline of the existing legacy banking system. This ensures that any future modularization or refactoring does not break core business logic.
+
+The legacy codebase was executed against a live LLM (UF Navigator `gpt-oss-20b`) to capture standard "golden runs," and a 52-test regression suite asserts that the recorded behavior must be preserved in all future states of the framework.
+
+### WP0 Deliverables
+
+| # | Deliverable | Path | Description |
+|---|-------------|------|-------------|
+| 1 | Baseline Inventory | `banking_baseline_inventory.yaml` | Maps all packages, agents, MCP tools, internal ADK tools, workflows, and data stores |
+| 2 | Golden Runs | `golden_runs/` | Real end-to-end LLM execution traces for Front, Mid, and Back Office scenarios |
+| 3 | Baseline Metrics | `baseline_metrics.json` | Records agents involved, tools called, latency, and banking semantics per workflow |
+| 4 | Regression Guard Tests | `refactor_guard_tests/` | 52-test pytest suite cross-validating traces, metrics, and inventory |
+
+### Golden Run Details
+
+- **`front_office_monitoring.out`** — Transaction TXN-1001 review for customer CUST-001. Agents: `transaction_monitoring_agent` → `compliance_agent` → `decision_making_agent`. Outcome: escalated to manual review (confidence 0.845).
+- **`mid_office_planning.out`** — Operations planning for 2026-04-21. Agents: `data_analysis_agent` → `support_guidance_agent` → `validation_agent` → `planning_summary_agent`. Outcome: validated staffing schedule SCH-497AD578.
+- **`back_office_clean.out`** — EOD reconciliation for batch EOD-2026-04-21-CLEAN. Agents: `validation_checkpoint_agent` → `eod_processing_agent` → `ledger_update_agent` → `reconciliation_agent` → `report_writing_agent`. Outcome: $18,250.55 posted, reconciliation matched, report RPT-B3F1A6A4 generated.
+
+### Running the Regression Tests
+
+```bash
+cd /path/to/MANTIS
+pip install pytest pyyaml
+python -m pytest refactor_guard_tests/ -v
+```
+
+**Latest run (2026-08-21):** 52 passed, 0 failed in 0.12s
+
+### What the 52 Tests Cover
+
+The test suite is organized into 5 test classes:
+
+| Test Class | Tests | What It Validates |
+|---|---|---|
+| `TestBaselineFilesExist` | 5 | All WP0 deliverable files are present |
+| `TestBaselineMetricsStructure` | 12 | Schema correctness: required fields, semantics fields per workflow |
+| `TestFrontOfficeTrace` / `MidOffice` / `BackOffice` | 12 | Golden run traces are parseable, tools and agents match metrics |
+| `TestInventoryConsistency` | 3 | Inventory covers all tools from metrics, all workflows listed |
+| `TestFrontOfficeBehavior` / `MidOffice` / `BackOffice` | 20 | **Advanced:** Agent execution order, routing paths, tool arguments (customer IDs, transaction IDs, batch IDs, dates), business outcomes (decisions, confidence scores, report IDs, schedule regions) |
+
+---
+
+## How to Use This Baseline for WP1+ Refactoring
+
+> **Important for WP1+ developers:** The regression tests currently validate the frozen `.out` files. After you refactor the codebase, you must regenerate traces from your new system and verify they pass the same behavioral contract.
+
+### Step-by-step workflow for WP1+ developers:
+
+1. **Before refactoring:** Run the existing tests to confirm the baseline is intact.
+   ```bash
+   python -m pytest refactor_guard_tests/ -v
+   ```
+
+2. **After refactoring:** Regenerate traces from your new modular system.
+   ```bash
+   # Start your refactored backend
+   python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+   # Run each scenario and capture output
+   python run_scenarios.py --scenario front_office_monitoring > golden_runs/front_office_monitoring.out 2>&1
+   python run_scenarios.py --scenario mid_office_planning > golden_runs/mid_office_planning.out 2>&1
+   python run_scenarios.py --scenario back_office_clean > golden_runs/back_office_clean.out 2>&1
+   ```
+
+3. **Verify:** Run the tests again. If your refactored system produces different agent orders, missing tools, wrong arguments, or different business outcomes, the tests will fail and tell you exactly what broke.
+   ```bash
+   python -m pytest refactor_guard_tests/ -v
+   ```
+
+### What will fail if you break something:
+
+| If you break... | These tests fail... |
+|---|---|
+| Agent routing (e.g., skip the router) | `test_routing_path` |
+| Agent execution order | `test_agent_execution_order` |
+| Wrong customer/transaction/batch IDs in tool args | `test_customer_context_fetched_for_correct_customer`, `test_batch_id_consistent_across_all_tool_calls`, etc. |
+| Missing tool calls (e.g., skip compliance check) | `test_tools_match_baseline`, `test_compliance_agent_searches_policies` |
+| Wrong business outcome (e.g., auto-approve instead of manual review) | `test_decision_outcome_is_manual_review` |
+| Missing or corrupted output | `test_trace_parseable`, `test_trace_contains_events` |
+| Inventory doesn't match metrics | `test_adk_tools_cover_metrics_tools` |
+
+---
+
+## How the Golden Runs Were Generated
+
+The golden runs were captured by executing the existing banking multi-agent system against a live LLM:
+
+1. Created a Python virtual environment and installed dependencies
+2. Started the FastAPI backend (`citi_banking_backend`) on port 8000
+3. Ran `run_scenarios.py` for each scenario, which spawns the MCP server via stdio and calls the LLM
+4. Captured stdout traces into `golden_runs/`
+
+### Source Repository:
+- **Citi_P3:** https://github.com/smartsystemslab-uf/Citi_P3
+
+### Environment:
+- **Python:** 3.12.7
+- **LLM:** UF Navigator API (`https://api.ai.it.ufl.edu`), model `gpt-oss-20b`
+- **Backend:** FastAPI + SQLite
+- **Agent framework:** Google ADK with LiteLLM adapter
+- **Tool server:** FastMCP (stdio transport)
+
+---
+
+## Developer Guidelines
+1. **Unit Testing:** For every script you add here, please make sure you ensure there is 100% unit test coverage. It's REQUIRED to post your unit test code here, since our project is large enough as an open-source project.
+2. **Integration Testing:** Every `.py` file or other executable file added to this project must also have corresponding integration tests codes included in the repository. All integration tests must pass before submission.
+3. **AI Assistance:** The use of AI tools and other unit testing tools is encouraged. Please use whichever tools work best for your workflow.
+4. **Commits:** When pushing changes to the repository, please include a brief description of what was changed and why the change was necessary.
