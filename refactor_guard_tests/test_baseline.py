@@ -187,9 +187,7 @@ class TestBackOfficeTrace:
 
     def test_trace_contains_events(self):
         events = self.trace.get("back_office_clean", [])
-        if not events:
-            pytest.skip("LLM generated an empty trace for back office")
-        assert len(events) > 0, "Back office trace is empty"
+        assert len(events) > 0, "Back office trace is completely empty! The scenario failed to run."
 
     def test_tools_match_baseline(self):
         events = self.trace.get("back_office_clean", [])
@@ -353,17 +351,26 @@ class TestMidOfficeBehavior:
         assert playbook_call["agent"] == "support_guidance_agent"
 
     def test_schedule_validated_and_persisted(self):
-        """Verify validation_agent persists a validated schedule with branch data."""
+        """Verify validation_agent persists a validated schedule, OR correctly identifies it as invalid."""
         tool_calls = [e for e in self.events if e.get("event") == "tool_call"]
         persist_calls = [tc for tc in tool_calls if tc["tool"] == "persist_validated_schedule"]
-        if not persist_calls:
-            pytest.skip("LLM deemed schedule invalid; persist_validated_schedule was not called.")
-            
-        persist_call = persist_calls[0]
-        assert persist_call["agent"] == "validation_agent"
-        schedule_str = persist_call["args"]["schedule_json"]
-        assert isinstance(schedule_str, str)
-        assert len(schedule_str) > 0
+        
+        results = [e for e in self.events if e.get("event") == "result"]
+        summary = next((r["value"] for r in results if r["key"] == "mid_office_planning_result"), "")
+        
+        is_invalid = "Not Valid" in summary or "invalid" in summary.lower() or "issues" in summary.lower()
+        
+        if is_invalid:
+            # Alternate decision path: Schedule was invalid, tool must NOT be called
+            assert len(persist_calls) == 0, "Schedule was invalid, but persist_validated_schedule was incorrectly called!"
+        else:
+            # Primary decision path: Schedule was valid, tool MUST be called
+            assert len(persist_calls) > 0, "Schedule was valid, but persist_validated_schedule was never called!"
+            persist_call = persist_calls[0]
+            assert persist_call["agent"] == "validation_agent"
+            schedule_str = persist_call["args"]["schedule_json"]
+            assert isinstance(schedule_str, str)
+            assert len(schedule_str) > 0
 
     def test_planning_summary_produced(self):
         """Verify the planning_summary_agent produces a final result."""
