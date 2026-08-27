@@ -52,9 +52,9 @@ pip install pytest pyyaml
 python -m pytest refactor_guard_tests/ -v
 ```
 
-**Latest run (2026-08-27):** 50 passed, 0 failed in 0.11s
+**Latest run (2026-08-27):** 49 passed, 0 failed in 0.17s
 
-### What the 50 Tests Cover
+### What the 49 Tests Cover
 
 The test suite is deliberately designed to balance **strict structural enforcement** with **flexible semantic parsing** to handle natural LLM non-determinism. It is organized into 5 test classes:
 
