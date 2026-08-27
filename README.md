@@ -68,7 +68,7 @@ The test suite is deliberately designed to balance **strict structural enforceme
 | `TestBaselineMetricsStructure` | 12 | Schema correctness: required fields, semantics fields per workflow |
 | `TestFrontOfficeTrace` / `MidOffice` / `BackOffice` | 12 | Golden run traces are parseable. Tool and agent matches use resilient logic to gracefully handle or skip valid alternative LLM decision paths. |
 | `TestInventoryConsistency` | 3 | Inventory covers all tools from metrics, all workflows listed |
-| `TestFrontOfficeBehavior` / `MidOffice` / `BackOffice` | 18 | **Advanced:** Agent execution order, routing paths, tool usage, and business outcomes. *Note: Semantic outputs and tool arguments (like customer IDs) are evaluated flexibly using regex/types. Tests explicitly assert alternate decision logic (e.g., handling invalid schedules) rather than triggering false alarms.* |
+| `TestFrontOfficeBehavior` / `MidOffice` / `BackOffice` | 17 | **Advanced:** Agent execution order, routing paths, tool usage, and business outcomes. *Note: Semantic outputs and tool arguments (like customer IDs) are evaluated flexibly using regex/types. Tests explicitly assert alternate decision logic (e.g., handling invalid schedules) rather than triggering false alarms.* |
 
 ---
 
