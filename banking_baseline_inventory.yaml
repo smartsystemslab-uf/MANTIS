@@ -85,3 +85,7 @@ telemetry_paths:
 
 data_stores:
   - backend/data/citi_banking.db
+
+plugins:
+  - zero_trust_backplane_plugin
+  - zero_trust_protect_final_output
