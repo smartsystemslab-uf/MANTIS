@@ -17,7 +17,7 @@ MANTIS/
 │   ├── front_office_monitoring.out
 │   ├── mid_office_planning.out
 │   └── back_office_clean.out
-└── refactor_guard_tests/              # WP0: Regression test suite (52 tests)
+└── refactor_guard_tests/              # WP0: Regression test suite (50 tests)
     └── test_baseline.py
 ```
 
@@ -27,7 +27,7 @@ MANTIS/
 
 Before beginning the architectural transition to a modular MANTIS framework (WP1), we established a verified baseline of the existing legacy banking system. This ensures that any future modularization or refactoring does not break core business logic.
 
-The legacy codebase was executed against a live LLM (UF Navigator `gpt-oss-20b`) to capture standard "golden runs," and a 52-test regression suite asserts that the recorded behavior must be preserved in all future states of the framework.
+The legacy codebase was executed against a live LLM (UF Navigator `gpt-oss-20b`) to capture standard "golden runs," and a 50-test regression suite asserts that the recorded behavior must be preserved in all future states of the framework.
 
 ### WP0 Deliverables
 
