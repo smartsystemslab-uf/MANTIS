@@ -19,6 +19,7 @@ from mantis.observability.otel import setup_otel
 from mantis.observability.mlflow_exporter import MLflowExporter
 from mantis.evaluation.evaluators import TraceEvaluator
 from mantis.benchmark.runner import BenchmarkRunner
+from mantis.cli.campaign import CampaignManager
 
 def _ser(obj):
     try:
@@ -131,6 +132,8 @@ def main():
     ap.add_argument('--inventory', action='store_true', help='Print system inventory')
     ap.add_argument('--evaluate', type=str, help='Evaluate a completed run artifact directory')
     ap.add_argument('--benchmark', type=str, help='Run benchmark on a config file')
+    ap.add_argument('--campaign', type=str, help='Run a campaign on a directory of configs')
+    ap.add_argument('--report', type=str, help='Generate a markdown report for a campaign directory')
     args = ap.parse_args()
     
     if args.inventory:
@@ -178,6 +181,23 @@ def main():
         with open(out_file, "w") as f:
             json.dump(results, f, indent=2)
         print(f"Benchmark results saved to {out_file}")
+        return
+
+    if args.campaign:
+        if not Path(args.campaign).exists():
+            print(f"❌ Campaign directory not found: {args.campaign}", file=sys.stderr)
+            sys.exit(1)
+        manager = CampaignManager(args.campaign)
+        asyncio.run(manager.execute_campaign())
+        return
+        
+    if args.report:
+        if not Path(args.report).exists():
+            print(f"❌ Report directory not found: {args.report}", file=sys.stderr)
+            sys.exit(1)
+        manager = CampaignManager("")
+        manager.output_dir = Path(args.report)
+        manager.generate_report()
         return
         
     ap.print_help()

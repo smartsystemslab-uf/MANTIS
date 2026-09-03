@@ -2,9 +2,9 @@
   "hits": {
     "before_input": 1,
     "after_input": 0,
-    "before_agent": 9,
+    "before_agent": 7,
     "after_agent": 0,
-    "before_message": 11,
+    "before_message": 10,
     "after_message": 0,
     "before_tool": 6,
     "after_tool": 6,
@@ -13,17 +13,18 @@
   },
   "plugin_stats": {
     "input": {
-      "observability_plugin": 1
+      "observability_plugin": 1,
+      "mock_attack": 1
     },
     "agent": {
-      "observability_plugin": 9
+      "observability_plugin": 7
     },
     "interaction": {
-      "observability_plugin": 11,
-      "message_spoofing": 11
+      "observability_plugin": 10
     },
     "tool": {
-      "observability_plugin": 12
+      "observability_plugin": 12,
+      "mock_attack": 12
     },
     "output": {
       "observability_plugin": 1

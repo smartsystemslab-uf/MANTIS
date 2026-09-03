@@ -2,12 +2,12 @@
   "hits": {
     "before_input": 1,
     "after_input": 0,
-    "before_agent": 9,
+    "before_agent": 6,
     "after_agent": 0,
-    "before_message": 11,
+    "before_message": 6,
     "after_message": 0,
-    "before_tool": 6,
-    "after_tool": 6,
+    "before_tool": 3,
+    "after_tool": 3,
     "before_output": 0,
     "after_output": 1
   },
@@ -16,14 +16,14 @@
       "observability_plugin": 1
     },
     "agent": {
-      "observability_plugin": 9
+      "observability_plugin": 6
     },
     "interaction": {
-      "observability_plugin": 11,
-      "message_spoofing": 11
+      "observability_plugin": 6
     },
     "tool": {
-      "observability_plugin": 12
+      "observability_plugin": 6,
+      "tool_parameter_mutation": 6
     },
     "output": {
       "observability_plugin": 1
