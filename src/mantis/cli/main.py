@@ -17,6 +17,8 @@ from mantis.observability.artifacts import create_run_manifest, TraceArtifactWri
 from mantis.observability.plugin import ObservabilityPlugin
 from mantis.observability.otel import setup_otel
 from mantis.observability.mlflow_exporter import MLflowExporter
+from mantis.evaluation.evaluators import TraceEvaluator
+from mantis.benchmark.runner import BenchmarkRunner
 
 def _ser(obj):
     try:
@@ -127,6 +129,8 @@ def main():
     ap.add_argument('--run', type=str, help='Run experiment from YAML configuration file')
     ap.add_argument('--generate-schemas', action='store_true', help='Generate JSON schemas for the configuration models')
     ap.add_argument('--inventory', action='store_true', help='Print system inventory')
+    ap.add_argument('--evaluate', type=str, help='Evaluate a completed run artifact directory')
+    ap.add_argument('--benchmark', type=str, help='Run benchmark on a config file')
     args = ap.parse_args()
     
     if args.inventory:
@@ -144,6 +148,36 @@ def main():
             print(f"❌ Configuration file not found: {args.run}", file=sys.stderr)
             sys.exit(1)
         asyncio.run(run_experiment(args.run))
+        return
+
+    if args.evaluate:
+        if not Path(args.evaluate).exists():
+            print(f"❌ Run directory not found: {args.evaluate}", file=sys.stderr)
+            sys.exit(1)
+        evaluator = TraceEvaluator(args.evaluate)
+        results = evaluator.evaluate_all()
+        print(json.dumps(results, indent=2))
+        
+        # Save evaluation results in the same directory
+        with open(Path(args.evaluate) / "evaluation_results.json", "w") as f:
+            json.dump(results, f, indent=2)
+        return
+
+    if args.benchmark:
+        if not Path(args.benchmark).exists():
+            print(f"❌ Configuration file not found: {args.benchmark}", file=sys.stderr)
+            sys.exit(1)
+        runner = BenchmarkRunner(args.benchmark)
+        results = runner.execute()
+        print(json.dumps(results, indent=2))
+        
+        # Save benchmark results
+        out_dir = Path("results")
+        out_dir.mkdir(exist_ok=True)
+        out_file = out_dir / f"benchmark_{Path(args.benchmark).stem}.json"
+        with open(out_file, "w") as f:
+            json.dump(results, f, indent=2)
+        print(f"Benchmark results saved to {out_file}")
         return
         
     ap.print_help()

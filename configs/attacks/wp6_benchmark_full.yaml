@@ -1,0 +1,14 @@
+experiment:
+  name: wp6_benchmark_full
+  seed: 42
+  domain: front_office
+  workflow: front_office_transaction_execution
+  scenario: front_office_transaction_execution
+
+observability:
+  mode: full
+  export: [jsonl]
+
+benchmark:
+  concurrency: 2
+  repetitions: 4

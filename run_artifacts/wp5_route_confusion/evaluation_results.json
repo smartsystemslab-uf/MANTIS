@@ -1,0 +1,26 @@
+{
+  "trace_completeness": {
+    "score": 1.0,
+    "has_workflow_start": true,
+    "has_workflow_end": true,
+    "has_agent_start": true,
+    "total_events": 21
+  },
+  "tool_use_correctness": {
+    "score": 1.0,
+    "actual_tools": [
+      "search_policies",
+      "submit_manual_review",
+      "transfer_to_agent",
+      "get_transaction_context",
+      "get_customer_context"
+    ],
+    "missing_expected": [],
+    "used_forbidden": []
+  },
+  "workflow_outcome": {
+    "score": 1.0,
+    "expected_outcome": null,
+    "actual_outcome": "completed"
+  }
+}

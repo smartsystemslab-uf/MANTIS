@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-09-03T21:23:56.086413Z",
+  "config_hash": "73706b505d9a36f85ac3851f1a6ba03aed70d9bd5b1fb2dbf92fe357c30057ee",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "wp6_benchmark_full",
+      "seed": 42,
+      "domain": "front_office",
+      "workflow": "front_office_transaction_execution",
+      "scenario": "front_office_transaction_execution"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "benchmark": {
+      "concurrency": 2,
+      "repetitions": 4
+    }
+  }
+}

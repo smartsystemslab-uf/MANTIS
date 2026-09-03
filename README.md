@@ -66,7 +66,7 @@ The Hook Bus is the core of MANTIS's adversarial testing capabilities. It provid
 - [x] **WP3**: Experiment Control Points and Hook Bus (5 interception points)
 - [x] **WP4**: Standard Observability Pipeline (OpenTelemetry, MLflow, JSONL traces)
 - [x] **WP5**: Initial Attack and Failure Plugins (Prompt Injection, Message Spoofing, Route Confusion, Tool Mutation)
-- [ ] **WP6**: Evaluation and Benchmarking
+- [x] **WP6**: Evaluation and Benchmarking (Trace Completeness, Tool Correctness, Overhead plotting)
 - [ ] **WP7**: CLI and Reproducible User Workflow
 - [ ] **WP8**: Tests, Documentation, and Research Release
 
@@ -107,6 +107,14 @@ We provide production-ready verification scripts in the `scripts/` directory to 
 
    ```bash
    ./scripts/demo_wp5_attacks.sh
+   ```
+
+6. **WP6: Evaluation and Benchmarking Demo**
+   Automatically grade the security artifacts for trace completeness and tool correctness, and run latency benchmarks comparing overhead.
+
+   ```bash
+   ./scripts/verify_wp6_evaluation.sh
+   ./scripts/demo_wp6_benchmarks.sh
    ```
 
 ---
