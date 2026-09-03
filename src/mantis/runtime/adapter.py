@@ -3,7 +3,6 @@ from mantis.runtime.interfaces import (
     BankingRuntimeAdapter, BankingSystemInventory, WorkflowSpec, 
     ExperimentConfig, HookBus, RuntimeHandle
 )
-from mantis.banking.runner import run_message
 
 class LegacyBankingHandle:
     def __init__(self, mcp_session=None, mcp_tools=None, hooks: HookBus = None, config: ExperimentConfig = None):
@@ -14,6 +13,7 @@ class LegacyBankingHandle:
 
     async def run_message(self, message: str) -> Any:
         # Wrap the legacy runner execution. For WP3 we pass the HookBus.
+        from mantis.banking.runner import run_message
         from mantis.runtime.plugin import MantisHookPlugin
         plugin = MantisHookPlugin(
             self.hooks, 

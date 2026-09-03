@@ -4,22 +4,16 @@ import json
 import os
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
 import yaml
 
-from mantis.runtime.adapter import NativeBankingAdapter
-from mantis.runtime.interfaces import HookBus
+# --------------------------------------------------------------------------
+# Lightweight imports only. Heavy dependencies (google.adk, mcp, mlflow,
+# banking runtime) are lazy-imported inside the functions that need them so
+# that purely structural CLI commands (--help, --inventory, --generate-schemas,
+# --evaluate) work even when the full ADK stack is not installed (e.g. CI).
+# --------------------------------------------------------------------------
 from mantis.config.models import ExperimentConfig, ObservabilityConfig
 from mantis.core.registry import scenario_registry, plugin_registry
-from mantis.observability.artifacts import create_run_manifest, TraceArtifactWriter
-from mantis.observability.plugin import ObservabilityPlugin
-from mantis.observability.otel import setup_otel
-from mantis.observability.mlflow_exporter import MLflowExporter
-from mantis.evaluation.evaluators import TraceEvaluator
-from mantis.benchmark.runner import BenchmarkRunner
-from mantis.cli.campaign import CampaignManager
 
 def _ser(obj):
     try:
@@ -28,6 +22,19 @@ def _ser(obj):
         return str(obj)
 
 async def run_experiment(config_path: str):
+    # Lazy imports — these pull in google.adk, mcp, mlflow etc.
+    from dotenv import load_dotenv
+    from mcp import ClientSession, StdioServerParameters
+    from mcp.client.stdio import stdio_client
+    from mantis.runtime.adapter import NativeBankingAdapter
+    from mantis.runtime.interfaces import HookBus
+    from mantis.observability.artifacts import create_run_manifest, TraceArtifactWriter
+    from mantis.observability.plugin import ObservabilityPlugin
+    from mantis.observability.otel import setup_otel
+    from mantis.observability.mlflow_exporter import MLflowExporter
+
+    load_dotenv()
+
     with open(config_path, "r") as f:
         config_data = yaml.safe_load(f)
     
@@ -125,8 +132,13 @@ def generate_schemas():
     print(f"Schema successfully generated at {out_file}")
 
 def main():
-    load_dotenv()
-    ap = argparse.ArgumentParser()
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        pass  # dotenv is optional for CI
+
+    ap = argparse.ArgumentParser(prog="mantis", description="MANTIS - Multi-Agent Network Testbed for Instrumentation and Security")
     ap.add_argument('--run', type=str, help='Run experiment from YAML configuration file')
     ap.add_argument('--generate-schemas', action='store_true', help='Generate JSON schemas for the configuration models')
     ap.add_argument('--inventory', action='store_true', help='Print system inventory')
@@ -137,6 +149,7 @@ def main():
     args = ap.parse_args()
     
     if args.inventory:
+        from mantis.runtime.adapter import NativeBankingAdapter
         adapter = NativeBankingAdapter()
         inv = adapter.inventory()
         print(json.dumps(inv.model_dump(), indent=2))
@@ -157,6 +170,7 @@ def main():
         if not Path(args.evaluate).exists():
             print(f"❌ Run directory not found: {args.evaluate}", file=sys.stderr)
             sys.exit(1)
+        from mantis.evaluation.evaluators import TraceEvaluator
         evaluator = TraceEvaluator(args.evaluate)
         results = evaluator.evaluate_all()
         print(json.dumps(results, indent=2))
@@ -170,6 +184,7 @@ def main():
         if not Path(args.benchmark).exists():
             print(f"❌ Configuration file not found: {args.benchmark}", file=sys.stderr)
             sys.exit(1)
+        from mantis.benchmark.runner import BenchmarkRunner
         runner = BenchmarkRunner(args.benchmark)
         results = runner.execute()
         print(json.dumps(results, indent=2))
@@ -187,6 +202,7 @@ def main():
         if not Path(args.campaign).exists():
             print(f"❌ Campaign directory not found: {args.campaign}", file=sys.stderr)
             sys.exit(1)
+        from mantis.cli.campaign import CampaignManager
         manager = CampaignManager(args.campaign)
         asyncio.run(manager.execute_campaign())
         return
@@ -195,6 +211,7 @@ def main():
         if not Path(args.report).exists():
             print(f"❌ Report directory not found: {args.report}", file=sys.stderr)
             sys.exit(1)
+        from mantis.cli.campaign import CampaignManager
         manager = CampaignManager("")
         manager.output_dir = Path(args.report)
         manager.generate_report()
