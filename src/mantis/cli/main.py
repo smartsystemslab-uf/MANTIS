@@ -122,6 +122,95 @@ async def run_experiment(config_path: str):
         print(f"❌ Failed to connect to MCP Server: {e}", file=sys.stderr)
         sys.exit(1)
 
+def validate_config(config_path: str) -> bool:
+    path = Path(config_path)
+    if not path.exists():
+        print(f"❌ Configuration file not found: {config_path}", file=sys.stderr)
+        return False
+    try:
+        with open(path, "r") as f:
+            data = yaml.safe_load(f)
+        cfg = ExperimentConfig(**data)
+        if cfg.experiment.scenario not in scenario_registry.all():
+            print(f"❌ Unknown scenario '{cfg.experiment.scenario}' in registry.", file=sys.stderr)
+            return False
+        if cfg.attack and cfg.attack.plugin:
+            if cfg.attack.plugin not in plugin_registry.all():
+                print(f"❌ Unknown attack plugin '{cfg.attack.plugin}' in registry.", file=sys.stderr)
+                return False
+        print(f"✅ Configuration '{config_path}' is valid (Experiment: {cfg.experiment.name}, Scenario: {cfg.experiment.scenario}).")
+        return True
+    except Exception as e:
+        print(f"❌ Validation failed for '{config_path}': {e}", file=sys.stderr)
+        return False
+
+def inspect_target(target: str):
+    p = Path(target)
+    if p.exists() and p.is_file():
+        with open(p, "r") as f:
+            data = yaml.safe_load(f)
+        cfg = ExperimentConfig(**data)
+        out = {
+            "type": "configuration",
+            "name": cfg.experiment.name,
+            "domain": cfg.experiment.domain,
+            "workflow": cfg.experiment.workflow,
+            "scenario": cfg.experiment.scenario,
+            "seed": cfg.experiment.seed,
+            "attack": cfg.attack.model_dump() if cfg.attack else None,
+            "observability": cfg.observability.model_dump() if cfg.observability else None,
+            "modifications": cfg.modifications.model_dump() if cfg.modifications else None
+        }
+        print(json.dumps(out, indent=2))
+        return
+
+    scenarios = scenario_registry.all()
+    if target in scenarios:
+        out = {
+            "type": "registered_scenario",
+            "scenario_id": target,
+            "prompt": scenarios[target]
+        }
+        print(json.dumps(out, indent=2))
+        return
+
+    plugins = plugin_registry.all()
+    if target in plugins:
+        cls = plugins[target]
+        out = {
+            "type": "registered_plugin",
+            "plugin_id": target,
+            "class": cls.__name__,
+            "supported_stages": list(getattr(cls, "supported_stages", []))
+        }
+        print(json.dumps(out, indent=2, default=str))
+        return
+
+    print(f"❌ Target '{target}' is not a valid file, registered scenario, or registered plugin.", file=sys.stderr)
+    sys.exit(1)
+
+def init_workspace(target_dir: str):
+    p = Path(target_dir)
+    p.mkdir(parents=True, exist_ok=True)
+    configs_dir = p / "configs"
+    configs_dir.mkdir(exist_ok=True)
+    (p / "run_artifacts").mkdir(exist_ok=True)
+    sample_cfg = configs_dir / "sample_experiment.yaml"
+    with open(sample_cfg, "w") as f:
+        f.write("""experiment:
+  name: sample_front_office_run
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+observability:
+  mode: full
+  export:
+    - jsonl
+""")
+    print(f"✅ MANTIS workspace initialized at '{target_dir}' with template config: {sample_cfg}")
+
 def generate_schemas():
     schema = ExperimentConfig.model_json_schema()
     out_dir = Path("configs")
@@ -140,6 +229,9 @@ def main():
 
     ap = argparse.ArgumentParser(prog="mantis", description="MANTIS - Multi-Agent Network Testbed for Instrumentation and Security")
     ap.add_argument('--run', type=str, help='Run experiment from YAML configuration file')
+    ap.add_argument('--validate', type=str, help='Validate experiment YAML configuration file against schema')
+    ap.add_argument('--inspect', type=str, help='Inspect a YAML config, registered scenario, or plugin')
+    ap.add_argument('--init', type=str, help='Initialize a new MANTIS workspace with sample templates')
     ap.add_argument('--generate-schemas', action='store_true', help='Generate JSON schemas for the configuration models')
     ap.add_argument('--inventory', action='store_true', help='Print system inventory')
     ap.add_argument('--evaluate', type=str, help='Evaluate a completed run artifact directory')
@@ -147,6 +239,18 @@ def main():
     ap.add_argument('--campaign', type=str, help='Run a campaign on a directory of configs')
     ap.add_argument('--report', type=str, help='Generate a markdown report for a campaign directory')
     args = ap.parse_args()
+
+    if args.validate:
+        valid = validate_config(args.validate)
+        sys.exit(0 if valid else 1)
+
+    if args.inspect:
+        inspect_target(args.inspect)
+        return
+
+    if args.init:
+        init_workspace(args.init)
+        return
     
     if args.inventory:
         from mantis.runtime.adapter import NativeBankingAdapter

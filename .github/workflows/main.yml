@@ -25,12 +25,32 @@ jobs:
         
     - name: Lint with flake8
       run: |
-        pip install flake8
         # stop the build if there are Python syntax errors or undefined names
         flake8 src tests --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings
         flake8 src tests --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         
-    - name: Test with pytest
+    - name: Unit Tests
       run: |
-        pytest tests/unit/
+        pytest tests/unit/ -v
+        
+    - name: Baseline Refactor Guard Tests (WP0 Invariants)
+      run: |
+        pytest refactor_guard_tests/ -v
+        
+    - name: Artifact & Schema Validation
+      run: |
+        mantis --generate-schemas
+        mantis --validate configs/baselines/front_office_baseline.yaml
+        mantis --validate configs/baselines/mid_office_baseline.yaml
+        mantis --validate configs/baselines/back_office_baseline.yaml
+        mantis --validate configs/attacks/advanced_attack_test.yaml
+        mantis --validate configs/attacks/wp5_prompt_injection.yaml
+        mantis --validate configs/attacks/wp5_message_spoofing.yaml
+        mantis --validate configs/attacks/wp5_route_confusion.yaml
+        mantis --validate configs/attacks/wp5_tool_mutation.yaml
+
+    - name: Quickstart Pipeline Verification
+      run: |
+        chmod +x scripts/quickstart.sh
+        ./scripts/quickstart.sh

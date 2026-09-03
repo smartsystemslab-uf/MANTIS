@@ -9,10 +9,10 @@
   "tool_use_correctness": {
     "score": 1.0,
     "actual_tools": [
-      "get_transaction_context",
       "get_customer_context",
       "search_policies",
       "transfer_to_agent",
+      "get_transaction_context",
       "submit_manual_review"
     ],
     "missing_expected": [],

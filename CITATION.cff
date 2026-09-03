@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it as below."
+title: "MANTIS: Modular Agent Network Testbed for Instrumentation and Security"
+version: 0.1.0
+date-released: 2026-09-03
+url: "https://github.com/smartsystemslab-uf/MANTIS"
+repository-code: "https://github.com/smartsystemslab-uf/MANTIS"
+license: Apache-2.0
+type: software
+authors:
+  - name: "Smart Systems Lab - University of Florida"
+keywords:
+  - "multi-agent systems"
+  - "adversarial security"
+  - "agentic ai"
+  - "observability"
+  - "benchmarking"
+  - "banking testbed"
+abstract: >-
+  MANTIS is a modular, observable multi-agent security testbed for configuring
+  agents, workflows, tools, attacks, and failures, with end-to-end tracing,
+  evaluation, and reproducible benchmarking across banking multi-agent operations.

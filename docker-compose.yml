@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  banking_backend:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM python:3.12-slim
+        WORKDIR /app
+        COPY citi_banking_backend /app/citi_banking_backend
+        RUN pip install --no-cache-dir fastapi uvicorn pydantic requests
+        EXPOSE 8000
+        CMD ["uvicorn", "citi_banking_backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  mantis:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM python:3.12-slim
+        WORKDIR /workspace
+        RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
+        COPY . /workspace
+        RUN pip install --no-cache-dir -e .
+        ENV CITI_BACKEND_URL=http://banking_backend:8000
+        CMD ["mantis", "--help"]
+    depends_on:
+      banking_backend:
+        condition: service_healthy
+    volumes:
+      - ./run_artifacts:/workspace/run_artifacts
+      - ./results:/workspace/results
