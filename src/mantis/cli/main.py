@@ -11,9 +11,12 @@ import yaml
 
 from mantis.runtime.adapter import NativeBankingAdapter
 from mantis.runtime.interfaces import HookBus
-from mantis.config.models import ExperimentConfig
+from mantis.config.models import ExperimentConfig, ObservabilityConfig
 from mantis.core.registry import scenario_registry, plugin_registry
-from mantis.observability.artifacts import create_run_manifest
+from mantis.observability.artifacts import create_run_manifest, TraceArtifactWriter
+from mantis.observability.plugin import ObservabilityPlugin
+from mantis.observability.otel import setup_otel
+from mantis.observability.mlflow_exporter import MLflowExporter
 
 def _ser(obj):
     try:
@@ -60,6 +63,27 @@ async def run_experiment(config_path: str):
                 
                 # Setup HookBus and register plugins
                 hooks = HookBus()
+                
+                obs_config = config.observability or ObservabilityConfig()
+                if obs_config.mode != "off":
+                    trace_writer = TraceArtifactWriter(str(output_dir))
+                    obs_plugin = ObservabilityPlugin(trace_writer)
+                    hooks.register(obs_plugin)
+                    
+                    if "mlflow" in obs_config.export:
+                        mlflow_exporter = MLflowExporter()
+                        # Use directory name as config_hash for now, since manifest path is generated
+                        mlflow_exporter.start_run(
+                            run_name=config.experiment.name,
+                            config_hash=output_dir.name,
+                            seed=config.experiment.seed
+                        )
+                    else:
+                        mlflow_exporter = None
+                        
+                    if "otel" in obs_config.export:
+                        setup_otel(service_name=f"mantis-{config.experiment.name}")
+
                 if config.attack and config.attack.plugin:
                     try:
                         plugin_cls = plugin_registry.get(config.attack.plugin)
@@ -75,6 +99,10 @@ async def run_experiment(config_path: str):
                 
                 # Write coverage report
                 hooks.write_coverage(str(output_dir / "hook_coverage.json"))
+                
+                if obs_config.mode != "off" and "mlflow" in obs_config.export and mlflow_exporter:
+                    mlflow_exporter.log_artifact(str(output_dir / "traces.jsonl"))
+                    mlflow_exporter.end_run()
                 
                 print(json.dumps({scenario_id: _ser(res)}, indent=2, ensure_ascii=False))
 

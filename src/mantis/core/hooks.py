@@ -78,6 +78,9 @@ class HookBus:
             if ctx.stage in plugin.supported_stages:
                 # Update payload in case it was mutated by a previous plugin in the chain
                 ctx_copy = ctx.model_copy(update={"payload": current_payload})
+                if ctx_copy.metadata is None:
+                    ctx_copy.metadata = {}
+                ctx_copy.metadata["specific_hook"] = specific_hook
                 try:
                     result = plugin.apply(ctx_copy)
                     plugins_applied.append(plugin.name)

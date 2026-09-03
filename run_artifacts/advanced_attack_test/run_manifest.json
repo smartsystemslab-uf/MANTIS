@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-03T19:38:19.663490Z",
-  "config_hash": "6476510d8efa25231c99107ae0d35d83d5a26baf61afd8d850aef4e6e0d3eeed",
+  "timestamp": "2026-09-03T19:58:08.670552Z",
+  "config_hash": "e7db6366f4b551fff72312b6c8f676535b068e0cd3f92499119a03e4f70a4887",
   "seed": 42,
   "config": {
     "experiment": {
@@ -25,6 +25,14 @@
       "parameters": {
         "payload_file": "attacks/prompt_01.txt"
       }
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "mlflow",
+        "jsonl",
+        "otel"
+      ]
     }
   }
 }

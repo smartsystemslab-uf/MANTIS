@@ -60,14 +60,15 @@ The Hook Bus is the core of MANTIS's adversarial testing capabilities. It provid
 
 ### Project Roadmap
 
-- [x] **WP1: Modularize the Banking Multi-Agent Testbed**: Restructured the project from an application to a reusable research framework.
-- [x] **WP2: Configuration, Schemas, and Registries**: Implemented a YAML-driven experiment configuration engine (`mantis --run`).
-- [x] **WP3: Experiment Control Points and Hook Bus**: Built the `HookBus` allowing dynamic interception and mutation of the multi-agent graph at 5 strategic lifecycles (`input`, `agent`, `interaction`, `tool`, `output`).
-- [ ] **WP4: Standard Observability Pipeline**: Emit MLflow, OpenTelemetry, and structured JSONL traces containing security assertions.
-- [ ] **WP5: Initial Attack and Failure Plugins**: Implement Prompt Injection, Message Spoofing, Route Confusion, and Parameter Mutation plugins.
-- [ ] **WP6: Evaluation and Benchmarking**: Scripts to aggregate and grade attack success vs system reliability.
-- [ ] **WP7: CLI and Reproducible User Workflow**: High-level execution of full test campaigns.
-- [ ] **WP8: Tests, Documentation, and Research Release**: Ensure CI/CD stability and reproducibility.
+- [x] **WP0**: Freeze and Characterize the Baseline (49 Regression Tests)
+- [x] **WP1**: Modularize the Banking Multi-Agent Testbed (NativeBankingAdapter)
+- [x] **WP2**: Configuration, Schemas, and Registries (YAML config, schema generation)
+- [x] **WP3**: Experiment Control Points and Hook Bus (5 interception points)
+- [x] **WP4**: Standard Observability Pipeline (OpenTelemetry, MLflow, JSONL traces)
+- [ ] **WP5**: Initial Attack and Failure Plugins
+- [ ] **WP6**: Evaluation and Benchmarking
+- [ ] **WP7**: CLI and Reproducible User Workflow
+- [ ] **WP8**: Tests, Documentation, and Research Release
 
 ---
 
@@ -92,6 +93,14 @@ We provide production-ready verification scripts in the `scripts/` directory to 
    ./scripts/demo_wp3_hooks.sh
    ```
    *Highlights the invisible integration of the HookBus by deploying a Mock Attack plugin that intercepts a live ADK tool call, maliciously mutates the `customer_id` parameter, and records coverage stats—without altering core business logic.*
+
+4. **WP4: Observability Pipeline Demo**
+   Demonstrates the standardized JSONL traces, OpenTelemetry span extraction, and MLflow exporter via the new `ObservabilityPlugin`.
+
+   ```bash
+   ./scripts/verify_wp4_observability.sh
+   cat run_artifacts/advanced_attack_test/traces.jsonl | jq
+   ```
 
 ---
 

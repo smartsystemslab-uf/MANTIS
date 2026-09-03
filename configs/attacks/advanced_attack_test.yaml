@@ -15,3 +15,10 @@ attack:
   target: transaction_monitoring_agent
   parameters:
     payload_file: attacks/prompt_01.txt
+
+observability:
+  mode: full
+  export:
+    - mlflow
+    - jsonl
+    - otel
