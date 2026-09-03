@@ -4,7 +4,37 @@ MANTIS is a modular, observable multi-agent security testbed for configuring age
 
 Currently, MANTIS focuses on banking multi-agent architectures (spanning Front, Mid, and Back-Office workflows) as the primary application domain for security evaluation. The ultimate goal of this platform is to provide a robust **testbed to conduct mock attacks (e.g., prompt injections), capture outputs, and evaluate AI agent failures under adversarial conditions.**
 
+**At a glance:** 3 banking domains &middot; 31 agents &middot; 19+ tools &middot; 5 control points &middot; 4 attack plugins &middot; 3 observability export targets &middot; 0 source edits needed to run an experiment.
+
 ---
+
+## Architecture
+
+Every run passes through the same five-point hook bus regardless of domain. An attack or failure plugin declares which point it targets in YAML — the banking agent boxes never change.
+
+```mermaid
+flowchart TD
+    CFG["experiment.yaml"] --> ORCH["Orchestrator<br/>run_id · seed · lifecycle"]
+    ORCH --> HOOKS
+
+    subgraph HOOKS["Hook Bus — 5 control points"]
+        direction LR
+        H1((Input)) --- H2((Agent)) --- H3((Interaction)) --- H4((Tool)) --- H5((Output))
+    end
+
+    HOOKS -. attaches to any point .-> PLUGIN["Attack / Failure Plugin"]
+    HOOKS -->|instruments, unmodified| BANK
+
+    subgraph BANK["Banking Multi-Agent Testbed"]
+        direction LR
+        FO["Front Office"]
+        MO["Mid Office"]
+        BO["Back Office"]
+    end
+
+    BANK -->|emits events| OBS["Observability<br/>OTel · MLflow · JSONL"]
+    OBS --> EVAL["Evaluator · Benchmark · Report"]
+```
 
 ## Repository Structure
 
@@ -161,28 +191,58 @@ To write a new attack for MANTIS, implement a plugin class with `name`, `support
 
 ## Running MANTIS for Mock Attacks
 
-If you are a security researcher or developer setting up a mock attack, you drive the MANTIS system entirely via YAML files.
+If you are a security researcher or developer setting up a mock attack, you drive the MANTIS system entirely via YAML files. Start the backend first, in a separate terminal:
 
-### Step-by-step Execution:
+```bash
+cd citi_banking_backend
+source scripts/run_server.sh
+# (Or: python -m uvicorn app.main:app --host 127.0.0.1 --port 8000)
+```
 
-1. **Start the Banking Backend** (in a separate terminal)
+Then, from the repo root:
+
+1. **Inspect the real system** — introspected from the live tool modules and agent registry, not a hand-typed list.
    ```bash
-   cd citi_banking_backend
-   source scripts/run_server.sh
-   # (Or: python -m uvicorn app.main:app --host 127.0.0.1 --port 8000)
+   mantis --inventory | jq '.agents | length, .tools | length, .domains | keys'
+   # 31
+   # 19
+   # ["front_office", "mid_office", "back_office"]
    ```
 
-2. **Execute an Experiment Configuration**
+2. **Validate the config before it runs** — domain, workflow, scenario, attack target, and control point are all checked against the real registries, so a typo fails here instead of mid-run.
    ```bash
-   # Run a standard baseline
+   mantis --validate configs/attacks/wp5_route_confusion.yaml
+   # ✅ Configuration is valid (Experiment: wp5_route_confusion, Scenario: front_office_monitoring)
+   ```
+
+3. **Run the clean baseline first**
+   ```bash
    mantis --run configs/baselines/front_office_baseline.yaml
-
-   # Or, run an adversarial injection test (Requires WP3/WP5 completion)
-   mantis --run configs/attacks/advanced_attack_test.yaml
    ```
 
-3. **Analyze the Results**
-   MANTIS will output the live LLM trace to stdout, and securely dump a `run_manifest.json` into the `run_artifacts/` directory containing the random seed and a cryptographic SHA256 hash of your configuration.
+4. **Inject the attack** — same scenario; this plugin forces the front-office router to skip compliance and jump straight to the decision agent.
+   ```bash
+   mantis --run configs/attacks/wp5_route_confusion.yaml
+   ```
+
+5. **Show the interception happened** — machine-readable proof the plugin fired at the declared control point.
+   ```bash
+   jq '.plugin_stats.tool' run_artifacts/wp5_route_confusion/hook_coverage.json
+   ```
+
+6. **Score it automatically** — the evaluator reads the trace and reports the real terminal state.
+   ```bash
+   mantis --evaluate run_artifacts/wp5_route_confusion
+   # "workflow_outcome": { "score": 1.0, "actual_outcome": "manual_review" }
+   ```
+
+7. **Sweep every attack config and get one report**
+   ```bash
+   mantis --campaign configs/attacks/
+   mantis --report run_artifacts/campaign_run_<timestamp>
+   ```
+
+Every run dumps a `run_manifest.json` into `run_artifacts/<name>/` with the seed and a SHA-256 hash of the config, plus `traces.jsonl` and `hook_coverage.json` alongside it.
 
 ---
 
