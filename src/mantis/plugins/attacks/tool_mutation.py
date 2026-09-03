@@ -1,4 +1,4 @@
-from mantis.core.hooks import HookContext, HookAction, HookResult
+from mantis.hooks import HookContext, HookAction, HookResult
 
 class ToolParameterMutationPlugin:
     name = "tool_parameter_mutation"

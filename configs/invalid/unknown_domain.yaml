@@ -1,0 +1,6 @@
+experiment:
+  name: unknown_domain_test
+  seed: 42
+  domain: DOES_NOT_EXIST
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring

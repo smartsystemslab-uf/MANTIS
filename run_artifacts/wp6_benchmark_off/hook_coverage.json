@@ -1,14 +1,14 @@
 {
   "hits": {
     "before_input": 1,
-    "after_input": 0,
+    "after_input": 1,
     "before_agent": 6,
-    "after_agent": 0,
+    "after_agent": 4,
     "before_message": 6,
-    "after_message": 0,
+    "after_message": 6,
     "before_tool": 3,
     "after_tool": 3,
-    "before_output": 0,
+    "before_output": 1,
     "after_output": 1
   },
   "plugin_stats": {

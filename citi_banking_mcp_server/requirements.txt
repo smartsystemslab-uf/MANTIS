@@ -1,3 +1,4 @@
 mcp
 httpx
 python-dotenv
+pytest-asyncio

@@ -33,6 +33,29 @@ def test_cli_validate_invalid():
     result = subprocess.run(["mantis", "--validate", "configs/invalid/unknown_scenario.yaml"], capture_output=True, text=True)
     assert result.returncode != 0
 
+def test_cli_validate_invalid_domain():
+    result = subprocess.run(["mantis", "--validate", "configs/invalid/unknown_domain.yaml"], capture_output=True, text=True)
+    assert result.returncode != 0
+    assert "domain" in result.stderr.lower()
+
+def test_cli_validate_invalid_attack_target():
+    result = subprocess.run(["mantis", "--validate", "configs/invalid/unknown_attack_target.yaml"], capture_output=True, text=True)
+    assert result.returncode != 0
+    assert "target" in result.stderr.lower()
+
+def test_cli_inventory_reflects_real_banking_system():
+    result = subprocess.run(["mantis", "--inventory"], capture_output=True, text=True)
+    assert result.returncode == 0
+    data = json.loads(result.stdout)
+    # Regression guard: inventory() must not silently revert to the old
+    # 4-agent/2-tool hardcoded stub.
+    assert "execute_transfer" in data["tools"]
+    assert "get_customer_context" in data["tools"]
+    assert "front_office_router" in data["agents"]
+    assert len(data["agents"]) > 4
+    assert len(data["tools"]) > 2
+    assert set(data["domains"].keys()) == {"front_office", "mid_office", "back_office"}
+
 def test_cli_inspect_scenario():
     result = subprocess.run(["mantis", "--inspect", "front_office_monitoring"], capture_output=True, text=True)
     assert result.returncode == 0

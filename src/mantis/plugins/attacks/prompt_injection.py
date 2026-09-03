@@ -1,5 +1,5 @@
 import os
-from mantis.core.hooks import HookContext, HookAction, HookResult
+from mantis.hooks import HookContext, HookAction, HookResult
 
 class PromptInjectionPlugin:
     name = "prompt_injection"

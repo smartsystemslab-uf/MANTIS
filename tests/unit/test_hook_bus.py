@@ -1,5 +1,5 @@
 import pytest
-from mantis.core.hooks import HookBus, HookContext, HookAction, HookResult, ExperimentPlugin
+from mantis.hooks import HookBus, HookContext, HookAction, HookResult, ExperimentPlugin
 
 class MockAttackPlugin:
     name = "mock_attack"

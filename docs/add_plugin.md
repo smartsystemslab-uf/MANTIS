@@ -12,7 +12,7 @@ Every plugin must define:
 3. `apply(ctx: HookContext) -> HookResult`: Core interception logic.
 
 ```python
-from mantis.core.hooks import HookContext, HookAction, HookResult
+from mantis.hooks import HookContext, HookAction, HookResult
 
 class CustomDelayPlugin:
     name = "custom_delay"

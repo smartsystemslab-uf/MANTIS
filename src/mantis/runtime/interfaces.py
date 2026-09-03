@@ -5,13 +5,16 @@ class BankingSystemInventory(BaseModel):
     agents: list[str] = []
     tools: list[str] = []
     workflows: list[str] = []
+    # Domain -> {"agents": [...], "tools": [...]} breakdown, so an inventory
+    # can be produced by banking domain as well as flat lists.
+    domains: dict[str, dict[str, list[str]]] = {}
 
 class WorkflowSpec(BaseModel):
     id: str
     description: str
 
 from mantis.config.models import ExperimentConfig
-from mantis.core.hooks import HookBus
+from mantis.hooks import HookBus
 
 class RuntimeHandle(Protocol):
     async def run_message(self, message: str) -> Any: ...

@@ -41,32 +41,32 @@ plugin_registry.register("route_confusion", RouteConfusionPlugin)
 plugin_registry.register("tool_mutation", ToolParameterMutationPlugin)
 plugin_registry.register("reliability_failure", ReliabilityFailurePlugin)
 
-# Register the base scenarios
-scenario_registry.register(
-    "front_office_monitoring",
-    "Review transaction TXN-1001 for customer CUST-001. Run the front-office transaction monitoring, fraud, and compliance workflow and decide whether to approve or send to manual review."
-)
-scenario_registry.register(
-    "front_office_chatbot",
-    "Customer asks: How do I dispute a debit card transaction and what is the expected timeline?"
-)
-scenario_registry.register(
-    "front_office_transaction_execution",
-    "Customer service request: Transfer 125.50 USD from source account CHK-002 to destination account EXT-998 for customer CUST-002 with memo Utility backup payment."
-)
-scenario_registry.register(
-    "mid_office_planning",
-    "Use the mid-office planning workflow to analyze operations data for 2026-04-21, forecast workload, propose staffing, validate it, and provide support guidance."
-)
-scenario_registry.register(
-    "mid_office_rep_assist",
-    "Representative assist request for customer CUST-001. Provide customer data, a product suggestion for idle cash, loan guidance for a home equity inquiry, and policy/risk checks."
-)
-scenario_registry.register(
-    "back_office_clean",
-    "Core banking system event: Run end-of-day processing for batch EOD-2026-04-21-CLEAN and complete reconciliation and reporting."
-)
-scenario_registry.register(
-    "back_office_mismatch",
-    "Core banking system event: Run end-of-day processing for batch EOD-2026-04-21-MISMATCH and handle any reconciliation mismatch according to the workflow."
-)
+# Banking-specific data (which agents belong to which domain, scenario
+# prompts, workflow->domain mapping) lives under mantis.banking -- this
+# module only wires it into the shared registries. Keeps shared MANTIS
+# infrastructure free of hardcoded banking branches (WP1 acceptance
+# criterion) while still registering banking as the primary domain.
+from mantis.banking.domains import DOMAIN_AGENTS
+from mantis.banking.scenarios import SCENARIOS
+from mantis.banking.workflows import WORKFLOW_DOMAINS
+
+for _domain_name, _agents in DOMAIN_AGENTS.items():
+    domain_registry.register(_domain_name, {"agents": _agents})
+
+for _scenario_id, _prompt in SCENARIOS.items():
+    scenario_registry.register(_scenario_id, _prompt)
+
+for _workflow_id, _domain_name in WORKFLOW_DOMAINS.items():
+    workflow_registry.register(_workflow_id, _domain_name)
+
+# Lightweight metadata only -- no imports of mantis.observability.* here, so
+# that importing mantis.core.registry never pulls in mlflow/opentelemetry
+# (the CLI must boot without the full observability/ADK stack for commands
+# like --validate, --inventory, --generate-schemas).
+exporter_registry.register("jsonl", {"description": "Portable JSONL trace artifacts", "module": "mantis.observability.artifacts:TraceArtifactWriter"})
+exporter_registry.register("mlflow", {"description": "MLflow experiment tracking export", "module": "mantis.observability.mlflow_exporter:MLflowExporter"})
+exporter_registry.register("otel", {"description": "OpenTelemetry span export", "module": "mantis.observability.otel:setup_otel"})
+
+evaluator_registry.register("trace_completeness", {"description": "Checks mandatory workflow/agent events are present", "module": "mantis.evaluation.evaluators:TraceEvaluator.evaluate_completeness"})
+evaluator_registry.register("tool_use_correctness", {"description": "Checks expected/forbidden tool usage", "module": "mantis.evaluation.evaluators:TraceEvaluator.evaluate_tool_use"})
+evaluator_registry.register("workflow_outcome", {"description": "Checks the terminal state against expected_terminal_state", "module": "mantis.evaluation.evaluators:TraceEvaluator.evaluate_workflow_outcome"})

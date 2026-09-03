@@ -1,1 +1,1 @@
-[{"mode": "off", "avg_latency_s": 18.653786838054657, "concurrency": 2}, {"mode": "full", "avg_latency_s": 22.324045479297638, "concurrency": 2}]
+[{"mode": "off", "avg_latency_s": 17.845486760139465, "concurrency": 2}, {"mode": "full", "avg_latency_s": 16.991252660751343, "concurrency": 2}]

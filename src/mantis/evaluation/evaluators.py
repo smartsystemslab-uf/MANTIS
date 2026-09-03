@@ -28,17 +28,28 @@ class TraceEvaluator:
         has_workflow_start = "WORKFLOW_START" in event_types
         has_workflow_end = "WORKFLOW_END" in event_types
         has_agent_start = "AGENT_START" in event_types
-        
-        # Tools are not strictly required if the workflow didn't need them, 
+
+        # Tools are not strictly required if the workflow didn't need them,
         # but for MANTIS testbed we expect at least some events if it ran successfully.
-        
+
         is_complete = has_workflow_start and has_workflow_end and has_agent_start
+
+        domain = None
+        workflow_id = None
+        for e in self.events:
+            if e.get("event_type") == "WORKFLOW_START":
+                domain = e.get("business_domain")
+                workflow_id = e.get("workflow_id")
+                break
+
         return {
             "score": 1.0 if is_complete else 0.0,
             "has_workflow_start": has_workflow_start,
             "has_workflow_end": has_workflow_end,
             "has_agent_start": has_agent_start,
-            "total_events": len(self.events)
+            "total_events": len(self.events),
+            "business_domain": domain,
+            "workflow_id": workflow_id,
         }
 
     def evaluate_tool_use(self) -> Dict[str, Any]:

@@ -1,31 +1,31 @@
 {
   "hits": {
     "before_input": 1,
-    "after_input": 0,
+    "after_input": 1,
     "before_agent": 8,
-    "after_agent": 0,
+    "after_agent": 6,
     "before_message": 12,
-    "after_message": 0,
+    "after_message": 12,
     "before_tool": 7,
     "after_tool": 7,
-    "before_output": 0,
+    "before_output": 1,
     "after_output": 1
   },
   "plugin_stats": {
     "input": {
-      "observability_plugin": 1
+      "observability_plugin": 2
     },
     "agent": {
-      "observability_plugin": 8
+      "observability_plugin": 14
     },
     "interaction": {
-      "observability_plugin": 12
+      "observability_plugin": 24
     },
     "tool": {
       "observability_plugin": 14
     },
     "output": {
-      "observability_plugin": 1
+      "observability_plugin": 2
     }
   }
 }

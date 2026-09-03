@@ -1,0 +1,12 @@
+experiment:
+  name: unknown_attack_target_test
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+attack:
+  plugin: prompt_injection
+  control_point: input
+  target: DOES_NOT_EXIST_AGENT
+  parameters: {}

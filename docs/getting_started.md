@@ -52,6 +52,17 @@ This script:
 
 ## 4. Running a Live Experiment
 
+### Step 0: Configure Model Access
+Live runs call a real LLM, so a model API key is required (not needed for `--validate`, `--inventory`, `--generate-schemas`, or `--evaluate`, which all work offline).
+
+```bash
+cp .env.example .env
+# edit .env and set UF_NAVIGATOR_API_KEY (or point UF_NAVIGATOR_BASE_URL /
+# UF_NAVIGATOR_MODEL at a different OpenAI-compatible endpoint)
+```
+
+There is no default key baked into the code — `mantis --run` will fail with an authentication error until this is set.
+
 ### Step 1: Start the Banking Backend
 In a separate terminal:
 ```bash

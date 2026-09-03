@@ -7,7 +7,9 @@ from mantis.observability.events import (
     WorkflowEvent,
     AgentEvent,
     ToolEvent,
+    InteractionEvent,
     SecurityEvent,
+    EvaluationEvent,
 )
 from mantis.observability.artifacts import TraceArtifactWriter, create_run_manifest
 from mantis.config.models import ExperimentConfig, ExperimentMetadata
@@ -29,6 +31,39 @@ def test_event_serialization_and_types():
     assert data["arguments"]["customer_id"] == "CUST-001"
     assert data["risk_level"] == "high"
     assert data["financial_side_effect"] is False
+
+
+def test_tool_event_carries_arguments_hash_not_just_raw_args():
+    event = ToolEvent(
+        event_type=EventType.TOOL_CALL,
+        run_id="run-001",
+        tool_name="execute_transfer",
+        arguments={"customer_id": "CUST-001", "amount": 9200},
+    )
+    data = json.loads(event.model_dump_json())
+    assert data["arguments_hash"] is not None
+    assert len(data["arguments_hash"]) == 64  # SHA256 hex digest
+
+
+def test_interaction_and_evaluation_events_serialize():
+    interaction = InteractionEvent(
+        event_type=EventType.MESSAGE_SEND,
+        run_id="run-001",
+        agent_id="fraud_detection_agent",
+        content_hash="abc123",
+    )
+    assert json.loads(interaction.model_dump_json())["event_type"] == "MESSAGE_SEND"
+
+    evaluation = EvaluationEvent(
+        event_type=EventType.EVALUATION_RESULT,
+        run_id="run-001",
+        evaluator="TraceEvaluator",
+        metric="tool_use_correctness",
+        score=1.0,
+    )
+    data = json.loads(evaluation.model_dump_json())
+    assert data["event_type"] == "EVALUATION_RESULT"
+    assert data["score"] == 1.0
 
 
 def test_trace_artifact_writer(tmp_path: Path):

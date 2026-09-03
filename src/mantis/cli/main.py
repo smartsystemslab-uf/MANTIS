@@ -13,7 +13,9 @@ import yaml
 # --evaluate) work even when the full ADK stack is not installed (e.g. CI).
 # --------------------------------------------------------------------------
 from mantis.config.models import ExperimentConfig, ObservabilityConfig
-from mantis.core.registry import scenario_registry, plugin_registry
+from mantis.core.registry import scenario_registry, plugin_registry, domain_registry, workflow_registry
+
+VALID_CONTROL_POINTS = {"input", "agent", "interaction", "tool", "output"}
 
 def _ser(obj):
     try:
@@ -70,7 +72,8 @@ async def run_experiment(config_path: str):
                 tools_response = await session.list_tools()
                 
                 adapter = NativeBankingAdapter(mcp_session=session, mcp_tools=tools_response.tools)
-                
+                adapter.reset(config.experiment.seed)
+
                 # Setup HookBus and register plugins
                 hooks = HookBus()
                 
@@ -131,12 +134,27 @@ def validate_config(config_path: str) -> bool:
         with open(path, "r") as f:
             data = yaml.safe_load(f)
         cfg = ExperimentConfig(**data)
+        if cfg.experiment.domain not in domain_registry.all():
+            print(f"❌ Unknown domain '{cfg.experiment.domain}'. Available: {list(domain_registry.all().keys())}", file=sys.stderr)
+            return False
+        if cfg.experiment.workflow not in workflow_registry.all():
+            print(f"❌ Unknown workflow '{cfg.experiment.workflow}'. Available: {list(workflow_registry.all().keys())}", file=sys.stderr)
+            return False
         if cfg.experiment.scenario not in scenario_registry.all():
             print(f"❌ Unknown scenario '{cfg.experiment.scenario}' in registry.", file=sys.stderr)
             return False
-        if cfg.attack and cfg.attack.plugin:
+        if cfg.attack:
             if cfg.attack.plugin not in plugin_registry.all():
                 print(f"❌ Unknown attack plugin '{cfg.attack.plugin}' in registry.", file=sys.stderr)
+                return False
+            if cfg.attack.control_point not in VALID_CONTROL_POINTS:
+                print(f"❌ Unknown control_point '{cfg.attack.control_point}'. Must be one of: {sorted(VALID_CONTROL_POINTS)}", file=sys.stderr)
+                return False
+            from mantis.runtime.adapter import NativeBankingAdapter
+            inv = NativeBankingAdapter().inventory()
+            valid_targets = set(inv.agents) | set(inv.tools)
+            if cfg.attack.target not in valid_targets:
+                print(f"❌ Unknown attack target '{cfg.attack.target}'. Must be a known agent or tool.", file=sys.stderr)
                 return False
         print(f"✅ Configuration '{config_path}' is valid (Experiment: {cfg.experiment.name}, Scenario: {cfg.experiment.scenario}).")
         return True
@@ -275,13 +293,31 @@ def main():
             print(f"❌ Run directory not found: {args.evaluate}", file=sys.stderr)
             sys.exit(1)
         from mantis.evaluation.evaluators import TraceEvaluator
+        from mantis.observability.events import EventType, EvaluationEvent
+        from mantis.observability.artifacts import append_trace_events
         evaluator = TraceEvaluator(args.evaluate)
         results = evaluator.evaluate_all()
         print(json.dumps(results, indent=2))
-        
+
         # Save evaluation results in the same directory
         with open(Path(args.evaluate) / "evaluation_results.json", "w") as f:
             json.dump(results, f, indent=2)
+
+        if "error" not in results:
+            run_id = Path(args.evaluate).name
+            eval_events = [
+                EvaluationEvent(
+                    event_type=EventType.EVALUATION_RESULT,
+                    run_id=run_id,
+                    evaluator="TraceEvaluator",
+                    metric=metric_name,
+                    score=metric_result.get("score", 0.0),
+                    evidence_ref="evaluation_results.json",
+                )
+                for metric_name, metric_result in results.items()
+                if isinstance(metric_result, dict) and "score" in metric_result
+            ]
+            append_trace_events(args.evaluate, eval_events)
         return
 
     if args.benchmark:

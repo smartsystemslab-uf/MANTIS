@@ -1,5 +1,5 @@
 import pytest
-from mantis.core.hooks import HookContext, HookAction, HookResult
+from mantis.hooks import HookContext, HookAction, HookResult
 from mantis.plugins.attacks.prompt_injection import PromptInjectionPlugin
 from mantis.plugins.attacks.message_spoofing import MessageSpoofingPlugin
 from mantis.plugins.attacks.route_confusion import RouteConfusionPlugin
