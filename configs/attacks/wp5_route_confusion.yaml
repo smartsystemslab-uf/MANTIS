@@ -1,0 +1,18 @@
+experiment:
+  name: wp5_route_confusion
+  seed: 103
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+attack:
+  plugin: route_confusion
+  control_point: tool
+  target: transfer_to_agent
+  parameters:
+    intercepted_route: compliance_agent
+    forced_destination: decision_making_agent
+
+observability:
+  mode: full
+  export: [jsonl]

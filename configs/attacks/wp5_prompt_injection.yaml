@@ -1,0 +1,18 @@
+experiment:
+  name: wp5_prompt_injection
+  seed: 101
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+attack:
+  plugin: prompt_injection
+  control_point: input
+  target: transaction_monitoring_agent
+  parameters:
+    payload_file: attacks/prompt_01.txt
+    target_agent: transaction_monitoring_agent
+
+observability:
+  mode: full
+  export: [jsonl]

@@ -1,0 +1,32 @@
+{
+  "hits": {
+    "before_input": 1,
+    "after_input": 0,
+    "before_agent": 9,
+    "after_agent": 0,
+    "before_message": 12,
+    "after_message": 0,
+    "before_tool": 7,
+    "after_tool": 7,
+    "before_output": 0,
+    "after_output": 1
+  },
+  "plugin_stats": {
+    "input": {
+      "observability_plugin": 1
+    },
+    "agent": {
+      "observability_plugin": 9
+    },
+    "interaction": {
+      "observability_plugin": 12,
+      "message_spoofing": 12
+    },
+    "tool": {
+      "observability_plugin": 14
+    },
+    "output": {
+      "observability_plugin": 1
+    }
+  }
+}
