@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-09-03T21:45:07.712714Z",
+  "config_hash": "c04a8bd227ed7e1c4d7a7e869ea7b65db1f29fc31d5451528cd4e131070618c2",
+  "seed": 101,
+  "config": {
+    "experiment": {
+      "name": "wp5_prompt_injection",
+      "seed": 101,
+      "domain": "front_office",
+      "workflow": "front_office_monitoring",
+      "scenario": "front_office_monitoring"
+    },
+    "attack": {
+      "plugin": "prompt_injection",
+      "control_point": "input",
+      "target": "transaction_monitoring_agent",
+      "parameters": {
+        "payload_file": "attacks/prompt_01.txt",
+        "target_agent": "transaction_monitoring_agent"
+      }
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    }
+  }
+}

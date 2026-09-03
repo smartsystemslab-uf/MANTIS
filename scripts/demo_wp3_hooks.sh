@@ -46,7 +46,7 @@ echo "Coverage Report Generated:"
 cat "$COVERAGE_FILE"
 echo ""
 
-if grep -q "mock_attack" "$COVERAGE_FILE"; then
+if grep -q "prompt_injection" "$COVERAGE_FILE"; then
     echo "SUCCESS: The Hook Bus successfully injected and executed the attack plugin during runtime!"
 else
     echo "❌ ERROR: The attack plugin was not executed by the HookBus."

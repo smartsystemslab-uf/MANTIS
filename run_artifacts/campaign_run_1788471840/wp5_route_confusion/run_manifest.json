@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-09-03T21:44:30.924603Z",
+  "config_hash": "4d9a7878350a7d97f39580b9988902718dce368f632b451ca45d63112d2fbf67",
+  "seed": 103,
+  "config": {
+    "experiment": {
+      "name": "wp5_route_confusion",
+      "seed": 103,
+      "domain": "front_office",
+      "workflow": "front_office_monitoring",
+      "scenario": "front_office_monitoring"
+    },
+    "attack": {
+      "plugin": "route_confusion",
+      "control_point": "tool",
+      "target": "transfer_to_agent",
+      "parameters": {
+        "intercepted_route": "compliance_agent",
+        "forced_destination": "decision_making_agent"
+      }
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    }
+  }
+}

@@ -12,10 +12,20 @@
     "after_output": 1
   },
   "plugin_stats": {
-    "input": {},
-    "agent": {},
-    "interaction": {},
-    "tool": {},
-    "output": {}
+    "input": {
+      "observability_plugin": 1
+    },
+    "agent": {
+      "observability_plugin": 8
+    },
+    "interaction": {
+      "observability_plugin": 12
+    },
+    "tool": {
+      "observability_plugin": 14
+    },
+    "output": {
+      "observability_plugin": 1
+    }
   }
 }

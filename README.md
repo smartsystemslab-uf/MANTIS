@@ -37,18 +37,26 @@ MANTIS/
 ---
 
 ## Current Status: WP1 & WP2 Complete (Modular Architecture & Configuration)
+## Current Status: WP1 - WP8 Complete
 
-We have successfully migrated the legacy banking code into the formal MANTIS package structure (**WP1**) and replaced all hardcoded execution logic with a declarative YAML configuration engine and dynamic registries (**WP2**).
-
-This completes the foundational platform. MANTIS is now fully prepared to act as an adversarial testbed. The configuration engine is ready to accept complex `attack` YAML blocks, which will be physically executed once we implement the **Hook Bus (WP3)** and **Attack Plugins (WP5)**.
+We have successfully migrated the legacy banking code (**WP1**), replaced hardcoded logic with a declarative YAML engine (**WP2**), implemented the **Hook Bus (WP3)**, established a full **Observability Pipeline (WP4)**, deployed **Attack/Failure Plugins (WP5)**, integrated **Evaluation/Benchmarking (WP6)**, finished the **CLI Campaign Engine (WP7)**, and finalized **Release Validation (WP8)**.
 
 ### The Role of WP0 (Regression Guardrails)
-**WP0 establishes our invariant baseline.** The 49-test regression suite (`refactor_guard_tests/`) ensures that the core banking business logic and agent behaviors never change or hallucinate while we build out the adversarial testing capabilities. We use these tests constantly to ensure our testbed remains a valid representation of a real-world banking system.
+**WP0 establishes our invariant baseline.** The 49-test regression suite (`refactor_guard_tests/`) ensures that the core banking business logic and agent behaviors never change or hallucinate. We use these tests constantly to ensure our testbed remains a valid representation of a real-world banking system.
 
-### Platform Artifacts
-## Current Status: WP1, WP2, & WP3 Complete
+### Getting Started
+```bash
+# 1. Install prerequisites (Python 3.12+ required)
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-We have successfully migrated the legacy banking code (**WP1**), replaced hardcoded logic with a declarative YAML engine (**WP2**), and implemented the **Hook Bus (WP3)** to allow for dynamic runtime interception.
+# 2. Run tests to verify the core systems
+pytest tests/unit/
+
+# 3. View available scenarios and commands
+mantis --help
+```
 
 ### The Hook Bus (WP3)
 The Hook Bus is the core of MANTIS's adversarial testing capabilities. It provides a non-invasive middleware layer that registers callback functions at five strategic lifecycle events:
@@ -67,8 +75,8 @@ The Hook Bus is the core of MANTIS's adversarial testing capabilities. It provid
 - [x] **WP4**: Standard Observability Pipeline (OpenTelemetry, MLflow, JSONL traces)
 - [x] **WP5**: Initial Attack and Failure Plugins (Prompt Injection, Message Spoofing, Route Confusion, Tool Mutation)
 - [x] **WP6**: Evaluation and Benchmarking (Trace Completeness, Tool Correctness, Overhead plotting)
-- [ ] **WP7**: CLI and Reproducible User Workflow
-- [ ] **WP8**: Tests, Documentation, and Research Release
+- [x] **WP7**: CLI and Reproducible User Workflow (Campaign Execution Engine)
+- [x] **WP8**: Tests, Documentation, and Research Release
 
 ---
 
@@ -117,7 +125,25 @@ We provide production-ready verification scripts in the `scripts/` directory to 
    ./scripts/demo_wp6_benchmarks.sh
    ```
 
+7. **WP7: Campaign Execution**
+   Automatically launch a full folder of YAML configurations, isolate their artifacts, and print a consolidated Markdown evaluation report.
+
+   ```bash
+   mantis --campaign configs/attacks/
+   mantis --report run_artifacts/campaign_run_<timestamp>
+   ```
+
+8. **WP8: Full Release Validation**
+   You can verify the complete stability of MANTIS by running the exhaustive master suite:
+
+   ```bash
+   ./scripts/release_validation.sh
+   ```
+
 ---
+
+## 🛡️ Writing Custom Attacks
+To write a new attack for MANTIS, implement `MantisHookPlugin` and drop it into `src/mantis/attacks/`. Register it via `plugin_registry.register(...)`. See `src/mantis/plugins/wp5_attacks.py` for full examples of prompt injections, route confusions, tool mutations, and spoofing plugins!
 
 ## Running MANTIS for Mock Attacks
 
