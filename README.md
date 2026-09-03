@@ -15,23 +15,28 @@ MANTIS/
 ├── README.md
 ├── MIGRATION.md                       # Details of the legacy-to-MANTIS transition
 ├── pyproject.toml                     # MANTIS package definition
+├── .env.example                       # Copy to .env -- required for live LLM runs
 ├── src/mantis/                        # Core MANTIS Framework
 │   ├── banking/                       # Domain logic (Front/Mid/Back Office)
-│   ├── runtime/                       # Interfaces and ADK Adapter
+│   │   ├── agents/, tools/, data/     # Agent defs, banking tool functions, JSON knowledge base
+│   │   ├── scenarios/, workflows/     # Scenario prompts; workflow -> domain mapping
+│   │   └── domains.py                 # Domain -> agent membership
+│   ├── runtime/                       # BankingRuntimeAdapter, ADK<->HookBus glue (WP1)
+│   ├── hooks/                         # HookBus, HookContext, HookResult (WP3)
 │   ├── config/                        # Pydantic Configuration Models (WP2)
-│   ├── core/                          # Dynamic Component Registries (WP2)
+│   ├── core/                          # Generic Registry mechanism, wires banking content in (WP2)
 │   ├── cli/                           # CLI entrypoint (`mantis`)
 │   ├── observability/                 # WP4: TraceArtifactWriter, MLflow, OpenTelemetry
 │   ├── evaluation/                    # WP6: TraceEvaluator
 │   ├── benchmark/                     # WP6: BenchmarkRunner
-│   └── plugins/attacks/               # WP5: Prompt Injection, Spoofing, Route Confusion, Tool Mutation
-├── citi_banking_backend/              # Local Banking API Backend
-├── citi_banking_mcp_server/           # MCP Server for Banking Tools
+│   └── plugins/                       # attacks/ (WP5), failures/, policies/ (interface only)
+├── citi_banking_backend/              # Local Banking API Backend (+ tests/, 13 tests)
+├── citi_banking_mcp_server/           # MCP Server for Banking Tools (+ tests/, 3 tests)
 ├── configs/                           # Experiment Configurations (Baselines, Attacks, Invalid)
 ├── scripts/                           # Production-ready Validation Scripts
 ├── docs/                              # Documentation
-├── extensions/                        # Custom plugins
-├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins)
+├── extensions/                        # Custom plugins (e.g. zero_trust/, later/optional)
+├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events) -- 31 tests
 ├── golden_runs/                       # WP0: Immutable Frozen LLM execution traces
 ├── banking_baseline_inventory.yaml    # WP0: Full system inventory
 ├── baseline_metrics.json              # WP0: Performance and behavioral metrics
@@ -54,10 +59,16 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -e .
 
-# 2. Run tests to verify the core systems
+# 2. Configure model access (only needed for `mantis --run`, not for tests
+#    or --validate/--inventory/--generate-schemas/--evaluate)
+cp .env.example .env
+# edit .env and set UF_NAVIGATOR_API_KEY -- there is no default key baked
+# into the code, live runs fail with an auth error until this is set
+
+# 3. Run tests to verify the core systems
 pytest tests/unit/
 
-# 3. View available scenarios and commands
+# 4. View available scenarios and commands
 mantis --help
 ```
 
@@ -175,9 +186,22 @@ If you are a security researcher or developer setting up a mock attack, you driv
 
 ---
 
-## What the 49 Regression Tests Cover
+## Testing
 
-The regression suite (`refactor_guard_tests/`) is deliberately designed to balance **strict structural enforcement** with **flexible semantic parsing** to handle natural LLM non-determinism.
+There are four layers of automated tests, plus a fifth layer of live validation scripts. Only the live layer needs a running backend and a real `UF_NAVIGATOR_API_KEY`; everything else runs offline.
+
+| Layer | Location | Count | Command | Needs backend? | Needs LLM key? |
+|---|---|---|---|---|---|
+| MANTIS unit tests | `tests/unit/` | 31 | `pytest tests/unit/` | No | No |
+| WP0 regression guard | `refactor_guard_tests/` | 49 | `pytest refactor_guard_tests/` | No | No |
+| Banking backend | `citi_banking_backend/tests/` | 13 | `cd citi_banking_backend && pytest tests/` | No (uses an in-process test DB) | No |
+| MCP tool server | `citi_banking_mcp_server/tests/` | 3 | `cd citi_banking_mcp_server && pytest tests/` | No | No |
+| Live validation suite | `scripts/release_validation.sh` | WP0-WP7, end-to-end | `./scripts/release_validation.sh` | Yes (auto-started) | **Yes** |
+
+96 tests run offline in a few seconds total; the live suite takes 5-10 minutes because it makes real LLM calls.
+
+### What the 49 WP0 regression tests cover
+This suite (`refactor_guard_tests/`) is the invariant baseline: it checks the frozen `golden_runs/` captures, not live LLM output, so it's deterministic and fast. It's deliberately designed to balance **strict structural enforcement** with **flexible semantic parsing** to handle natural LLM non-determinism when golden runs are regenerated.
 
 | Test Class | Tests | What It Validates |
 |---|---|---|
@@ -186,6 +210,9 @@ The regression suite (`refactor_guard_tests/`) is deliberately designed to balan
 | `TestFrontOfficeTrace` / `MidOffice` / `BackOffice` | 12 | Traces are parseable. Tool/agent matches use resilient logic to gracefully handle valid LLM alternative paths. |
 | `TestInventoryConsistency` | 3 | Inventory covers all tools from metrics, all workflows listed |
 | `TestFrontOfficeBehavior` / `MidOffice` / `BackOffice` | 17 | **Advanced:** Agent execution order, routing paths, tool usage, and business outcomes. *Evaluated flexibly to avoid false alarms.* |
+
+### What the live validation suite covers
+`scripts/release_validation.sh` runs the full WP0-WP7 pipeline against a live backend and real LLM calls: baseline regression, config validation, hook bus injection (checks `hook_coverage.json` has nonzero hits on all 10 hook points), observability trace generation, all 4 attack plugins, evaluation scoring, an observability-overhead benchmark, and a full campaign run with report generation. It's the ground truth for "does this actually work end to end," as opposed to the offline suites, which check components in isolation.
 
 ---
 
