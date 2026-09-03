@@ -20,14 +20,18 @@ MANTIS/
 │   ├── runtime/                       # Interfaces and ADK Adapter
 │   ├── config/                        # Pydantic Configuration Models (WP2)
 │   ├── core/                          # Dynamic Component Registries (WP2)
-│   └── cli/                           # CLI entrypoint (`mantis`)
+│   ├── cli/                           # CLI entrypoint (`mantis`)
+│   ├── observability/                 # WP4: TraceArtifactWriter, MLflow, OpenTelemetry
+│   ├── evaluation/                    # WP6: TraceEvaluator
+│   ├── benchmark/                     # WP6: BenchmarkRunner
+│   └── plugins/attacks/               # WP5: Prompt Injection, Spoofing, Route Confusion, Tool Mutation
 ├── citi_banking_backend/              # Local Banking API Backend
 ├── citi_banking_mcp_server/           # MCP Server for Banking Tools
 ├── configs/                           # Experiment Configurations (Baselines, Attacks, Invalid)
 ├── scripts/                           # Production-ready Validation Scripts
 ├── docs/                              # Documentation
 ├── extensions/                        # Custom plugins
-├── tests/                             # Future framework tests
+├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins)
 ├── golden_runs/                       # WP0: Immutable Frozen LLM execution traces
 ├── banking_baseline_inventory.yaml    # WP0: Full system inventory
 ├── baseline_metrics.json              # WP0: Performance and behavioral metrics
@@ -36,7 +40,6 @@ MANTIS/
 
 ---
 
-## Current Status: WP1 & WP2 Complete (Modular Architecture & Configuration)
 ## Current Status: WP1 - WP8 Complete
 
 We have successfully migrated the legacy banking code (**WP1**), replaced hardcoded logic with a declarative YAML engine (**WP2**), implemented the **Hook Bus (WP3)**, established a full **Observability Pipeline (WP4)**, deployed **Attack/Failure Plugins (WP5)**, integrated **Evaluation/Benchmarking (WP6)**, finished the **CLI Campaign Engine (WP7)**, and finalized **Release Validation (WP8)**.
@@ -49,7 +52,7 @@ We have successfully migrated the legacy banking code (**WP1**), replaced hardco
 # 1. Install prerequisites (Python 3.12+ required)
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -e .
 
 # 2. Run tests to verify the core systems
 pytest tests/unit/
@@ -143,7 +146,7 @@ We provide production-ready verification scripts in the `scripts/` directory to 
 ---
 
 ## 🛡️ Writing Custom Attacks
-To write a new attack for MANTIS, implement `MantisHookPlugin` and drop it into `src/mantis/attacks/`. Register it via `plugin_registry.register(...)`. See `src/mantis/plugins/wp5_attacks.py` for full examples of prompt injections, route confusions, tool mutations, and spoofing plugins!
+To write a new attack for MANTIS, implement a plugin class with `name`, `supported_stages`, and `apply(ctx)` and drop it into `src/mantis/plugins/attacks/`. Register it via `plugin_registry.register(...)`. See `src/mantis/plugins/attacks/prompt_injection.py` for a full reference of how prompt injections, route confusions, tool mutations, and spoofing plugins work!
 
 ## Running MANTIS for Mock Attacks
 
