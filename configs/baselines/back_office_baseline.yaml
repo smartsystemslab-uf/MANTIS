@@ -1,0 +1,6 @@
+experiment:
+  name: back_office_clean
+  seed: 42
+  domain: back_office
+  workflow: back_office_clean
+  scenario: back_office_clean

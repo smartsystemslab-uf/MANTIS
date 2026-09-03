@@ -1,0 +1,245 @@
+{
+  "$defs": {
+    "AgentConfig": {
+      "properties": {
+        "model": {
+          "default": "default",
+          "description": "Model to use for this agent",
+          "title": "Model",
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "description": "Whether this agent is enabled",
+          "title": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "AgentConfig",
+      "type": "object"
+    },
+    "AttackConfig": {
+      "properties": {
+        "plugin": {
+          "description": "Attack plugin to load",
+          "title": "Plugin",
+          "type": "string"
+        },
+        "control_point": {
+          "description": "Insertion point (e.g., input, agent, tool)",
+          "title": "Control Point",
+          "type": "string"
+        },
+        "target": {
+          "description": "Target component ID",
+          "title": "Target",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "description": "Plugin specific parameters",
+          "title": "Parameters",
+          "type": "object"
+        }
+      },
+      "required": [
+        "plugin",
+        "control_point",
+        "target"
+      ],
+      "title": "AttackConfig",
+      "type": "object"
+    },
+    "BenchmarkConfig": {
+      "properties": {
+        "concurrency": {
+          "default": 1,
+          "description": "Number of concurrent workflow executions",
+          "title": "Concurrency",
+          "type": "integer"
+        },
+        "repetitions": {
+          "default": 1,
+          "description": "Number of repetitions per configuration",
+          "title": "Repetitions",
+          "type": "integer"
+        }
+      },
+      "title": "BenchmarkConfig",
+      "type": "object"
+    },
+    "EvaluationConfig": {
+      "properties": {
+        "expected_tools": {
+          "description": "Tools that must be called",
+          "items": {
+            "type": "string"
+          },
+          "title": "Expected Tools",
+          "type": "array"
+        },
+        "forbidden_tools": {
+          "description": "Tools that must not be called",
+          "items": {
+            "type": "string"
+          },
+          "title": "Forbidden Tools",
+          "type": "array"
+        },
+        "expected_terminal_state": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Expected outcome state",
+          "title": "Expected Terminal State"
+        }
+      },
+      "title": "EvaluationConfig",
+      "type": "object"
+    },
+    "ExperimentMetadata": {
+      "properties": {
+        "name": {
+          "description": "Name of the experiment",
+          "title": "Name",
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Random seed for reproducibility",
+          "title": "Seed",
+          "type": "integer"
+        },
+        "domain": {
+          "description": "Target banking domain (e.g., front_office, mid_office, back_office)",
+          "title": "Domain",
+          "type": "string"
+        },
+        "workflow": {
+          "description": "Target workflow (e.g., fraud_review, front_office_monitoring)",
+          "title": "Workflow",
+          "type": "string"
+        },
+        "scenario": {
+          "description": "Specific scenario ID mapping to a concrete prompt",
+          "title": "Scenario",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "domain",
+        "workflow",
+        "scenario"
+      ],
+      "title": "ExperimentMetadata",
+      "type": "object"
+    },
+    "ModificationsConfig": {
+      "properties": {
+        "agents": {
+          "additionalProperties": {
+            "$ref": "#/$defs/AgentConfig"
+          },
+          "description": "Agent specific overrides",
+          "title": "Agents",
+          "type": "object"
+        }
+      },
+      "title": "ModificationsConfig",
+      "type": "object"
+    },
+    "ObservabilityConfig": {
+      "properties": {
+        "mode": {
+          "default": "full",
+          "description": "Observability mode: off, selective, full",
+          "title": "Mode",
+          "type": "string"
+        },
+        "export": {
+          "description": "Exporters to enable",
+          "items": {
+            "type": "string"
+          },
+          "title": "Export",
+          "type": "array"
+        }
+      },
+      "title": "ObservabilityConfig",
+      "type": "object"
+    }
+  },
+  "description": "Root configuration model for MANTIS experiments.",
+  "properties": {
+    "experiment": {
+      "$ref": "#/$defs/ExperimentMetadata"
+    },
+    "modifications": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ModificationsConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "attack": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AttackConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "observability": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ObservabilityConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "evaluation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EvaluationConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "benchmark": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BenchmarkConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "experiment"
+  ],
+  "title": "ExperimentConfig",
+  "type": "object"
+}

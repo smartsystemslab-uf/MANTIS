@@ -1,0 +1,6 @@
+experiment:
+  name: front_office_monitoring
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring

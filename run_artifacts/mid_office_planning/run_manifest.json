@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-08-31T22:06:22.686556Z",
+  "config_hash": "71fcd997f2633e8f079b767110bce52e00be188e5596cf8eaa296114fb477a75",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "mid_office_planning",
+      "seed": 42,
+      "domain": "mid_office",
+      "workflow": "mid_office_planning",
+      "scenario": "mid_office_planning"
+    }
+  }
+}

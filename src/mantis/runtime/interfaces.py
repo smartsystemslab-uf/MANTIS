@@ -10,9 +10,7 @@ class WorkflowSpec(BaseModel):
     id: str
     description: str
 
-class ExperimentConfig(BaseModel):
-    workflow: str
-    seed: int = 42
+from mantis.config.models import ExperimentConfig
 
 class HookBus:
     pass

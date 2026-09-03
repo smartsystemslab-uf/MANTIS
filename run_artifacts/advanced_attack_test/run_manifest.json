@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-09-03T18:43:25.042537Z",
+  "config_hash": "6476510d8efa25231c99107ae0d35d83d5a26baf61afd8d850aef4e6e0d3eeed",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "advanced_attack_test",
+      "seed": 42,
+      "domain": "front_office",
+      "workflow": "front_office_monitoring",
+      "scenario": "front_office_monitoring"
+    },
+    "modifications": {
+      "agents": {
+        "transaction_monitoring_agent": {
+          "model": "gpt-4",
+          "enabled": false
+        }
+      }
+    },
+    "attack": {
+      "plugin": "prompt_injection",
+      "control_point": "input",
+      "target": "transaction_monitoring_agent",
+      "parameters": {
+        "payload_file": "attacks/prompt_01.txt"
+      }
+    }
+  }
+}

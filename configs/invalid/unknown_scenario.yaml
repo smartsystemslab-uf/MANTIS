@@ -1,0 +1,6 @@
+experiment:
+  name: unknown_scenario_test
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: DOES_NOT_EXIST

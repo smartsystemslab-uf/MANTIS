@@ -1,0 +1,6 @@
+experiment:
+  name: mid_office_planning
+  seed: 42
+  domain: mid_office
+  workflow: mid_office_planning
+  scenario: mid_office_planning

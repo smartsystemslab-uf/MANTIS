@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-08-31T22:06:54.984933Z",
+  "config_hash": "0f5a85246b05fa7c9817658c0cb146dc1685426b44b3b1b7754d64cb8a2c01b6",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "back_office_clean",
+      "seed": 42,
+      "domain": "back_office",
+      "workflow": "back_office_clean",
+      "scenario": "back_office_clean"
+    }
+  }
+}
