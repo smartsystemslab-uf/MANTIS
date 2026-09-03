@@ -2,7 +2,7 @@
 
 MANTIS is a modular, observable multi-agent security testbed for configuring agents, workflows, tools, attacks, and failures, with end-to-end tracing, evaluation, and reproducible benchmarking.
 
-Currently, MANTIS focuses on banking multi-agent architectures (spanning Front, Mid, and Back-Office workflows) as the primary application domain for security evaluation. The ultimate goal of this platform is to provide a robust **testbed to conduct mock attacks (e.g., prompt injections), capture outputs, and evaluate AI agent failures under adversarial conditions.**
+Currently, MANTIS focuses on banking multi-agent architectures (spanning Front, Mid, and Back-Office workflows) as the primary application domain for security evaluation. The goal is a **testbed to conduct mock attacks (e.g., prompt injections), capture outputs, and evaluate AI agent failures under adversarial conditions.**
 
 **At a glance:** 3 banking domains &middot; 31 agents &middot; 19+ tools &middot; 5 control points &middot; 4 attack plugins &middot; 3 observability export targets &middot; 0 source edits needed to run an experiment.
 
@@ -63,7 +63,7 @@ MANTIS/
 ├── citi_banking_backend/              # Local Banking API Backend (+ tests/, 13 tests)
 ├── citi_banking_mcp_server/           # MCP Server for Banking Tools (+ tests/, 3 tests)
 ├── configs/                           # Experiment Configurations (Baselines, Attacks, Invalid)
-├── scripts/                           # Production-ready Validation Scripts
+├── scripts/                           # Per-work-package validation/demo scripts
 ├── docs/                              # Documentation
 ├── extensions/                        # Custom plugins (e.g. zero_trust/, later/optional)
 ├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events) -- 31 tests
@@ -75,14 +75,7 @@ MANTIS/
 
 ---
 
-## Current Status: WP1 - WP8 Complete
-
-We have successfully migrated the legacy banking code (**WP1**), replaced hardcoded logic with a declarative YAML engine (**WP2**), implemented the **Hook Bus (WP3)**, established a full **Observability Pipeline (WP4)**, deployed **Attack/Failure Plugins (WP5)**, integrated **Evaluation/Benchmarking (WP6)**, finished the **CLI Campaign Engine (WP7)**, and finalized **Release Validation (WP8)**.
-
-### The Role of WP0 (Regression Guardrails)
-**WP0 establishes our invariant baseline.** The 49-test regression suite (`refactor_guard_tests/`) ensures that the core banking business logic and agent behaviors never change or hallucinate. We use these tests constantly to ensure our testbed remains a valid representation of a real-world banking system.
-
-### Getting Started
+## Getting Started
 ```bash
 # 1. Install prerequisites (Python 3.12+ required)
 python -m venv .venv
@@ -102,15 +95,9 @@ pytest tests/unit/
 mantis --help
 ```
 
-### The Hook Bus (WP3)
-The Hook Bus is the core of MANTIS's adversarial testing capabilities. It provides a non-invasive middleware layer that registers callback functions at five strategic lifecycle events:
-1. **Input**: Intercepting raw user prompts before they reach the agent.
-2. **Agent**: Monitoring internal reasoning processes.
-3. **Interaction**: Modifying communication between the agent and the environment.
-4. **Tool**: Intercepting function calls (e.g., to the banking backend) to perform parameter mutation or injection.
-5. **Output**: Filtering or auditing the final response provided to the user.
+## Project Roadmap
 
-### Project Roadmap
+All eight work packages from the coding plan are complete and verified against live runs, not just unit tests (see [Testing](#testing) below):
 
 - [x] **WP0**: Freeze and Characterize the Baseline (49 Regression Tests)
 - [x] **WP1**: Modularize the Banking Multi-Agent Testbed (NativeBankingAdapter)
@@ -126,7 +113,7 @@ The Hook Bus is the core of MANTIS's adversarial testing capabilities. It provid
 
 ## Validating the Platform
 
-We provide production-ready verification scripts in the `scripts/` directory to automatically validate the integrity of the testbed.
+The `scripts/` directory has one verification script per work package, each wrapping the equivalent `mantis` CLI commands so the whole pipeline can be checked in one call.
 
 1. **WP0 / WP1 Baseline Regression:** 
    ```bash
@@ -186,7 +173,7 @@ We provide production-ready verification scripts in the `scripts/` directory to 
 
 ---
 
-## 🛡️ Writing Custom Attacks
+## Writing Custom Attacks
 To write a new attack for MANTIS, implement a plugin class with `name`, `supported_stages`, and `apply(ctx)` and drop it into `src/mantis/plugins/attacks/`. Register it via `plugin_registry.register(...)`. See `src/mantis/plugins/attacks/prompt_injection.py` for a full reference of how prompt injections, route confusions, tool mutations, and spoofing plugins work!
 
 ## Running MANTIS for Mock Attacks
@@ -278,10 +265,10 @@ This suite (`refactor_guard_tests/`) is the invariant baseline: it checks the fr
 
 ## Environment Information
 
-### Source Repository:
+### Source Repository
 - **Citi_P3 (Legacy Source):** https://github.com/smartsystemslab-uf/Citi_P3
 
-### Environment:
+### Environment
 - **Python:** 3.12.7
 - **LLM:** UF Navigator API (`https://api.ai.it.ufl.edu`), model `gpt-oss-20b`
 - **Backend:** FastAPI + SQLite (`citi_banking_backend`)
@@ -291,7 +278,7 @@ This suite (`refactor_guard_tests/`) is the invariant baseline: it checks the fr
 ---
 
 ## Developer Guidelines
-1. **Unit Testing:** Ensure 100% unit test coverage for new scripts. It's REQUIRED to post unit test code here.
-2. **Integration Testing:** Every `.py` or executable file must have corresponding integration tests included. All integration tests must pass before submission.
+1. **Tests:** New modules get unit tests under `tests/unit/`. Run the offline layers (see [Testing](#testing)) before pushing — they take seconds.
+2. **Banking logic stays isolated:** Business-specific data (agent lists, scenarios, tool semantics) belongs under `src/mantis/banking/`, not in `src/mantis/core/` — core only wires it into the shared registries.
 3. **AI Assistance:** The use of AI tools is encouraged. Please use whichever tools work best for your workflow.
-4. **Commits:** Include a brief description of what was changed and why the change was necessary when pushing.
+4. **Commits:** Include a brief description of what was changed and why when pushing.
