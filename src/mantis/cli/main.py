@@ -12,7 +12,7 @@ import yaml
 from mantis.runtime.adapter import NativeBankingAdapter
 from mantis.runtime.interfaces import HookBus
 from mantis.config.models import ExperimentConfig
-from mantis.core.registry import scenario_registry
+from mantis.core.registry import scenario_registry, plugin_registry
 from mantis.observability.artifacts import create_run_manifest
 
 def _ser(obj):
@@ -57,13 +57,30 @@ async def run_experiment(config_path: str):
                 tools_response = await session.list_tools()
                 
                 adapter = NativeBankingAdapter(mcp_session=session, mcp_tools=tools_response.tools)
-                handle = adapter.build(config, HookBus())
+                
+                # Setup HookBus and register plugins
+                hooks = HookBus()
+                if config.attack and config.attack.plugin:
+                    try:
+                        plugin_cls = plugin_registry.get(config.attack.plugin)
+                        plugin_instance = plugin_cls(**config.attack.parameters)
+                        hooks.register(plugin_instance)
+                    except Exception as e:
+                        print(f"❌ Failed to load plugin {config.attack.plugin}: {e}", file=sys.stderr)
+                        sys.exit(1)
+
+                handle = adapter.build(config, hooks)
                 
                 res = await handle.run_message(prompt)
+                
+                # Write coverage report
+                hooks.write_coverage(str(output_dir / "hook_coverage.json"))
                 
                 print(json.dumps({scenario_id: _ser(res)}, indent=2, ensure_ascii=False))
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"❌ Failed to connect to MCP Server: {e}", file=sys.stderr)
         sys.exit(1)
 

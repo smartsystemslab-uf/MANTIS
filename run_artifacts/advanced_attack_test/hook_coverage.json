@@ -1,0 +1,25 @@
+{
+  "hits": {
+    "before_input": 1,
+    "after_input": 0,
+    "before_agent": 7,
+    "after_agent": 0,
+    "before_message": 12,
+    "after_message": 0,
+    "before_tool": 8,
+    "after_tool": 8,
+    "before_output": 0,
+    "after_output": 1
+  },
+  "plugin_stats": {
+    "input": {
+      "mock_attack": 1
+    },
+    "agent": {},
+    "interaction": {},
+    "tool": {
+      "mock_attack": 16
+    },
+    "output": {}
+  }
+}

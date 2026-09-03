@@ -1,0 +1,21 @@
+{
+  "hits": {
+    "before_input": 1,
+    "after_input": 0,
+    "before_agent": 10,
+    "after_agent": 0,
+    "before_message": 11,
+    "after_message": 0,
+    "before_tool": 5,
+    "after_tool": 5,
+    "before_output": 0,
+    "after_output": 1
+  },
+  "plugin_stats": {
+    "input": {},
+    "agent": {},
+    "interaction": {},
+    "tool": {},
+    "output": {}
+  }
+}

@@ -6,17 +6,26 @@ from mantis.runtime.interfaces import (
 from mantis.banking.runner import run_message
 
 class LegacyBankingHandle:
-    def __init__(self, mcp_session=None, mcp_tools=None):
+    def __init__(self, mcp_session=None, mcp_tools=None, hooks: HookBus = None, config: ExperimentConfig = None):
         self.mcp_session = mcp_session
         self.mcp_tools = mcp_tools
+        self.hooks = hooks
+        self.config = config
 
     async def run_message(self, message: str) -> Any:
-        # Wrap the legacy runner execution. For WP1 we just pass it through.
+        # Wrap the legacy runner execution. For WP3 we pass the HookBus.
+        from mantis.runtime.plugin import MantisHookPlugin
+        plugin = MantisHookPlugin(
+            self.hooks, 
+            run_id=self.config.experiment.name if self.config else "default",
+            workflow_id=self.config.experiment.workflow if self.config else "default"
+        )
         return await run_message(
             message,
             mcp_session=self.mcp_session,
             mcp_tools=self.mcp_tools,
-            compact=True
+            compact=True,
+            mantis_plugin=plugin
         )
 
 class NativeBankingAdapter:
@@ -41,9 +50,7 @@ class NativeBankingAdapter:
 
     def build(self, config: ExperimentConfig, hooks: HookBus) -> RuntimeHandle:
         # Returns a handle that can execute the chosen workflow.
-        # Legacy runner parses the intent dynamically from the prompt, so we just
-        # pass the prompt to the root agent in run_message.
-        return LegacyBankingHandle(mcp_session=self.mcp_session, mcp_tools=self.mcp_tools)
+        return LegacyBankingHandle(mcp_session=self.mcp_session, mcp_tools=self.mcp_tools, hooks=hooks, config=config)
 
     def reset(self, seed: int) -> None:
         pass

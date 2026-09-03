@@ -124,6 +124,7 @@ async def run_message(
     compact: bool = True,
     zero_trust_config=None,
     include_zero_trust_status: bool = False,
+    mantis_plugin=None,
 ):
     # Build the original CITI-MAS App. With Zero Trust enabled, the native ADK
     # App itself carries the enforcement plugin.
@@ -138,7 +139,13 @@ async def run_message(
     # releases accepted plugins on Runner instead. Do not silently construct an
     # unprotected Runner if App ignored the plugins field.
     configured_plugins = list(getattr(app, "_citi_zero_trust_plugins", None) or [])
+    if mantis_plugin:
+        configured_plugins.append(mantis_plugin)
+    
     app_plugins = list(getattr(app, "plugins", None) or [])
+    if mantis_plugin:
+        app_plugins.append(mantis_plugin)
+        
     if configured_plugins and not app_plugins:
         # Legacy ADK compatibility: Runner cannot receive both `app=` and
         # `plugins=` at the same time.  Use the original root agent/app name
@@ -149,6 +156,9 @@ async def run_message(
             plugins=configured_plugins,
         )
     else:
+        # If the app accepts plugins natively, we inject it into the app directly.
+        if hasattr(app, "plugins"):
+            app.plugins = app_plugins
         runner = InMemoryRunner(app=app)
 
     buf_out = io.StringIO()
@@ -178,6 +188,7 @@ async def run_many(
     mcp_session=None,
     compact: bool = True,
     zero_trust_config=None,
+    mantis_plugin=None,
 ):
     results = []
     available_tools = []
@@ -193,6 +204,7 @@ async def run_many(
                 mcp_tools=available_tools,
                 compact=compact,
                 zero_trust_config=zero_trust_config,
+                mantis_plugin=mantis_plugin,
             )
         )
     return results

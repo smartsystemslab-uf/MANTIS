@@ -46,37 +46,56 @@ This completes the foundational platform. MANTIS is now fully prepared to act as
 **WP0 establishes our invariant baseline.** The 49-test regression suite (`refactor_guard_tests/`) ensures that the core banking business logic and agent behaviors never change or hallucinate while we build out the adversarial testing capabilities. We use these tests constantly to ensure our testbed remains a valid representation of a real-world banking system.
 
 ### Platform Artifacts
+## Current Status: WP1, WP2, & WP3 Complete
 
-| # | Deliverable | Path | Description |
-|---|-------------|------|-------------|
-| 1 | Baseline Inventory | `banking_baseline_inventory.yaml` | Maps all packages, agents, MCP tools, internal ADK tools, workflows, and data stores |
-| 2 | Golden Runs | `golden_runs/` | Immutable end-to-end LLM execution traces for baseline scenarios |
-| 3 | Baseline Metrics | `baseline_metrics.json` | Records agents involved, tools called, latency, and semantics |
-| 4 | Regression Guard Tests | `refactor_guard_tests/` | 49-test pytest suite cross-validating traces against golden runs |
-| 5 | Experiment Configs | `configs/` | Declarative YAML files defining workflows and attack injections (WP2) |
-| 6 | Run Manifests | `run_artifacts/` | Cryptographically hashed logs proving reproducibility (WP2) |
+We have successfully migrated the legacy banking code (**WP1**), replaced hardcoded logic with a declarative YAML engine (**WP2**), and implemented the **Hook Bus (WP3)** to allow for dynamic runtime interception.
+
+### The Hook Bus (WP3)
+The Hook Bus is the core of MANTIS's adversarial testing capabilities. It provides a non-invasive middleware layer that registers callback functions at five strategic lifecycle events:
+1. **Input**: Intercepting raw user prompts before they reach the agent.
+2. **Agent**: Monitoring internal reasoning processes.
+3. **Interaction**: Modifying communication between the agent and the environment.
+4. **Tool**: Intercepting function calls (e.g., to the banking backend) to perform parameter mutation or injection.
+5. **Output**: Filtering or auditing the final response provided to the user.
+
+### Project Roadmap
+
+- [x] **WP1: Modularize the Banking Multi-Agent Testbed**: Restructured the project from an application to a reusable research framework.
+- [x] **WP2: Configuration, Schemas, and Registries**: Implemented a YAML-driven experiment configuration engine (`mantis --run`).
+- [x] **WP3: Experiment Control Points and Hook Bus**: Built the `HookBus` allowing dynamic interception and mutation of the multi-agent graph at 5 strategic lifecycles (`input`, `agent`, `interaction`, `tool`, `output`).
+- [ ] **WP4: Standard Observability Pipeline**: Emit MLflow, OpenTelemetry, and structured JSONL traces containing security assertions.
+- [ ] **WP5: Initial Attack and Failure Plugins**: Implement Prompt Injection, Message Spoofing, Route Confusion, and Parameter Mutation plugins.
+- [ ] **WP6: Evaluation and Benchmarking**: Scripts to aggregate and grade attack success vs system reliability.
+- [ ] **WP7: CLI and Reproducible User Workflow**: High-level execution of full test campaigns.
+- [ ] **WP8: Tests, Documentation, and Research Release**: Ensure CI/CD stability and reproducibility.
 
 ---
 
-## Validating the Platform (WP1 & WP2)
+## Validating the Platform
 
 We provide production-ready verification scripts in the `scripts/` directory to automatically validate the integrity of the testbed.
 
-### 1. Verify WP1 (Baseline Regression)
-This script tests that the MANTIS refactor strictly preserves legacy banking logic. It dynamically generates fresh traces into a temporary sandbox and runs the 49 pytest assertions without polluting the `golden_runs` folder.
-```bash
-./scripts/verify_baseline_regression.sh
-```
+1. **WP0 / WP1 Baseline Regression:** 
+   ```bash
+   ./scripts/verify_baseline_regression.sh
+   ```
+   *Automatically starts a background backend, traces the LLM front/mid/back office baseline models, asserts semantic behavior matches `baseline_metrics.json`, and shuts down gracefully.*
 
-### 2. Verify WP2 (Configuration Engine)
-This script validates the YAML engine, asserting that invalid configs fail gracefully and attack configs are parsed and securely injected into the runtime manifest.
-```bash
-./scripts/verify_wp2_config.sh
-```
+2. **WP2 Configuration Engine Demo:** 
+   ```bash
+   ./scripts/verify_wp2_config.sh
+   ```
+   *Demonstrates the execution of robust YAML experiment generation, configuration hashing, seed reproducibility, and strict validation error propagation.*
+
+3. **WP3 Hook Bus Injection Demo:** 
+   ```bash
+   ./scripts/demo_wp3_hooks.sh
+   ```
+   *Highlights the invisible integration of the HookBus by deploying a Mock Attack plugin that intercepts a live ADK tool call, maliciously mutates the `customer_id` parameter, and records coverage stats—without altering core business logic.*
 
 ---
 
-## Running MANTIS for Mock Attacks (WP3+)
+## Running MANTIS for Mock Attacks
 
 If you are a security researcher or developer setting up a mock attack, you drive the MANTIS system entirely via YAML files.
 

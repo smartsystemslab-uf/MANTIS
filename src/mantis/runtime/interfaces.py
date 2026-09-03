@@ -11,9 +11,7 @@ class WorkflowSpec(BaseModel):
     description: str
 
 from mantis.config.models import ExperimentConfig
-
-class HookBus:
-    pass
+from mantis.core.hooks import HookBus
 
 class RuntimeHandle(Protocol):
     async def run_message(self, message: str) -> Any: ...

@@ -27,6 +27,10 @@ plugin_registry = Registry[Any]("Plugins")
 exporter_registry = Registry[Any]("Exporters")
 evaluator_registry = Registry[Any]("Evaluators")
 
+from mantis.plugins.attacks.mock_attack import MockAttackPlugin
+plugin_registry.register("mock_attack", MockAttackPlugin)
+plugin_registry.register("prompt_injection", MockAttackPlugin) # Alias for the yaml config
+
 # Register the base scenarios
 scenario_registry.register(
     "front_office_monitoring",
