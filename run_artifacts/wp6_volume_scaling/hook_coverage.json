@@ -1,0 +1,29 @@
+{
+  "hits": {
+    "before_input": 1,
+    "after_input": 1,
+    "before_agent": 1,
+    "after_agent": 1,
+    "before_message": 1,
+    "after_message": 1,
+    "before_tool": 0,
+    "after_tool": 0,
+    "before_output": 1,
+    "after_output": 1
+  },
+  "plugin_stats": {
+    "input": {
+      "observability_plugin": 2
+    },
+    "agent": {
+      "observability_plugin": 2
+    },
+    "interaction": {
+      "observability_plugin": 2
+    },
+    "tool": {},
+    "output": {
+      "observability_plugin": 2
+    }
+  }
+}

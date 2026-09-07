@@ -1,6 +1,10 @@
-from typing import Optional
+import os
+from typing import Optional, Union, TYPE_CHECKING
 from google.adk.models.lite_llm import LiteLlm
 from .settings import settings
+
+if TYPE_CHECKING:
+    from .mock_llm import MockLlm
 
 # Set once per experiment run via NativeBankingAdapter.reset(seed) so every
 # agent built afterwards requests the same sampling seed from the model
@@ -14,7 +18,11 @@ def set_seed(seed: Optional[int]) -> None:
     _current_seed = seed
 
 
-def build_model() -> LiteLlm:
+def build_model() -> Union[LiteLlm, "MockLlm"]:
+    if os.getenv("MANTIS_MOCK_LLM", "").lower() in {"1", "true", "yes"}:
+        from .mock_llm import MockLlm
+        return MockLlm()
+
     kwargs = {}
     if _current_seed is not None:
         kwargs["seed"] = _current_seed

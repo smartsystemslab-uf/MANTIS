@@ -1,0 +1,36 @@
+{
+  "total_runs": 4,
+  "successful_runs": 4,
+  "failed_runs": 0,
+  "concurrency": 2,
+  "mock_llm": true,
+  "total_time_s": 17.060831308364868,
+  "avg_latency_s": 8.525323331356049,
+  "throughput_runs_per_s": 0.23445516386055665,
+  "runs": [
+    {
+      "run_idx": 0,
+      "success": true,
+      "latency_s": 10.292302131652832,
+      "error": null
+    },
+    {
+      "run_idx": 1,
+      "success": true,
+      "latency_s": 10.287260055541992,
+      "error": null
+    },
+    {
+      "run_idx": 2,
+      "success": true,
+      "latency_s": 6.761121988296509,
+      "error": null
+    },
+    {
+      "run_idx": 3,
+      "success": true,
+      "latency_s": 6.760609149932861,
+      "error": null
+    }
+  ]
+}

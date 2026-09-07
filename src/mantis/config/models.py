@@ -33,6 +33,8 @@ class EvaluationConfig(BaseModel):
 class BenchmarkConfig(BaseModel):
     concurrency: int = Field(default=1, description="Number of concurrent workflow executions")
     repetitions: int = Field(default=1, description="Number of repetitions per configuration")
+    mock_llm: bool = Field(default=False, description="Use a zero-latency mock model instead of a live LLM, to isolate instrumentation overhead from LLM sampling latency")
+    scaling_repetitions: Optional[List[int]] = Field(default=None, description="If set, run the benchmark once per repetition count in this list (at the configured concurrency) to measure how latency/trace volume scale with transaction volume, instead of a single repetitions run")
 
 class ExperimentConfig(BaseModel):
     """Root configuration model for MANTIS experiments."""

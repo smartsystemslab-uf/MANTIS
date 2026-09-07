@@ -1,0 +1,149 @@
+{
+  "scaling": true,
+  "concurrency": 2,
+  "mock_llm": true,
+  "levels": [
+    {
+      "total_runs": 1,
+      "successful_runs": 1,
+      "failed_runs": 0,
+      "concurrency": 2,
+      "mock_llm": true,
+      "total_time_s": 9.09837794303894,
+      "avg_latency_s": 9.097779989242554,
+      "throughput_runs_per_s": 0.10990970107645265,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 9.097779989242554,
+          "error": null
+        }
+      ],
+      "repetitions": 1
+    },
+    {
+      "total_runs": 2,
+      "successful_runs": 2,
+      "failed_runs": 0,
+      "concurrency": 2,
+      "mock_llm": true,
+      "total_time_s": 8.823608160018921,
+      "avg_latency_s": 8.817812442779541,
+      "throughput_runs_per_s": 0.22666464372956827,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 8.822990894317627,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 8.812633991241455,
+          "error": null
+        }
+      ],
+      "repetitions": 2
+    },
+    {
+      "total_runs": 4,
+      "successful_runs": 4,
+      "failed_runs": 0,
+      "concurrency": 2,
+      "mock_llm": true,
+      "total_time_s": 14.962787628173828,
+      "avg_latency_s": 7.4774627685546875,
+      "throughput_runs_per_s": 0.26732986522299457,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 7.18887996673584,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 7.184178352355957,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "success": true,
+          "latency_s": 7.771079778671265,
+          "error": null
+        },
+        {
+          "run_idx": 3,
+          "success": true,
+          "latency_s": 7.7657129764556885,
+          "error": null
+        }
+      ],
+      "repetitions": 4
+    },
+    {
+      "total_runs": 8,
+      "successful_runs": 8,
+      "failed_runs": 0,
+      "concurrency": 2,
+      "mock_llm": true,
+      "total_time_s": 26.600548028945923,
+      "avg_latency_s": 6.645506381988525,
+      "throughput_runs_per_s": 0.30074568355864845,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 6.597307205200195,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 6.588335990905762,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "success": true,
+          "latency_s": 6.703727960586548,
+          "error": null
+        },
+        {
+          "run_idx": 3,
+          "success": true,
+          "latency_s": 6.694415092468262,
+          "error": null
+        },
+        {
+          "run_idx": 4,
+          "success": true,
+          "latency_s": 6.697593927383423,
+          "error": null
+        },
+        {
+          "run_idx": 5,
+          "success": true,
+          "latency_s": 6.694127082824707,
+          "error": null
+        },
+        {
+          "run_idx": 6,
+          "success": true,
+          "latency_s": 6.5968639850616455,
+          "error": null
+        },
+        {
+          "run_idx": 7,
+          "success": true,
+          "latency_s": 6.591679811477661,
+          "error": null
+        }
+      ],
+      "repetitions": 8
+    }
+  ]
+}

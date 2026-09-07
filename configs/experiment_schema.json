@@ -63,6 +63,28 @@
           "description": "Number of repetitions per configuration",
           "title": "Repetitions",
           "type": "integer"
+        },
+        "mock_llm": {
+          "default": false,
+          "description": "Use a zero-latency mock model instead of a live LLM, to isolate instrumentation overhead from LLM sampling latency",
+          "title": "Mock Llm",
+          "type": "boolean"
+        },
+        "scaling_repetitions": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "If set, run the benchmark once per repetition count in this list (at the configured concurrency) to measure how latency/trace volume scale with transaction volume, instead of a single repetitions run",
+          "title": "Scaling Repetitions"
         }
       },
       "title": "BenchmarkConfig",

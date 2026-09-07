@@ -1,0 +1,15 @@
+experiment:
+  name: wp6_mock_llm_overhead_off
+  seed: 42
+  domain: front_office
+  workflow: front_office_transaction_execution
+  scenario: front_office_transaction_execution
+
+observability:
+  mode: "off"
+  export: []
+
+benchmark:
+  concurrency: 2
+  repetitions: 4
+  mock_llm: true

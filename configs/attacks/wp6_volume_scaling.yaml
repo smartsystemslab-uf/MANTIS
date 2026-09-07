@@ -1,0 +1,15 @@
+experiment:
+  name: wp6_volume_scaling
+  seed: 42
+  domain: front_office
+  workflow: front_office_transaction_execution
+  scenario: front_office_transaction_execution
+
+observability:
+  mode: full
+  export: [jsonl]
+
+benchmark:
+  concurrency: 2
+  scaling_repetitions: [1, 2, 4, 8]
+  mock_llm: true
