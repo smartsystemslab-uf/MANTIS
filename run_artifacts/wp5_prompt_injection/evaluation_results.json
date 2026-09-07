@@ -4,17 +4,17 @@
     "has_workflow_start": true,
     "has_workflow_end": true,
     "has_agent_start": true,
-    "total_events": 55,
+    "total_events": 51,
     "business_domain": "front_office",
     "workflow_id": "front_office_monitoring"
   },
   "tool_use_correctness": {
     "score": 1.0,
     "actual_tools": [
-      "transfer_to_agent",
       "get_transaction_context",
-      "search_policies",
       "get_customer_context",
+      "transfer_to_agent",
+      "search_policies",
       "submit_manual_review"
     ],
     "missing_expected": [],

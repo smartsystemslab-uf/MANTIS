@@ -4,10 +4,10 @@
     "after_input": 1,
     "before_agent": 7,
     "after_agent": 5,
-    "before_message": 12,
-    "after_message": 12,
-    "before_tool": 8,
-    "after_tool": 8,
+    "before_message": 11,
+    "after_message": 11,
+    "before_tool": 7,
+    "after_tool": 7,
     "before_output": 1,
     "after_output": 1
   },
@@ -19,10 +19,10 @@
       "observability_plugin": 12
     },
     "interaction": {
-      "observability_plugin": 24
+      "observability_plugin": 22
     },
     "tool": {
-      "observability_plugin": 16
+      "observability_plugin": 14
     },
     "output": {
       "observability_plugin": 2

@@ -13,11 +13,9 @@
   },
   "plugin_stats": {
     "input": {
-      "prompt_injection": 2,
       "observability_plugin": 2
     },
     "agent": {
-      "prompt_injection": 12,
       "observability_plugin": 12
     },
     "interaction": {

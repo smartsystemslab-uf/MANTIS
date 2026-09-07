@@ -29,11 +29,28 @@ class ObservabilityPlugin:
     name = "observability_plugin"
     supported_stages = {"input", "agent", "interaction", "tool", "output"}
 
-    def __init__(self, trace_writer: TraceArtifactWriter):
+    def __init__(self, trace_writer: TraceArtifactWriter, mode: str = "full"):
         self.trace_writer = trace_writer
         self.tracer = get_tracer()
+        # "selective" traces security events, route decisions, and tool
+        # invocations only -- it deliberately does not emit
+        # WORKFLOW_START/END, AGENT_*, or MESSAGE_* events, trading
+        # trace_completeness for lower event volume. "full" (or anything
+        # else) emits everything.
+        self.mode = mode
         # To calculate latency, we can keep track of start times
         self.start_times = {}
+
+    def _should_emit(self, event) -> bool:
+        if self.mode != "selective":
+            return True
+        if isinstance(event, SecurityEvent):
+            return True
+        if isinstance(event, WorkflowEvent) and event.event_type == EventType.ROUTE_DECISION:
+            return True
+        if isinstance(event, ToolEvent):
+            return True
+        return False
 
     def apply(self, ctx: HookContext) -> HookResult:
         stage = ctx.metadata.get("specific_hook")
@@ -69,7 +86,11 @@ class ObservabilityPlugin:
                 target=ctx.target or ctx.source or "unknown",
                 plugin=action_info.get("plugin", "unknown"),
                 observed_impact=action_info.get("action"),
-            ))
+            ))  # security events always emit, selective mode included
+
+        route_target = None
+        if ctx.payload and isinstance(ctx.payload, dict):
+            route_target = ctx.payload.get("agent_name")
 
         if stage == "before_input":
             event = WorkflowEvent(
@@ -94,7 +115,8 @@ class ObservabilityPlugin:
             # finished; before_output shares the same outcome preview so a
             # leakage/redaction plugin registered on "output" can see it.
             if stage == "before_output":
-                self.trace_writer.write_event(event)
+                if self._should_emit(event):
+                    self.trace_writer.write_event(event)
                 event = None
         elif stage == "before_agent":
             self.start_times[f"agent_{ctx.target}"] = now_ms
@@ -144,6 +166,21 @@ class ObservabilityPlugin:
                 business_domain=domain,
                 **semantics,
             )
+            # transfer_to_agent is ADK's routing mechanism -- surface it as
+            # its own ROUTE_DECISION event, not just a generic tool call, so
+            # route_confusion's effect (or a clean run's normal routing) is
+            # directly queryable rather than inferred from the tool name.
+            if ctx.target == "transfer_to_agent" and route_target:
+                self.trace_writer.write_event(WorkflowEvent(
+                    event_type=EventType.ROUTE_DECISION,
+                    run_id=ctx.run_id,
+                    workflow_id=ctx.workflow_id,
+                    business_domain=domain,
+                    workflow_type=workflow_type,
+                    source=ctx.source,
+                    target=route_target,
+                    step="transfer_to_agent",
+                ))
         elif stage == "after_tool":
             start = self.start_times.get(f"tool_{ctx.source}", now_ms)
             latency = now_ms - start
@@ -158,7 +195,7 @@ class ObservabilityPlugin:
                 **semantics,
             )
 
-        if event:
+        if event and self._should_emit(event):
             self.trace_writer.write_event(event)
 
             # Record OTel span for tools

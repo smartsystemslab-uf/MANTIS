@@ -33,4 +33,12 @@ SCENARIOS: dict[str, str] = {
         "Core banking system event: Run end-of-day processing for batch EOD-2026-04-21-MISMATCH and "
         "handle any reconciliation mismatch according to the workflow."
     ),
+    # Worked example from docs/create_banking_scenario.md -- kept real and
+    # runnable rather than describing a scenario that doesn't exist. Domain
+    # prefix must be front_office/mid_office/back_office (see
+    # mantis.banking.workflows._domain_for), so this isn't literally
+    # "fraud_escalation_scenario" as an external contributor might first type it.
+    "front_office_fraud_escalation": (
+        "Review transaction TXN-9999 for suspicious account activity and escalate to the fraud team."
+    ),
 }

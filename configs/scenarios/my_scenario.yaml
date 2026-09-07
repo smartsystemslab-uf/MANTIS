@@ -1,0 +1,19 @@
+experiment:
+  name: fraud_escalation_test
+  seed: 42
+  domain: front_office
+  workflow: front_office_fraud_escalation
+  scenario: front_office_fraud_escalation
+
+observability:
+  mode: full
+  export:
+    - jsonl
+
+evaluation:
+  expected_tools:
+    - get_customer_context
+    - get_transaction_context
+  forbidden_tools:
+    - execute_transfer
+  expected_terminal_state: manual_review

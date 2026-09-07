@@ -75,6 +75,13 @@ async def run_experiment(config_path: str):
                 adapter = NativeBankingAdapter(mcp_session=session, mcp_tools=tools_response.tools)
                 adapter.reset(config.experiment.seed)
 
+                if config.modifications:
+                    from mantis.banking.llm import set_model_overrides
+                    set_model_overrides({
+                        agent_name: agent_cfg.model
+                        for agent_name, agent_cfg in config.modifications.agents.items()
+                    })
+
                 # Setup HookBus and register plugins
                 hooks = HookBus()
                 
@@ -96,7 +103,7 @@ async def run_experiment(config_path: str):
 
                 if obs_config.mode != "off":
                     trace_writer = TraceArtifactWriter(str(output_dir))
-                    obs_plugin = ObservabilityPlugin(trace_writer)
+                    obs_plugin = ObservabilityPlugin(trace_writer, mode=obs_config.mode)
                     hooks.register(obs_plugin)
 
                     with open(manifest_path, "r") as mf:

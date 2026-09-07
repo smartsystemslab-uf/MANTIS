@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-07T19:47:48.458143Z",
+  "timestamp": "2026-09-07T21:40:32.919506Z",
   "config_hash": "c04a8bd227ed7e1c4d7a7e869ea7b65db1f29fc31d5451528cd4e131070618c2",
   "seed": 101,
   "config": {
@@ -25,5 +25,17 @@
         "jsonl"
       ]
     }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "6e2a4c29c27935644cccca0c8bf5f30120c26ae3"
   }
 }

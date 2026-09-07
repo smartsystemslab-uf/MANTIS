@@ -1,0 +1,10 @@
+experiment:
+  name: verify_selective_mode
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+observability:
+  mode: selective
+  export: [jsonl]

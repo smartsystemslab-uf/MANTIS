@@ -1,7 +1,8 @@
-from typing import Any, Optional, Dict, List
+from typing import Any, Optional, Dict, List, Set
 from google.adk.plugins import BasePlugin
 from google.adk.agents import BaseAgent
 from google.adk.tools import BaseTool
+from google.genai import types
 
 from mantis.hooks import HookBus, HookContext, HookAction
 from mantis.banking.tool_semantics import get_terminal_outcome
@@ -16,12 +17,14 @@ class MantisHookPlugin(BasePlugin):
         workflow_id: str = "default-workflow",
         domain: Optional[str] = None,
         scenario: Optional[str] = None,
+        disabled_agents: Optional[Set[str]] = None,
     ):
         self.hook_bus = hook_bus
         self.run_id = run_id
         self.workflow_id = workflow_id
         self.domain = domain
         self.scenario = scenario
+        self.disabled_agents = disabled_agents or set()
         # In a real trace, we would track trace_id dynamically.
         self.trace_id = run_id
         # Input is bracketed by before_run (before_input) and the first
@@ -68,7 +71,11 @@ class MantisHookPlugin(BasePlugin):
         ctx = self._create_ctx("agent", target=agent.name, payload={"context": callback_context.model_dump() if hasattr(callback_context, 'model_dump') else {}})
         res = self.hook_bus.dispatch("before_agent", ctx)
         if res.action in [HookAction.SKIP, HookAction.DENY]:
-            return {"parts": []}
+            return types.Content(role="model", parts=[types.Part(text="")])
+        if agent.name in self.disabled_agents:
+            # modifications.agents.<name>.enabled: false -- bypass this
+            # agent's model call entirely rather than editing banking code.
+            return types.Content(role="model", parts=[types.Part(text="")])
         return None
 
     async def after_agent_callback(self, *, agent: BaseAgent, callback_context: Any) -> Any:

@@ -1,0 +1,16 @@
+experiment:
+  name: verify_agent_disable
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+modifications:
+  agents:
+    transaction_monitoring_agent:
+      model: default
+      enabled: false
+
+observability:
+  mode: full
+  export: [jsonl]

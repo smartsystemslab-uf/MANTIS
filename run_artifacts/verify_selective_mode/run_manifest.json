@@ -1,14 +1,20 @@
 {
-  "timestamp": "2026-09-07T21:33:11.686867Z",
-  "config_hash": "0f5a85246b05fa7c9817658c0cb146dc1685426b44b3b1b7754d64cb8a2c01b6",
+  "timestamp": "2026-09-07T22:08:13.805520Z",
+  "config_hash": "f32275dee33de41a5366ac3047df92d5e771a3e654520d13700d7b9ea5820b62",
   "seed": 42,
   "config": {
     "experiment": {
-      "name": "back_office_clean",
+      "name": "verify_selective_mode",
       "seed": 42,
-      "domain": "back_office",
-      "workflow": "back_office_clean",
-      "scenario": "back_office_clean"
+      "domain": "front_office",
+      "workflow": "front_office_monitoring",
+      "scenario": "front_office_monitoring"
+    },
+    "observability": {
+      "mode": "selective",
+      "export": [
+        "jsonl"
+      ]
     }
   },
   "environment": {

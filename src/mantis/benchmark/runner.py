@@ -1,4 +1,5 @@
 import asyncio
+import statistics
 import time
 import json
 from pathlib import Path
@@ -6,6 +7,15 @@ from mantis.config.models import ExperimentConfig
 import yaml
 import subprocess
 import os
+
+
+def _percentile(sorted_values: list, pct: float) -> float:
+    """Nearest-rank percentile -- well-defined even for very small samples
+    (e.g. a single repetition), unlike interpolation-based methods."""
+    if not sorted_values:
+        return 0.0
+    idx = max(0, min(len(sorted_values) - 1, int(round(pct / 100 * len(sorted_values))) - 1))
+    return sorted_values[idx]
 
 class BenchmarkRunner:
     def __init__(self, config_path: str):
@@ -71,7 +81,11 @@ class BenchmarkRunner:
         end_time = time.time()
 
         successful_runs = [r for r in results if r["success"]]
-        avg_latency = sum(r["latency_s"] for r in successful_runs) / len(successful_runs) if successful_runs else 0
+        latencies = sorted(r["latency_s"] for r in successful_runs)
+        avg_latency = sum(latencies) / len(latencies) if latencies else 0
+        # stdev needs >=2 points; a single repetition has no meaningful
+        # spread, so report 0.0 rather than raising.
+        stdev_latency = statistics.stdev(latencies) if len(latencies) >= 2 else 0.0
 
         return {
             "total_runs": total_runs,
@@ -81,6 +95,10 @@ class BenchmarkRunner:
             "mock_llm": self.mock_llm,
             "total_time_s": end_time - start_time,
             "avg_latency_s": avg_latency,
+            "stdev_latency_s": stdev_latency,
+            "p50_latency_s": _percentile(latencies, 50),
+            "p90_latency_s": _percentile(latencies, 90),
+            "p99_latency_s": _percentile(latencies, 99),
             "throughput_runs_per_s": len(successful_runs) / (end_time - start_time) if (end_time - start_time) > 0 else 0,
             "runs": results
         }

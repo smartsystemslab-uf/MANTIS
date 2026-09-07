@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-07T19:44:55.789493Z",
-  "config_hash": "7ff65ec74bd67387ca10ea515258b7350cc96fcaed48ff1b90fa8cadded337a3",
+  "timestamp": "2026-09-07T21:37:07.783389Z",
+  "config_hash": "61ff4542806ef6e0f01ac1eec195c651c9cb4017fe26ede80fdfcc3dd07da188",
   "seed": 42,
   "config": {
     "experiment": {
@@ -16,7 +16,20 @@
     },
     "benchmark": {
       "concurrency": 2,
-      "repetitions": 4
+      "repetitions": 4,
+      "mock_llm": false
     }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "6e2a4c29c27935644cccca0c8bf5f30120c26ae3"
   }
 }

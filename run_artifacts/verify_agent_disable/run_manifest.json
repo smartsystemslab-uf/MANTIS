@@ -1,22 +1,21 @@
 {
-  "timestamp": "2026-09-07T21:38:48.926537Z",
-  "config_hash": "4d9a7878350a7d97f39580b9988902718dce368f632b451ca45d63112d2fbf67",
-  "seed": 103,
+  "timestamp": "2026-09-07T22:06:46.261335Z",
+  "config_hash": "d15cd2a99e34fb32907f183d0334522464fcc5456cccbdb2a87832d1614f7076",
+  "seed": 42,
   "config": {
     "experiment": {
-      "name": "wp5_route_confusion",
-      "seed": 103,
+      "name": "verify_agent_disable",
+      "seed": 42,
       "domain": "front_office",
       "workflow": "front_office_monitoring",
       "scenario": "front_office_monitoring"
     },
-    "attack": {
-      "plugin": "route_confusion",
-      "control_point": "tool",
-      "target": "transfer_to_agent",
-      "parameters": {
-        "intercepted_route": "compliance_agent",
-        "forced_destination": "decision_making_agent"
+    "modifications": {
+      "agents": {
+        "transaction_monitoring_agent": {
+          "model": "default",
+          "enabled": false
+        }
       }
     },
     "observability": {

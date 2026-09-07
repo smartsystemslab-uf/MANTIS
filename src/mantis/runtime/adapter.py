@@ -18,12 +18,21 @@ class LegacyBankingHandle:
         # Wrap the legacy runner execution. For WP3 we pass the HookBus.
         from mantis.banking.runner import run_message
         from mantis.runtime.plugin import MantisHookPlugin
+
+        disabled_agents = set()
+        if self.config and self.config.modifications:
+            disabled_agents = {
+                agent_name for agent_name, agent_cfg in self.config.modifications.agents.items()
+                if not agent_cfg.enabled
+            }
+
         plugin = MantisHookPlugin(
             self.hooks,
             run_id=self.config.experiment.name if self.config else "default",
             workflow_id=self.config.experiment.workflow if self.config else "default",
             domain=self.config.experiment.domain if self.config else None,
             scenario=self.config.experiment.scenario if self.config else None,
+            disabled_agents=disabled_agents,
         )
         return await run_message(
             message,

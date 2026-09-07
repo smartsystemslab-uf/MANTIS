@@ -3,28 +3,26 @@
     "before_input": 1,
     "after_input": 1,
     "before_agent": 7,
-    "after_agent": 5,
+    "after_agent": 4,
     "before_message": 10,
     "after_message": 10,
-    "before_tool": 6,
-    "after_tool": 6,
+    "before_tool": 7,
+    "after_tool": 7,
     "before_output": 1,
     "after_output": 1
   },
   "plugin_stats": {
     "input": {
-      "prompt_injection": 2,
       "observability_plugin": 2
     },
     "agent": {
-      "prompt_injection": 12,
-      "observability_plugin": 12
+      "observability_plugin": 11
     },
     "interaction": {
       "observability_plugin": 20
     },
     "tool": {
-      "observability_plugin": 12
+      "observability_plugin": 14
     },
     "output": {
       "observability_plugin": 2
