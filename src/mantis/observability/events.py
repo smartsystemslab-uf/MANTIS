@@ -61,6 +61,7 @@ class AgentEvent(BaseTraceEvent):
 
 class ToolEvent(BaseTraceEvent):
     tool_name: str
+    tool_call_id: Optional[str] = None
     arguments: Optional[Dict[str, Any]] = None
     arguments_hash: Optional[str] = None
     business_domain: Optional[str] = None
@@ -81,6 +82,7 @@ class ToolEvent(BaseTraceEvent):
 class InteractionEvent(BaseTraceEvent):
     """Agent <-> model message boundary (before_message / after_message)."""
     agent_id: str
+    invocation_id: Optional[str] = None
     business_domain: Optional[str] = None
     content_hash: Optional[str] = None
     content_length: Optional[int] = None

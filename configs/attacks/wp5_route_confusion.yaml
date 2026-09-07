@@ -16,3 +16,13 @@ attack:
 observability:
   mode: full
   export: [jsonl]
+
+# expected_tools makes this checkable by `mantis --evaluate`: without it,
+# tool_use_correctness trivially scores 1.0 whether or not the workflow ever
+# actually reached transfer_to_agent -- exactly the gap that let this
+# plugin's real bug (matching on target_agent/agent_id instead of ADK's
+# real agent_name argument, so it never once fired) go undetected by every
+# past "the script exited 0" style check.
+evaluation:
+  expected_tools:
+    - transfer_to_agent

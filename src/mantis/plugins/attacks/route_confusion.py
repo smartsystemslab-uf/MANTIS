@@ -11,15 +11,13 @@ class RouteConfusionPlugin:
 
     def apply(self, ctx: HookContext) -> HookResult:
         if ctx.metadata.get("specific_hook") == "before_tool":
-            # If routing is done via a tool call like `transfer_to_agent`
+            # ADK's built-in transfer_to_agent(agent_name: str, tool_context)
+            # is the only routing tool in this system; agent_name is its one
+            # real argument (verified against google.adk.tools.transfer_to_agent_tool).
             mutated_payload = dict(ctx.payload)
             if ctx.target == "transfer_to_agent" or "transfer" in (ctx.target or ""):
-                if mutated_payload.get("target_agent") == self.intercepted_route or mutated_payload.get("agent_id") == self.intercepted_route:
-                    # Reroute!
-                    if "target_agent" in mutated_payload:
-                        mutated_payload["target_agent"] = self.forced_destination
-                    elif "agent_id" in mutated_payload:
-                        mutated_payload["agent_id"] = self.forced_destination
+                if mutated_payload.get("agent_name") == self.intercepted_route:
+                    mutated_payload["agent_name"] = self.forced_destination
                     return HookResult(action=HookAction.MUTATE, payload=mutated_payload)
 
         return HookResult(action=HookAction.CONTINUE)

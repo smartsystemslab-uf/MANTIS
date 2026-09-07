@@ -4,13 +4,31 @@ import shutil
 import subprocess
 import time
 from pathlib import Path
+import yaml
 from mantis.evaluation.evaluators import TraceEvaluator
+from mantis.config.models import ExperimentConfig
 
 class CampaignManager:
     def __init__(self, campaign_dir: str):
         self.campaign_dir = Path(campaign_dir)
         self.timestamp = int(time.time())
         self.output_dir = Path("run_artifacts") / f"campaign_run_{self.timestamp}"
+
+    @staticmethod
+    def _run_name_for(config_path: Path) -> str:
+        # mantis --run writes to run_artifacts/<experiment.name>/, which is
+        # not always the config's own filename stem (e.g. every file under
+        # configs/baselines/ names its experiment after the workflow it
+        # exercises, not after "<domain>_baseline") -- reading the real name
+        # out of the parsed config is the only way to find that directory
+        # again for aggregation. Falls back to the filename stem so one
+        # malformed config can't stop the whole campaign from aggregating.
+        try:
+            with open(config_path, "r") as f:
+                data = yaml.safe_load(f)
+            return ExperimentConfig(**data).experiment.name
+        except Exception:
+            return config_path.stem
 
     async def execute_campaign(self):
         if not self.campaign_dir.exists() or not self.campaign_dir.is_dir():
@@ -48,14 +66,16 @@ class CampaignManager:
         print("-" * 50)
         print("🎯 Campaign Execution Complete.")
         
-        # We need to aggregate the artifacts that were dumped to run_artifacts/<config_name>
-        # into our campaign output dir
+        # We need to aggregate the artifacts that were dumped to
+        # run_artifacts/<experiment.name> into our campaign output dir
         for config_path in configs:
-            run_name = config_path.stem
+            run_name = self._run_name_for(config_path)
             source_dir = Path("run_artifacts") / run_name
             if source_dir.exists() and source_dir.is_dir():
                 dest_dir = self.output_dir / run_name
                 shutil.copytree(source_dir, dest_dir, dirs_exist_ok=True)
+            else:
+                print(f"⚠️  Could not find output for {config_path.name} (expected run_artifacts/{run_name}/)")
 
         print(f"📊 Run `mantis --report {self.output_dir}` to view results.")
 

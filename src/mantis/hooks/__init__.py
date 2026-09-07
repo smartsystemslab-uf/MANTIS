@@ -1,4 +1,5 @@
 import logging
+import time
 from enum import Enum
 from typing import Any, Optional, Literal, Set, Protocol, List, Dict
 from pydantic import BaseModel, Field, ConfigDict
@@ -53,6 +54,12 @@ class HookBus:
             "before_tool": 0, "after_tool": 0,
             "before_output": 0, "after_output": 0,
         }
+        # Cumulative wall time spent inside each plugin's apply(), summed
+        # across every dispatch in the run -- a direct measurement of
+        # instrumentation cost, not an end-to-end off-vs-full diff across
+        # separate processes (which per-process startup/session-bootstrap
+        # cost dominates and confounds; see docs/reproducibility.md).
+        self.plugin_timing_ms: Dict[str, float] = {}
 
     def register(self, plugin: ExperimentPlugin) -> None:
         self._plugins.append(plugin)
@@ -89,7 +96,10 @@ class HookBus:
                 ctx_copy.metadata["specific_hook"] = specific_hook
                 ctx_copy.metadata["security_actions"] = list(security_actions)
                 try:
+                    _t0 = time.perf_counter()
                     result = plugin.apply(ctx_copy)
+                    elapsed_ms = (time.perf_counter() - _t0) * 1000
+                    self.plugin_timing_ms[plugin.name] = self.plugin_timing_ms.get(plugin.name, 0.0) + elapsed_ms
                     plugins_applied.append(plugin.name)
 
                     if result.action != HookAction.CONTINUE:
@@ -113,5 +123,6 @@ class HookBus:
         with open(filepath, "w") as f:
             json.dump({
                 "hits": self.coverage_hit,
-                "plugin_stats": self.coverage_stats
+                "plugin_stats": self.coverage_stats,
+                "plugin_timing_ms": self.plugin_timing_ms,
             }, f, indent=2)

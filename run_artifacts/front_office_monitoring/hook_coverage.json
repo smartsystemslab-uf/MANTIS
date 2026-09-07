@@ -2,12 +2,12 @@
   "hits": {
     "before_input": 1,
     "after_input": 1,
-    "before_agent": 7,
-    "after_agent": 5,
-    "before_message": 11,
-    "after_message": 11,
-    "before_tool": 7,
-    "after_tool": 7,
+    "before_agent": 1,
+    "after_agent": 1,
+    "before_message": 2,
+    "after_message": 2,
+    "before_tool": 1,
+    "after_tool": 1,
     "before_output": 1,
     "after_output": 1
   },
@@ -16,16 +16,19 @@
       "observability_plugin": 2
     },
     "agent": {
-      "observability_plugin": 12
+      "observability_plugin": 2
     },
     "interaction": {
-      "observability_plugin": 22
+      "observability_plugin": 4
     },
     "tool": {
-      "observability_plugin": 14
+      "observability_plugin": 2
     },
     "output": {
       "observability_plugin": 2
     }
+  },
+  "plugin_timing_ms": {
+    "observability_plugin": 2.9061410459689796
   }
 }

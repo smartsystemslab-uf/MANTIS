@@ -4,32 +4,36 @@
   "failed_runs": 0,
   "concurrency": 2,
   "mock_llm": false,
-  "total_time_s": 35.67244005203247,
-  "avg_latency_s": 17.449233055114746,
-  "throughput_runs_per_s": 0.11213138193421944,
+  "total_time_s": 42.6454119682312,
+  "avg_latency_s": 20.784604728221893,
+  "stdev_latency_s": 1.0426692229371726,
+  "p50_latency_s": 20.299828052520752,
+  "p90_latency_s": 22.344411849975586,
+  "p99_latency_s": 22.344411849975586,
+  "throughput_runs_per_s": 0.09379672549487408,
   "runs": [
     {
       "run_idx": 0,
       "success": true,
-      "latency_s": 18.028075218200684,
+      "latency_s": 20.299828052520752,
       "error": null
     },
     {
       "run_idx": 1,
       "success": true,
-      "latency_s": 17.01779317855835,
+      "latency_s": 20.158699989318848,
       "error": null
     },
     {
       "run_idx": 2,
       "success": true,
-      "latency_s": 17.113765001296997,
+      "latency_s": 22.344411849975586,
       "error": null
     },
     {
       "run_idx": 3,
       "success": true,
-      "latency_s": 17.637298822402954,
+      "latency_s": 20.335479021072388,
       "error": null
     }
   ]

@@ -2,12 +2,12 @@
   "hits": {
     "before_input": 1,
     "after_input": 1,
-    "before_agent": 6,
-    "after_agent": 4,
-    "before_message": 6,
-    "after_message": 6,
-    "before_tool": 3,
-    "after_tool": 3,
+    "before_agent": 1,
+    "after_agent": 1,
+    "before_message": 2,
+    "after_message": 2,
+    "before_tool": 1,
+    "after_tool": 1,
     "before_output": 1,
     "after_output": 1
   },
@@ -17,5 +17,6 @@
     "interaction": {},
     "tool": {},
     "output": {}
-  }
+  },
+  "plugin_timing_ms": {}
 }

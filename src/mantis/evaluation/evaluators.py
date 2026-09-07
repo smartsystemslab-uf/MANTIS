@@ -1,11 +1,13 @@
 import json
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 class TraceEvaluator:
     def __init__(self, run_dir: str):
         self.run_dir = Path(run_dir)
         self.trace_file = self.run_dir / "traces.jsonl"
+        self.coverage_file = self.run_dir / "hook_coverage.json"
         self.events: List[Dict[str, Any]] = []
         if self.trace_file.exists():
             with open(self.trace_file, "r") as f:
@@ -17,11 +19,15 @@ class TraceEvaluator:
         if not self.events:
             return {"error": "No traces found."}
 
-        return {
+        result = {
             "trace_completeness": self.evaluate_completeness(),
             "tool_use_correctness": self.evaluate_tool_use(),
             "workflow_outcome": self.evaluate_workflow_outcome()
         }
+        overhead = self.evaluate_instrumentation_overhead()
+        if overhead is not None:
+            result["instrumentation_overhead"] = overhead
+        return result
 
     def evaluate_completeness(self) -> Dict[str, Any]:
         event_types = [e.get("event_type") for e in self.events]
@@ -110,4 +116,50 @@ class TraceEvaluator:
             "score": score,
             "expected_outcome": expected_outcome,
             "actual_outcome": actual_outcome
+        }
+
+    def evaluate_instrumentation_overhead(self) -> Optional[Dict[str, Any]]:
+        """Precise, single-run instrumentation cost: direct wall-time spent
+        inside plugin.apply() (from HookBus.plugin_timing_ms, written to
+        hook_coverage.json) as a fraction of total run duration (from the
+        EXPERIMENT_START/EXPERIMENT_END timestamps already in the trace).
+
+        This replaces an off-vs-full A/B across separate processes, where
+        per-process startup/session-bootstrap cost dominates and confounds
+        the comparison -- see docs/reproducibility.md. Returns None when
+        hook_coverage.json is absent (older runs) or the run has no matching
+        EXPERIMENT_START/EXPERIMENT_END pair to derive a duration from.
+        """
+        if not self.coverage_file.exists():
+            return None
+
+        with open(self.coverage_file, "r") as f:
+            coverage = json.load(f)
+        plugin_timing_ms: Dict[str, float] = coverage.get("plugin_timing_ms", {})
+
+        start_ts = None
+        end_ts = None
+        for e in self.events:
+            if e.get("event_type") == "EXPERIMENT_START":
+                start_ts = e.get("timestamp")
+            elif e.get("event_type") == "EXPERIMENT_END":
+                end_ts = e.get("timestamp")
+        if not start_ts or not end_ts:
+            return None
+
+        total_duration_ms = (
+            datetime.fromisoformat(end_ts) - datetime.fromisoformat(start_ts)
+        ).total_seconds() * 1000
+        if total_duration_ms <= 0:
+            return None
+
+        observability_ms = plugin_timing_ms.get("observability_plugin", 0.0)
+        total_plugin_ms = sum(plugin_timing_ms.values())
+
+        return {
+            "total_run_duration_ms": total_duration_ms,
+            "plugin_timing_ms": plugin_timing_ms,
+            "observability_plugin_ms": observability_ms,
+            "observability_overhead_pct": (observability_ms / total_duration_ms) * 100,
+            "total_instrumentation_overhead_pct": (total_plugin_ms / total_duration_ms) * 100,
         }

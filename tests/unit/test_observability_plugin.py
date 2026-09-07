@@ -1,6 +1,6 @@
 from mantis.hooks import HookContext
 from mantis.observability.plugin import ObservabilityPlugin
-from mantis.observability.events import EventType, WorkflowEvent, AgentEvent, ToolEvent, SecurityEvent
+from mantis.observability.events import EventType, WorkflowEvent, AgentEvent, ToolEvent, InteractionEvent, SecurityEvent
 
 
 class FakeTraceWriter:
@@ -56,11 +56,47 @@ def test_transfer_to_agent_emits_route_decision():
     writer = FakeTraceWriter()
     plugin = ObservabilityPlugin(writer, mode="full")
 
-    plugin.apply(_ctx("tool", "before_tool", target="transfer_to_agent", payload={"agent_name": "compliance_agent"}))
+    plugin.apply(_ctx(
+        "tool", "before_tool", source="teller_agent", target="transfer_to_agent",
+        payload={"agent_name": "compliance_agent"},
+    ))
 
     route_events = [e for e in writer.events if isinstance(e, WorkflowEvent) and e.event_type == EventType.ROUTE_DECISION]
     assert len(route_events) == 1
+    assert route_events[0].source == "teller_agent"
     assert route_events[0].target == "compliance_agent"
+
+
+def test_tool_call_id_propagates_to_tool_call_and_result_events():
+    writer = FakeTraceWriter()
+    plugin = ObservabilityPlugin(writer, mode="full")
+
+    plugin.apply(_ctx(
+        "tool", "before_tool", source="teller_agent", target="get_customer_context",
+        payload={"customer_id": "CUST-001"}, extra_metadata={"tool_call_id": "fc-123"},
+    ))
+    plugin.apply(_ctx(
+        "tool", "after_tool", source="get_customer_context", target="teller_agent",
+        payload={"result": "ok"}, extra_metadata={"tool_call_id": "fc-123"},
+    ))
+
+    tool_events = [e for e in writer.events if isinstance(e, ToolEvent)]
+    assert len(tool_events) == 2
+    assert all(e.tool_call_id == "fc-123" for e in tool_events)
+
+
+def test_invocation_id_propagates_to_interaction_events():
+    writer = FakeTraceWriter()
+    plugin = ObservabilityPlugin(writer, mode="full")
+
+    plugin.apply(_ctx(
+        "interaction", "before_message", source="teller_agent", target="model",
+        payload={"messages": []}, extra_metadata={"invocation_id": "inv-1"},
+    ))
+
+    interaction_events = [e for e in writer.events if isinstance(e, InteractionEvent)]
+    assert len(interaction_events) == 1
+    assert interaction_events[0].invocation_id == "inv-1"
 
 
 def test_route_decision_survives_selective_mode():

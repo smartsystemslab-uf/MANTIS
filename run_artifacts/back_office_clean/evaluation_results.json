@@ -1,0 +1,33 @@
+{
+  "trace_completeness": {
+    "score": 1.0,
+    "has_workflow_start": true,
+    "has_workflow_end": true,
+    "has_agent_start": true,
+    "total_events": 13,
+    "business_domain": "back_office",
+    "workflow_id": "back_office_clean"
+  },
+  "tool_use_correctness": {
+    "score": 1.0,
+    "actual_tools": [
+      "transfer_to_agent"
+    ],
+    "missing_expected": [],
+    "used_forbidden": []
+  },
+  "workflow_outcome": {
+    "score": 1.0,
+    "expected_outcome": null,
+    "actual_outcome": "completed"
+  },
+  "instrumentation_overhead": {
+    "total_run_duration_ms": 1433.511,
+    "plugin_timing_ms": {
+      "observability_plugin": 2.4827889865264297
+    },
+    "observability_plugin_ms": 2.4827889865264297,
+    "observability_overhead_pct": 0.17319636797530188,
+    "total_instrumentation_overhead_pct": 0.17319636797530188
+  }
+}

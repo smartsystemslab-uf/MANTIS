@@ -91,3 +91,50 @@ def test_evaluator_tool_use_correctness_with_manifest(tmp_path: Path):
     res2 = evaluator2.evaluate_tool_use()
     assert res2["score"] == 0.0
     assert "execute_unauthorized_transfer" in res2["used_forbidden"]
+
+
+def test_evaluate_instrumentation_overhead_missing_coverage_file(tmp_path: Path):
+    trace_file = tmp_path / "traces.jsonl"
+    with open(trace_file, "w") as f:
+        f.write(json.dumps({"event_type": "EXPERIMENT_START", "timestamp": "2026-01-01T00:00:00"}) + "\n")
+        f.write(json.dumps({"event_type": "EXPERIMENT_END", "timestamp": "2026-01-01T00:00:01"}) + "\n")
+
+    evaluator = TraceEvaluator(str(tmp_path))
+    assert evaluator.evaluate_instrumentation_overhead() is None
+
+
+def test_evaluate_instrumentation_overhead_missing_experiment_bounds(tmp_path: Path):
+    trace_file = tmp_path / "traces.jsonl"
+    with open(trace_file, "w") as f:
+        f.write(json.dumps({"event_type": "WORKFLOW_START"}) + "\n")
+
+    with open(tmp_path / "hook_coverage.json", "w") as f:
+        json.dump({"plugin_timing_ms": {"observability_plugin": 5.0}}, f)
+
+    evaluator = TraceEvaluator(str(tmp_path))
+    assert evaluator.evaluate_instrumentation_overhead() is None
+
+
+def test_evaluate_instrumentation_overhead_computes_percentages(tmp_path: Path):
+    trace_file = tmp_path / "traces.jsonl"
+    with open(trace_file, "w") as f:
+        f.write(json.dumps({"event_type": "EXPERIMENT_START", "timestamp": "2026-01-01T00:00:00"}) + "\n")
+        f.write(json.dumps({"event_type": "EXPERIMENT_END", "timestamp": "2026-01-01T00:00:01"}) + "\n")
+
+    with open(tmp_path / "hook_coverage.json", "w") as f:
+        json.dump(
+            {"plugin_timing_ms": {"observability_plugin": 100.0, "prompt_injection": 50.0}},
+            f,
+        )
+
+    evaluator = TraceEvaluator(str(tmp_path))
+    res = evaluator.evaluate_instrumentation_overhead()
+    assert res is not None
+    assert res["total_run_duration_ms"] == 1000.0
+    assert res["observability_plugin_ms"] == 100.0
+    assert res["observability_overhead_pct"] == 10.0
+    assert res["total_instrumentation_overhead_pct"] == 15.0
+
+    # evaluate_all() folds it in under "instrumentation_overhead"
+    all_res = evaluator.evaluate_all()
+    assert all_res["instrumentation_overhead"]["observability_overhead_pct"] == 10.0

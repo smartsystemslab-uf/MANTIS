@@ -11,6 +11,8 @@ mlruns/
 .claude/
 ~$*
 # Per-run campaign output directories accumulate unboundedly; the fixed
-# reference examples (run_artifacts/<name>/ for baselines and the four wp5_*
-# attacks) stay tracked, campaign sweeps don't.
+# reference examples (run_artifacts/<name>/ for baselines and the five wp5_*
+# attacks) stay tracked, campaign sweeps and one-off verify_* scratch runs
+# don't.
 run_artifacts/campaign_run_*/
+run_artifacts/verify_*/

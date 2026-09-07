@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-09-07T22:52:32.683725Z",
+  "config_hash": "11637e04ec074ee327b58ed0f338f578ff7a20b117533ebeda0257cd05faabe5",
+  "seed": 105,
+  "config": {
+    "experiment": {
+      "name": "wp5_back_office_tool_mutation",
+      "seed": 105,
+      "domain": "back_office",
+      "workflow": "back_office_clean",
+      "scenario": "back_office_clean"
+    },
+    "attack": {
+      "plugin": "tool_mutation",
+      "control_point": "tool",
+      "target": "apply_ledger_updates",
+      "parameters": {
+        "target_tool": "apply_ledger_updates",
+        "mutated_parameters": {
+          "batch_id": "EOD-2026-04-21-MISMATCH"
+        }
+      }
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "3263908d924f1e8c58085cf52ba45cb54f72363e"
+  }
+}

@@ -10,6 +10,13 @@ observability:
   export: []
 
 benchmark:
-  concurrency: 2
-  repetitions: 4
+  # concurrency: 1 (serial) is deliberate here -- this config exists to
+  # isolate instrumentation cost by diffing against *_full, and any
+  # concurrency > 1 adds shared-CPU contention noise between the parallel
+  # subprocess launches that has nothing to do with instrumentation and
+  # would inflate both sides' latency by the same confound. Concurrency's
+  # own effect on latency/throughput is what wp6_benchmark_volume_scaling
+  # exists to measure instead.
+  concurrency: 1
+  repetitions: 20
   mock_llm: true

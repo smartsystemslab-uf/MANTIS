@@ -18,3 +18,13 @@ attack:
 observability:
   mode: full
   export: [jsonl]
+
+# expected_tools gives mantis --evaluate a real signal: the model is free to
+# decide execute_transfer isn't warranted for a given prompt (that's
+# legitimate LLM behavior, observed in an earlier real run of this exact
+# config), and when that happens the mutation plugin had no opportunity to
+# fire at all -- worth flagging automatically rather than reporting the run
+# as an unqualified success either way.
+evaluation:
+  expected_tools:
+    - execute_transfer

@@ -10,6 +10,7 @@ observability:
   export: [jsonl]
 
 benchmark:
-  concurrency: 2
-  repetitions: 4
+  # concurrency: 1 -- see the comment in wp6_benchmark_mock_llm_off.yaml.
+  concurrency: 1
+  repetitions: 20
   mock_llm: true

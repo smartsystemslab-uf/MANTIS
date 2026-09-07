@@ -94,7 +94,11 @@ class MantisHookPlugin(BasePlugin):
     async def before_model_callback(self, *, callback_context: Any, llm_request: Any) -> Any:
         contents = getattr(llm_request, 'contents', [])
         agent_name = getattr(callback_context, 'agent_name', None) or "unknown_agent"
-        ctx = self._create_ctx("interaction", source=agent_name, target="model", payload={"messages": contents})
+        invocation_id = getattr(callback_context, 'invocation_id', None)
+        ctx = self._create_ctx(
+            "interaction", source=agent_name, target="model", payload={"messages": contents},
+            extra_metadata={"invocation_id": invocation_id},
+        )
         res = self.hook_bus.dispatch("before_message", ctx)
         if res.action == HookAction.MUTATE and res.payload:
             if hasattr(llm_request, 'contents'):
@@ -108,7 +112,11 @@ class MantisHookPlugin(BasePlugin):
 
     async def after_model_callback(self, *, callback_context: Any, llm_response: Any) -> Any:
         agent_name = getattr(callback_context, 'agent_name', None) or "unknown_agent"
-        ctx = self._create_ctx("interaction", source="model", target=agent_name, payload={"response": str(getattr(llm_response, 'content', ''))})
+        invocation_id = getattr(callback_context, 'invocation_id', None)
+        ctx = self._create_ctx(
+            "interaction", source="model", target=agent_name, payload={"response": str(getattr(llm_response, 'content', ''))},
+            extra_metadata={"invocation_id": invocation_id},
+        )
         self.hook_bus.dispatch("after_message", ctx)
         return None
 
@@ -123,7 +131,12 @@ class MantisHookPlugin(BasePlugin):
     # 4. Tool/API (before_tool / after_tool)
     async def before_tool_callback(self, *, tool: BaseTool, tool_args: dict[str, Any], tool_context: Any) -> Optional[dict[str, Any]]:
         self._tool_call_order.append(tool.name)
-        ctx = self._create_ctx("tool", target=tool.name, payload=tool_args)
+        agent_name = getattr(tool_context, 'agent_name', None)
+        tool_call_id = getattr(tool_context, 'function_call_id', None)
+        ctx = self._create_ctx(
+            "tool", source=agent_name, target=tool.name, payload=tool_args,
+            extra_metadata={"tool_call_id": tool_call_id},
+        )
         res = self.hook_bus.dispatch("before_tool", ctx)
 
         if res.action == HookAction.MUTATE and res.payload is not None:
@@ -136,7 +149,12 @@ class MantisHookPlugin(BasePlugin):
 
     async def after_tool_callback(self, *, tool: BaseTool, tool_args: dict[str, Any], tool_context: Any, result: Any) -> Optional[dict[str, Any]]:
         payload = result if isinstance(result, dict) else {"result": result}
-        ctx = self._create_ctx("tool", source=tool.name, payload=payload)
+        agent_name = getattr(tool_context, 'agent_name', None)
+        tool_call_id = getattr(tool_context, 'function_call_id', None)
+        ctx = self._create_ctx(
+            "tool", source=tool.name, target=agent_name, payload=payload,
+            extra_metadata={"tool_call_id": tool_call_id},
+        )
         res = self.hook_bus.dispatch("after_tool", ctx)
 
         if res.action == HookAction.MUTATE and res.payload is not None:
@@ -146,9 +164,11 @@ class MantisHookPlugin(BasePlugin):
         return None
 
     async def on_tool_error_callback(self, *, tool: BaseTool, tool_args: dict[str, Any], tool_context: Any, error: Exception) -> Optional[dict[str, Any]]:
+        agent_name = getattr(tool_context, 'agent_name', None)
+        tool_call_id = getattr(tool_context, 'function_call_id', None)
         ctx = self._create_ctx(
-            "tool", source=tool.name, payload={},
-            extra_metadata={"error": True, "error_message": str(error)},
+            "tool", source=tool.name, target=agent_name, payload={},
+            extra_metadata={"error": True, "error_message": str(error), "tool_call_id": tool_call_id},
         )
         self.hook_bus.dispatch("after_tool", ctx)
         return None

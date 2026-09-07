@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-07T21:40:16.933744Z",
-  "config_hash": "f3e80e510ca0a120dd711b7892356374c7c0bc93516a54d13f461ad0af001297",
+  "timestamp": "2026-09-07T23:07:18.286058Z",
+  "config_hash": "a4d2fe810a127216c0ddd9aef1c5a0f8bf7fad755bc1c05dc99c5f19a79180cd",
   "seed": 42,
   "config": {
     "experiment": {
@@ -17,8 +17,8 @@
       ]
     },
     "benchmark": {
-      "concurrency": 2,
-      "repetitions": 4,
+      "concurrency": 1,
+      "repetitions": 20,
       "mock_llm": true
     }
   },
@@ -32,6 +32,6 @@
       "mcp": "1.29.0",
       "pydantic": "2.13.4"
     },
-    "git_commit": "6e2a4c29c27935644cccca0c8bf5f30120c26ae3"
+    "git_commit": "3263908d924f1e8c58085cf52ba45cb54f72363e"
   }
 }

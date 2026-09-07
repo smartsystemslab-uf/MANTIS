@@ -81,6 +81,7 @@ MANTIS/
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
+pip install -r citi_banking_backend/requirements.txt
 
 # 2. Configure model access (only needed for `mantis --run`, not for tests
 #    or --validate/--inventory/--generate-schemas/--evaluate)
@@ -142,7 +143,7 @@ The `scripts/` directory has one verification script per work package, each wrap
    ```
 
 5. **WP5: Attack and Failure Plugins Demo**
-   Execute four distinct security experiments showcasing Prompt Injection, Message Spoofing, Route Confusion, and Tool Parameter Mutation acting on the standard banking workflows.
+   Execute five security experiments showcasing Prompt Injection, Message Spoofing, Route Confusion, and Tool Parameter Mutation (against both a Front Office transfer and a Back Office ledger post) acting on the standard banking workflows.
 
    ```bash
    ./scripts/demo_wp5_attacks.sh

@@ -1,0 +1,33 @@
+{
+  "trace_completeness": {
+    "score": 1.0,
+    "has_workflow_start": true,
+    "has_workflow_end": true,
+    "has_agent_start": true,
+    "total_events": 13,
+    "business_domain": "mid_office",
+    "workflow_id": "mid_office_planning"
+  },
+  "tool_use_correctness": {
+    "score": 1.0,
+    "actual_tools": [
+      "transfer_to_agent"
+    ],
+    "missing_expected": [],
+    "used_forbidden": []
+  },
+  "workflow_outcome": {
+    "score": 1.0,
+    "expected_outcome": null,
+    "actual_outcome": "completed"
+  },
+  "instrumentation_overhead": {
+    "total_run_duration_ms": 1408.6909999999998,
+    "plugin_timing_ms": {
+      "observability_plugin": 2.712215995416045
+    },
+    "observability_plugin_ms": 2.712215995416045,
+    "observability_overhead_pct": 0.1925344873656498,
+    "total_instrumentation_overhead_pct": 0.1925344873656498
+  }
+}

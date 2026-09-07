@@ -1,6 +1,14 @@
-fastapi==0.115.6
+# fastapi and pydantic are deliberately unpinned here: this backend always
+# runs inside the same environment as the main mantis package (see
+# ../pyproject.toml), which pins google-adk==2.7.1 and thereby requires
+# pydantic>=2.12 -- pinning an older pydantic/fastapi pair here as this file
+# once did (2.10.5/0.115.6) is a real, silent version-downgrade conflict
+# against that constraint (`pip install -r` on this file alone happily
+# installs it with no resolver error, then google-adk's own requirement is
+# violated). Let them resolve to whatever the shared environment already has.
+fastapi
 uvicorn[standard]==0.34.0
 SQLAlchemy==2.0.36
-pydantic==2.10.5
+pydantic
 python-dotenv==1.0.1
 httpx==0.28.1

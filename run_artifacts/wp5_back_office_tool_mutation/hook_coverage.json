@@ -22,6 +22,7 @@
       "observability_plugin": 4
     },
     "tool": {
+      "tool_parameter_mutation": 2,
       "observability_plugin": 2
     },
     "output": {
@@ -29,6 +30,7 @@
     }
   },
   "plugin_timing_ms": {
-    "observability_plugin": 2.844182919943705
+    "observability_plugin": 2.7987740468233824,
+    "tool_parameter_mutation": 0.014140998246148229
   }
 }

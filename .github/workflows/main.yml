@@ -21,6 +21,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e .
+        pip install -r citi_banking_backend/requirements.txt
         pip install pytest flake8
         
     - name: Lint with flake8
@@ -49,8 +50,14 @@ jobs:
         mantis --validate configs/attacks/wp5_message_spoofing.yaml
         mantis --validate configs/attacks/wp5_route_confusion.yaml
         mantis --validate configs/attacks/wp5_tool_mutation.yaml
+        mantis --validate configs/attacks/wp5_back_office_tool_mutation.yaml
 
     - name: Quickstart Pipeline Verification
       run: |
         chmod +x scripts/quickstart.sh
         ./scripts/quickstart.sh
+
+    - name: Attacked Scenario Smoke Test (live execution, mock LLM)
+      run: |
+        chmod +x scripts/ci_attack_smoke_test.sh
+        ./scripts/ci_attack_smoke_test.sh
