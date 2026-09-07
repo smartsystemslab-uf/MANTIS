@@ -125,7 +125,7 @@ The `scripts/` directory has one verification script per work package, each wrap
    ```bash
    ./scripts/verify_wp2_config.sh
    ```
-   *Demonstrates the execution of robust YAML experiment generation, configuration hashing, seed reproducibility, and strict validation error propagation.*
+   *Demonstrates YAML experiment generation, configuration hashing, seed reproducibility, and validation error propagation.*
 
 3. **WP3 Hook Bus Injection Demo:** 
    ```bash
@@ -165,7 +165,7 @@ The `scripts/` directory has one verification script per work package, each wrap
    ```
 
 8. **WP8: Full Release Validation**
-   You can verify the complete stability of MANTIS by running the exhaustive master suite:
+   Runs everything above in sequence, end to end:
 
    ```bash
    ./scripts/release_validation.sh
