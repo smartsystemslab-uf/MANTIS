@@ -114,3 +114,6 @@ def test_run_manifest_generation(tmp_path: Path):
     assert "config_hash" in manifest
     assert len(manifest["config_hash"]) == 64  # SHA256 length
     assert manifest["config"]["experiment"]["name"] == "manifest_test"
+    assert manifest["environment"]["python_version"]
+    assert manifest["environment"]["platform"]
+    assert "mantis" in manifest["environment"]["packages"]

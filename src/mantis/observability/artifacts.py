@@ -1,26 +1,58 @@
 import json
 import hashlib
+import platform
+import subprocess
+import sys
 from datetime import datetime
+from importlib.metadata import version, PackageNotFoundError
 from pathlib import Path
 from mantis.config.models import ExperimentConfig
+
+_TRACKED_PACKAGES = ["mantis", "google-adk", "litellm", "mcp", "pydantic"]
+
+
+def _capture_environment() -> dict:
+    packages = {}
+    for pkg in _TRACKED_PACKAGES:
+        try:
+            packages[pkg] = version(pkg)
+        except PackageNotFoundError:
+            packages[pkg] = None
+
+    git_commit = None
+    try:
+        git_commit = subprocess.run(
+            ["git", "rev-parse", "HEAD"], capture_output=True, text=True, timeout=2,
+        ).stdout.strip() or None
+    except Exception:
+        pass
+
+    return {
+        "python_version": sys.version.split()[0],
+        "platform": platform.platform(),
+        "packages": packages,
+        "git_commit": git_commit,
+    }
+
 
 def create_run_manifest(config: ExperimentConfig, output_dir: Path) -> Path:
     config_dict = config.model_dump(exclude_none=True)
     config_str = json.dumps(config_dict, sort_keys=True)
     config_hash = hashlib.sha256(config_str.encode()).hexdigest()
-    
+
     manifest = {
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "config_hash": config_hash,
         "seed": config.experiment.seed,
-        "config": config_dict
+        "config": config_dict,
+        "environment": _capture_environment(),
     }
-    
+
     output_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = output_dir / "run_manifest.json"
     with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
-        
+
     return manifest_path
 
 import os
