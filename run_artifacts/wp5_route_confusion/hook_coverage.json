@@ -19,12 +19,12 @@
       "observability_plugin": 12
     },
     "interaction": {
-      "observability_plugin": 20,
-      "route_confusion": 20
+      "route_confusion": 20,
+      "observability_plugin": 20
     },
     "tool": {
-      "observability_plugin": 12,
-      "route_confusion": 12
+      "route_confusion": 12,
+      "observability_plugin": 12
     },
     "output": {
       "observability_plugin": 2

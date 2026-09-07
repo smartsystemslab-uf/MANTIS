@@ -13,12 +13,12 @@
   },
   "plugin_stats": {
     "input": {
-      "observability_plugin": 2,
-      "prompt_injection": 2
+      "prompt_injection": 2,
+      "observability_plugin": 2
     },
     "agent": {
-      "observability_plugin": 12,
-      "prompt_injection": 12
+      "prompt_injection": 12,
+      "observability_plugin": 12
     },
     "interaction": {
       "observability_plugin": 20

@@ -4,17 +4,16 @@
     "has_workflow_start": true,
     "has_workflow_end": true,
     "has_agent_start": true,
-    "total_events": 43,
+    "total_events": 41,
     "business_domain": "front_office",
     "workflow_id": "front_office_transaction_execution"
   },
   "tool_use_correctness": {
     "score": 1.0,
     "actual_tools": [
-      "search_policies",
       "get_customer_context",
       "transfer_to_agent",
-      "submit_manual_review"
+      "search_policies"
     ],
     "missing_expected": [],
     "used_forbidden": []
@@ -22,6 +21,6 @@
   "workflow_outcome": {
     "score": 1.0,
     "expected_outcome": null,
-    "actual_outcome": "manual_review"
+    "actual_outcome": "completed"
   }
 }

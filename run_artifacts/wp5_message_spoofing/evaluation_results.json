@@ -4,7 +4,7 @@
     "has_workflow_start": true,
     "has_workflow_end": true,
     "has_agent_start": true,
-    "total_events": 53,
+    "total_events": 56,
     "business_domain": "mid_office",
     "workflow_id": "mid_office_rep_assist"
   },
@@ -12,10 +12,9 @@
     "score": 1.0,
     "actual_tools": [
       "get_customer_financial_profile",
-      "search_product_catalog",
       "search_loan_playbooks",
       "transfer_to_agent",
-      "search_policies"
+      "search_product_catalog"
     ],
     "missing_expected": [],
     "used_forbidden": []

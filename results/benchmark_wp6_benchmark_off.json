@@ -3,31 +3,31 @@
   "successful_runs": 4,
   "failed_runs": 0,
   "concurrency": 2,
-  "total_time_s": 36.95274901390076,
-  "avg_latency_s": 17.845486760139465,
+  "total_time_s": 40.15448021888733,
+  "avg_latency_s": 19.172621250152588,
   "runs": [
     {
       "run_idx": 0,
       "success": true,
-      "latency_s": 18.631745100021362,
+      "latency_s": 22.421746969223022,
       "error": null
     },
     {
       "run_idx": 1,
       "success": true,
-      "latency_s": 16.451713800430298,
+      "latency_s": 19.562288761138916,
       "error": null
     },
     {
       "run_idx": 2,
       "success": true,
-      "latency_s": 18.320210218429565,
+      "latency_s": 17.732002019882202,
       "error": null
     },
     {
       "run_idx": 3,
       "success": true,
-      "latency_s": 17.978277921676636,
+      "latency_s": 16.97444725036621,
       "error": null
     }
   ]
