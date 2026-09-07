@@ -9,6 +9,7 @@ __pycache__/
 *.egg-info/
 mlruns/
 .claude/
+~$*
 # Per-run campaign output directories accumulate unboundedly; the fixed
 # reference examples (run_artifacts/<name>/ for baselines and the four wp5_*
 # attacks) stay tracked, campaign sweeps don't.
