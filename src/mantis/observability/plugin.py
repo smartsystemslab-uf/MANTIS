@@ -8,6 +8,7 @@ from mantis.observability.events import (
     AgentEvent,
     ToolEvent,
     InteractionEvent,
+    SecurityEvent,
 )
 from mantis.observability.artifacts import TraceArtifactWriter
 from mantis.observability.otel import get_tracer
@@ -52,6 +53,23 @@ class ObservabilityPlugin:
         domain = ctx.metadata.get("business_domain")
         workflow_type = ctx.metadata.get("scenario")
         is_error = bool(ctx.metadata.get("error"))
+        security_actions = ctx.metadata.get("security_actions") or []
+        was_mutated = any(a.get("action") == "mutate" for a in security_actions)
+
+        # A security-relevant plugin action (mutate/skip/deny/error from
+        # anything but this plugin itself) is its own event, layered on top
+        # of the normal structural event for this stage below -- this is
+        # what actually proves an attack did something, not just that a run
+        # happened while an attack plugin was registered.
+        for action_info in security_actions:
+            self.trace_writer.write_event(SecurityEvent(
+                event_type=EventType.ATTACK_INJECTED,
+                run_id=ctx.run_id,
+                stage=ctx.stage,
+                target=ctx.target or ctx.source or "unknown",
+                plugin=action_info.get("plugin", "unknown"),
+                observed_impact=action_info.get("action"),
+            ))
 
         if stage == "before_input":
             event = WorkflowEvent(
@@ -96,7 +114,7 @@ class ObservabilityPlugin:
             )
         elif stage == "before_message":
             event = InteractionEvent(
-                event_type=EventType.MESSAGE_SEND,
+                event_type=EventType.MESSAGE_MUTATE if was_mutated else EventType.MESSAGE_SEND,
                 run_id=ctx.run_id,
                 agent_id=ctx.source or "unknown",
                 business_domain=domain,
@@ -107,7 +125,7 @@ class ObservabilityPlugin:
         elif stage == "after_message":
             start = self.start_times.get("interaction", now_ms)
             event = InteractionEvent(
-                event_type=EventType.MESSAGE_RECEIVE,
+                event_type=EventType.MESSAGE_MUTATE if was_mutated else EventType.MESSAGE_RECEIVE,
                 run_id=ctx.run_id,
                 agent_id=ctx.target or "unknown",
                 business_domain=domain,

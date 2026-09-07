@@ -28,8 +28,12 @@ services:
         RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
         COPY . /workspace
         RUN pip install --no-cache-dir -e .
-        ENV CITI_BACKEND_URL=http://banking_backend:8000
         CMD ["mantis", "--help"]
+    environment:
+      - BANKING_BACKEND_BASE_URL=http://banking_backend:8000
+    env_file:
+      - path: .env
+        required: false
     depends_on:
       banking_backend:
         condition: service_healthy

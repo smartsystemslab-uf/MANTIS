@@ -73,6 +73,12 @@ class HookBus:
         """
         plugins_applied = []
         current_payload = dict(ctx.payload)
+        # Actions taken by earlier plugins in this same dispatch, visible to
+        # later ones via ctx.metadata -- lets a plugin registered after an
+        # attack plugin (e.g. the observability plugin) know a mutation
+        # actually happened, instead of just seeing an already-mutated payload
+        # indistinguishable from a normal one.
+        security_actions: List[Dict[str, str]] = []
 
         for plugin in self._plugins:
             if ctx.stage in plugin.supported_stages:
@@ -81,9 +87,13 @@ class HookBus:
                 if ctx_copy.metadata is None:
                     ctx_copy.metadata = {}
                 ctx_copy.metadata["specific_hook"] = specific_hook
+                ctx_copy.metadata["security_actions"] = list(security_actions)
                 try:
                     result = plugin.apply(ctx_copy)
                     plugins_applied.append(plugin.name)
+
+                    if result.action != HookAction.CONTINUE:
+                        security_actions.append({"plugin": plugin.name, "action": result.action.value})
 
                     if result.action == HookAction.MUTATE and result.payload is not None:
                         current_payload = result.payload

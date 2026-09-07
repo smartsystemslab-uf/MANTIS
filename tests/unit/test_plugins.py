@@ -7,10 +7,10 @@ from mantis.plugins.attacks.tool_mutation import ToolParameterMutationPlugin
 from mantis.plugins.failures.reliability import ReliabilityFailurePlugin
 import os
 
-def create_ctx(stage, specific_hook, target=None, payload=None):
+def create_ctx(stage, specific_hook, target=None, source=None, payload=None):
     return HookContext(
         run_id="test", trace_id="test", workflow_id="test",
-        stage=stage, target=target, payload=payload or {},
+        stage=stage, target=target, source=source, payload=payload or {},
         metadata={"specific_hook": specific_hook}
     )
 
@@ -24,7 +24,9 @@ def test_prompt_injection():
 
 def test_message_spoofing():
     plugin = MessageSpoofingPlugin(spoofed_sender="attacker", spoofed_content="fake", target_recipient="compliance")
-    ctx = create_ctx("interaction", "before_message", target="compliance", payload={"messages": [{"sender": "real", "content": "hello"}]})
+    # source is the real agent about to call the model; target is always
+    # "model" for before_message (see MantisHookPlugin.before_model_callback)
+    ctx = create_ctx("interaction", "before_message", source="compliance", target="model", payload={"messages": [{"sender": "real", "content": "hello"}]})
     res = plugin.apply(ctx)
     assert res.action == HookAction.MUTATE
     assert res.payload["messages"][-1]["sender"] == "attacker"

@@ -11,7 +11,12 @@ class MessageSpoofingPlugin:
         self.kwargs = kwargs
 
     def apply(self, ctx: HookContext) -> HookResult:
-        if ctx.metadata.get("specific_hook") == "before_message" and ctx.target == self.target_recipient:
+        # For before_message, ctx.source is the real agent about to call the
+        # model (ctx.target is always "model" -- there's no distinct
+        # agent-to-agent message object in this ADK-based runtime, agents
+        # communicate via shared session state). target_recipient names the
+        # agent whose outgoing call we're spoofing context into.
+        if ctx.metadata.get("specific_hook") == "before_message" and ctx.source == self.target_recipient:
             mutated_payload = dict(ctx.payload)
             messages = mutated_payload.get("messages", [])
             

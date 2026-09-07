@@ -56,3 +56,36 @@ def test_hook_bus_mutation_and_denial():
     # 4. Check coverage
     assert bus.coverage_hit["before_tool"] == 3
     assert bus.coverage_stats["tool"]["mock_attack"] == 3
+
+
+class ObserverPlugin:
+    """Stand-in for ObservabilityPlugin: registered after an attack plugin,
+    only records what it sees, never itself mutates/denies."""
+    name = "observer"
+    supported_stages = {"tool"}
+
+    def __init__(self):
+        self.seen_security_actions = None
+
+    def apply(self, ctx: HookContext) -> HookResult:
+        self.seen_security_actions = ctx.metadata.get("security_actions")
+        return HookResult(action=HookAction.CONTINUE)
+
+
+def test_security_actions_visible_to_later_plugin():
+    bus = HookBus()
+    attack = MockAttackPlugin()
+    observer = ObserverPlugin()
+    # Registration order matters: dispatch() only exposes a plugin's action
+    # to plugins registered *after* it.
+    bus.register(attack)
+    bus.register(observer)
+
+    ctx = HookContext(
+        run_id="test", trace_id="test", workflow_id="test",
+        stage="tool", target="get_customer_context",
+        payload={"customer_id": "CUST-001"},
+    )
+    bus.dispatch("before_tool", ctx)
+
+    assert observer.seen_security_actions == [{"plugin": "mock_attack", "action": "mutate"}]

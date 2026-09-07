@@ -86,7 +86,8 @@ class MantisHookPlugin(BasePlugin):
     # 3. Interaction (before_model / after_model maps to messages)
     async def before_model_callback(self, *, callback_context: Any, llm_request: Any) -> Any:
         contents = getattr(llm_request, 'contents', [])
-        ctx = self._create_ctx("interaction", source="agent", target="model", payload={"messages": contents})
+        agent_name = getattr(callback_context, 'agent_name', None) or "unknown_agent"
+        ctx = self._create_ctx("interaction", source=agent_name, target="model", payload={"messages": contents})
         res = self.hook_bus.dispatch("before_message", ctx)
         if res.action == HookAction.MUTATE and res.payload:
             if hasattr(llm_request, 'contents'):
@@ -99,13 +100,15 @@ class MantisHookPlugin(BasePlugin):
         return None
 
     async def after_model_callback(self, *, callback_context: Any, llm_response: Any) -> Any:
-        ctx = self._create_ctx("interaction", source="model", target="agent", payload={"response": str(getattr(llm_response, 'content', ''))})
+        agent_name = getattr(callback_context, 'agent_name', None) or "unknown_agent"
+        ctx = self._create_ctx("interaction", source="model", target=agent_name, payload={"response": str(getattr(llm_response, 'content', ''))})
         self.hook_bus.dispatch("after_message", ctx)
         return None
 
     async def on_model_error_callback(self, *, callback_context: Any, llm_request: Any, error: Exception) -> None:
+        agent_name = getattr(callback_context, 'agent_name', None) or "unknown_agent"
         ctx = self._create_ctx(
-            "interaction", source="model", target="agent", payload={},
+            "interaction", source="model", target=agent_name, payload={},
             extra_metadata={"error": True, "error_message": str(error)},
         )
         self.hook_bus.dispatch("after_message", ctx)

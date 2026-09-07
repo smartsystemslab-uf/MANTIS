@@ -31,6 +31,7 @@ async def run_experiment(config_path: str):
     from mantis.runtime.adapter import NativeBankingAdapter
     from mantis.runtime.interfaces import HookBus
     from mantis.observability.artifacts import create_run_manifest, TraceArtifactWriter
+    from mantis.observability.events import EventType, ExperimentEvent
     from mantis.observability.plugin import ObservabilityPlugin
     from mantis.observability.otel import setup_otel
     from mantis.observability.mlflow_exporter import MLflowExporter
@@ -78,11 +79,36 @@ async def run_experiment(config_path: str):
                 hooks = HookBus()
                 
                 obs_config = config.observability or ObservabilityConfig()
+
+                # Register the attack/failure plugin *before* the observability
+                # plugin: HookBus.dispatch() only exposes a plugin's action to
+                # plugins registered after it, and ObservabilityPlugin needs to
+                # see an attack's mutation to record ATTACK_INJECTED/
+                # MESSAGE_MUTATE rather than an indistinguishable normal event.
+                if config.attack and config.attack.plugin:
+                    try:
+                        plugin_cls = plugin_registry.get(config.attack.plugin)
+                        plugin_instance = plugin_cls(**config.attack.parameters)
+                        hooks.register(plugin_instance)
+                    except Exception as e:
+                        print(f"❌ Failed to load plugin {config.attack.plugin}: {e}", file=sys.stderr)
+                        sys.exit(1)
+
                 if obs_config.mode != "off":
                     trace_writer = TraceArtifactWriter(str(output_dir))
                     obs_plugin = ObservabilityPlugin(trace_writer)
                     hooks.register(obs_plugin)
-                    
+
+                    with open(manifest_path, "r") as mf:
+                        config_hash = json.load(mf).get("config_hash")
+                    trace_writer.write_event(ExperimentEvent(
+                        event_type=EventType.EXPERIMENT_START,
+                        run_id=config.experiment.name,
+                        config_hash=config_hash,
+                        seed=config.experiment.seed,
+                        status="running",
+                    ))
+
                     if "mlflow" in obs_config.export:
                         mlflow_exporter = MLflowExporter()
                         # Use directory name as config_hash for now, since manifest path is generated
@@ -93,26 +119,26 @@ async def run_experiment(config_path: str):
                         )
                     else:
                         mlflow_exporter = None
-                        
+
                     if "otel" in obs_config.export:
                         setup_otel(service_name=f"mantis-{config.experiment.name}")
-
-                if config.attack and config.attack.plugin:
-                    try:
-                        plugin_cls = plugin_registry.get(config.attack.plugin)
-                        plugin_instance = plugin_cls(**config.attack.parameters)
-                        hooks.register(plugin_instance)
-                    except Exception as e:
-                        print(f"❌ Failed to load plugin {config.attack.plugin}: {e}", file=sys.stderr)
-                        sys.exit(1)
 
                 handle = adapter.build(config, hooks)
                 
                 res = await handle.run_message(prompt)
-                
+
+                if obs_config.mode != "off":
+                    trace_writer.write_event(ExperimentEvent(
+                        event_type=EventType.EXPERIMENT_END,
+                        run_id=config.experiment.name,
+                        config_hash=config_hash,
+                        seed=config.experiment.seed,
+                        status="success",
+                    ))
+
                 # Write coverage report
                 hooks.write_coverage(str(output_dir / "hook_coverage.json"))
-                
+
                 if obs_config.mode != "off" and "mlflow" in obs_config.export and mlflow_exporter:
                     mlflow_exporter.log_artifact(str(output_dir / "traces.jsonl"))
                     mlflow_exporter.end_run()
