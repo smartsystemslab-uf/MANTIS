@@ -24,8 +24,8 @@
   "artifact_integrity": {
     "score": 1.0,
     "trace_file": "/Users/rohithkumarballem/Desktop/MANTIS/run_artifacts/ci_mock_prompt_injection/traces.jsonl",
-    "trace_sha256": "a86d9d3b64bc21729a117aa79e7508d02d1bb2b6b50425d280458825f2af5ca0",
-    "trace_size_bytes": 4478,
+    "trace_sha256": "96321ae30f59377ab43a68382f9df0ef16d05f84ab02b5ca7859c968e5118418",
+    "trace_size_bytes": 4480,
     "non_empty": true,
     "manifest_config_hash": "d182cd5923d297b0286db1e8dae2e7e09990d7e81a2d76f8481143a3daf8820a",
     "manifest_run_id_matches_trace": true
@@ -81,13 +81,13 @@
     "effect_detected_vs_ground_truth": false
   },
   "instrumentation_overhead": {
-    "total_run_duration_ms": 1594.738,
+    "total_run_duration_ms": 1562.7450000000001,
     "plugin_timing_ms": {
-      "observability_plugin": 5.13395995949395,
-      "prompt_injection": 0.08763500954955816
+      "observability_plugin": 2.7825559955090284,
+      "prompt_injection": 0.04852202255278826
     },
-    "observability_plugin_ms": 5.13395995949395,
-    "observability_overhead_pct": 0.3219312488630703,
-    "total_instrumentation_overhead_pct": 0.32742650949833185
+    "observability_plugin_ms": 2.7825559955090284,
+    "observability_overhead_pct": 0.178055664584371,
+    "total_instrumentation_overhead_pct": 0.18116058717588707
   }
 }
