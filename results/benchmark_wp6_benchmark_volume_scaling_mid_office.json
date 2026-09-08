@@ -1,0 +1,193 @@
+{
+  "scaling": true,
+  "scaling_axis": "repetitions",
+  "concurrency": 2,
+  "mock_llm": true,
+  "levels": [
+    {
+      "total_runs": 1,
+      "successful_runs": 1,
+      "failed_runs": 0,
+      "concurrency": 2,
+      "mock_llm": true,
+      "total_time_s": 6.243896245956421,
+      "avg_latency_s": 6.243013858795166,
+      "stdev_latency_s": 0.0,
+      "p50_latency_s": 6.243013858795166,
+      "p90_latency_s": 6.243013858795166,
+      "p99_latency_s": 6.243013858795166,
+      "throughput_runs_per_s": 0.16015640885250218,
+      "cpu_time_s": 6.222792999999999,
+      "peak_rss_mb": 240.9609375,
+      "avg_trace_events_per_run": 13.0,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 6.243013858795166,
+          "trace_event_count": 13,
+          "error": null
+        }
+      ],
+      "repetitions": 1
+    },
+    {
+      "total_runs": 2,
+      "successful_runs": 2,
+      "failed_runs": 0,
+      "concurrency": 2,
+      "mock_llm": true,
+      "total_time_s": 6.917281866073608,
+      "avg_latency_s": 6.912790298461914,
+      "stdev_latency_s": 0.002845418036667478,
+      "p50_latency_s": 6.910778284072876,
+      "p90_latency_s": 6.914802312850952,
+      "p99_latency_s": 6.914802312850952,
+      "throughput_runs_per_s": 0.2891309099039564,
+      "cpu_time_s": 13.456894,
+      "peak_rss_mb": 241.11328125,
+      "avg_trace_events_per_run": 26.0,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 6.914802312850952,
+          "trace_event_count": 26,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 6.910778284072876,
+          "trace_event_count": 26,
+          "error": null
+        }
+      ],
+      "repetitions": 2
+    },
+    {
+      "total_runs": 4,
+      "successful_runs": 4,
+      "failed_runs": 0,
+      "concurrency": 2,
+      "mock_llm": true,
+      "total_time_s": 13.23090124130249,
+      "avg_latency_s": 6.6116973757743835,
+      "stdev_latency_s": 0.003990378234453174,
+      "p50_latency_s": 6.609920978546143,
+      "p90_latency_s": 6.616166114807129,
+      "p99_latency_s": 6.616166114807129,
+      "throughput_runs_per_s": 0.302322564959772,
+      "cpu_time_s": 26.349377,
+      "peak_rss_mb": 241.11328125,
+      "avg_trace_events_per_run": 25.0,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 6.616166114807129,
+          "trace_event_count": 25,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 6.609920978546143,
+          "trace_event_count": 25,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "success": true,
+          "latency_s": 6.613593101501465,
+          "trace_event_count": 25,
+          "error": null
+        },
+        {
+          "run_idx": 3,
+          "success": true,
+          "latency_s": 6.607109308242798,
+          "trace_event_count": 25,
+          "error": null
+        }
+      ],
+      "repetitions": 4
+    },
+    {
+      "total_runs": 8,
+      "successful_runs": 8,
+      "failed_runs": 0,
+      "concurrency": 2,
+      "mock_llm": true,
+      "total_time_s": 27.320626258850098,
+      "avg_latency_s": 6.826291024684906,
+      "stdev_latency_s": 0.16186135461202572,
+      "p50_latency_s": 6.7598958015441895,
+      "p90_latency_s": 7.061047077178955,
+      "p99_latency_s": 7.0684449672698975,
+      "throughput_runs_per_s": 0.2928190563497249,
+      "cpu_time_s": 54.319644,
+      "peak_rss_mb": 241.234375,
+      "avg_trace_events_per_run": 25.5,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 6.83372688293457,
+          "trace_event_count": 25,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 6.827127695083618,
+          "trace_event_count": 25,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "success": true,
+          "latency_s": 7.0684449672698975,
+          "trace_event_count": 26,
+          "error": null
+        },
+        {
+          "run_idx": 3,
+          "success": true,
+          "latency_s": 7.061047077178955,
+          "trace_event_count": 26,
+          "error": null
+        },
+        {
+          "run_idx": 4,
+          "success": true,
+          "latency_s": 6.7598958015441895,
+          "trace_event_count": 26,
+          "error": null
+        },
+        {
+          "run_idx": 5,
+          "success": true,
+          "latency_s": 6.753513813018799,
+          "trace_event_count": 26,
+          "error": null
+        },
+        {
+          "run_idx": 6,
+          "success": true,
+          "latency_s": 6.656634092330933,
+          "trace_event_count": 25,
+          "error": null
+        },
+        {
+          "run_idx": 7,
+          "success": true,
+          "latency_s": 6.649937868118286,
+          "trace_event_count": 25,
+          "error": null
+        }
+      ],
+      "repetitions": 8
+    }
+  ]
+}

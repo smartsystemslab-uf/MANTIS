@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-09-08T02:30:30.240908Z",
+  "config_hash": "eec2055d68b56f6cecdff87ef19b402cc1b60630f0be69a0ed418f95380da97a",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "wp6_concurrency_scaling",
+      "seed": 42,
+      "domain": "front_office",
+      "workflow": "front_office_transaction_execution",
+      "scenario": "front_office_transaction_execution"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "benchmark": {
+      "concurrency": 1,
+      "repetitions": 8,
+      "mock_llm": true,
+      "scaling_concurrency": [
+        1,
+        2,
+        4,
+        8
+      ]
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "018c0150f6336b1827b1a5cc522bc97d065a84b8"
+  }
+}

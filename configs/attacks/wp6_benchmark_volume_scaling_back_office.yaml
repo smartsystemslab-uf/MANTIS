@@ -1,0 +1,17 @@
+experiment:
+  name: wp6_volume_scaling_back_office
+  seed: 42
+  domain: back_office
+  workflow: back_office_clean
+  scenario: back_office_clean
+
+observability:
+  mode: full
+  export: [jsonl]
+
+benchmark:
+  # Mirrors wp6_benchmark_volume_scaling.yaml (front_office) for a
+  # back_office workflow -- see wp6_benchmark_volume_scaling_mid_office.yaml.
+  concurrency: 2
+  scaling_repetitions: [1, 2, 4, 8]
+  mock_llm: true

@@ -1,0 +1,19 @@
+experiment:
+  name: wp6_volume_scaling_mid_office
+  seed: 42
+  domain: mid_office
+  workflow: mid_office_planning
+  scenario: mid_office_planning
+
+observability:
+  mode: full
+  export: [jsonl]
+
+benchmark:
+  # Mirrors wp6_benchmark_volume_scaling.yaml (front_office) for a
+  # mid_office workflow, closing the "full multi-domain volume-scaling
+  # depth" gap -- previously only front_office had a repetition-count
+  # sweep; mid/back office had only a single-point overhead comparison.
+  concurrency: 2
+  scaling_repetitions: [1, 2, 4, 8]
+  mock_llm: true

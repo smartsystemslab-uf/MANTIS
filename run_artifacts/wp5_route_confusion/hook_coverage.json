@@ -31,7 +31,7 @@
     }
   },
   "plugin_timing_ms": {
-    "observability_plugin": 8.42672906583175,
-    "route_confusion": 0.09930002852343023
+    "observability_plugin": 8.994333998998627,
+    "route_confusion": 0.11861810344271362
   }
 }

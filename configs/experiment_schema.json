@@ -85,6 +85,22 @@
           "default": null,
           "description": "If set, run the benchmark once per repetition count in this list (at the configured concurrency) to measure how latency/trace volume scale with transaction volume, instead of a single repetitions run",
           "title": "Scaling Repetitions"
+        },
+        "scaling_concurrency": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "If set, run the benchmark once per concurrency level in this list (at the configured repetitions) to measure how latency/throughput scale with concurrent load, instead of a single concurrency run. Mutually exclusive with scaling_repetitions -- if both are set, scaling_concurrency takes precedence.",
+          "title": "Scaling Concurrency"
         }
       },
       "title": "BenchmarkConfig",

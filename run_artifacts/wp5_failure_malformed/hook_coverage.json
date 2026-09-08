@@ -30,7 +30,7 @@
     }
   },
   "plugin_timing_ms": {
-    "observability_plugin": 28.29585297149606,
-    "reliability_failure": 0.09484999463893473
+    "observability_plugin": 221.55886504333466,
+    "reliability_failure": 0.1013909641187638
   }
 }

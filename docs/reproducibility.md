@@ -50,6 +50,17 @@ Output is saved to `results/benchmark_<name>.json` (with automatic CSV and Parqu
 - Cumulative subprocess CPU time and peak resident memory (`cpu_time_s`, `peak_rss_mb`, via `resource.getrusage(RUSAGE_CHILDREN)` -- POSIX only)
 - Mean trace event count per run (`avg_trace_events_per_run`, `null` when `observability.mode: off`)
 
-Two additional `benchmark:` config fields address the two biggest confounds in a latency-based overhead measurement:
+Three additional `benchmark:` config fields address the confounds in a latency-based overhead measurement:
 - **`mock_llm: true`** swaps in a zero-latency stand-in model (no API key needed) so instrumentation cost isn't measured underneath live LLM sampling latency. In practice this alone wasn't sufficient at small sample sizes -- see the paper's Experimental Results for why (per-process startup cost dominates once LLM latency is removed).
-- **`scaling_repetitions: [1, 2, 4, 8, ...]`** runs the benchmark once per repetition count instead of a single count, so latency/throughput can be reported as a function of transaction volume. Plot with `mantis.benchmark.plotter.plot_volume_scaling`.
+- **`scaling_repetitions: [1, 2, 4, 8, ...]`** runs the benchmark once per repetition count instead of a single count (concurrency held fixed), so latency/throughput can be reported as a function of transaction volume. Plot with `mantis.benchmark.plotter.plot_volume_scaling`.
+- **`scaling_concurrency: [1, 2, 4, 8, ...]`** runs the benchmark once per concurrency level instead of a single level (repetitions held fixed), so latency/throughput can be reported as a function of concurrent load -- the independent axis from `scaling_repetitions`. Same plotting function; it reads `scaling_axis` from the result JSON to pick the correct x-axis automatically. If both fields are set, `scaling_concurrency` takes precedence.
+
+### Repeated-trial attack efficacy
+
+A single live-model trial per attack config can't distinguish "the model reliably resists this" from "we got lucky once." `scripts/run_attack_efficacy_trials.py` re-runs each of the 5 attack/failure configs `--trials N` times against a real model (no mock -- a deterministic mock would show zero variance and can't characterize live-model behavior), evaluates each run, and reports the `attack_fired` and `effect_detected_vs_ground_truth` rate across the trials to `results/attack_efficacy_trials.json`:
+
+```bash
+python scripts/run_attack_efficacy_trials.py --trials 5
+```
+
+Requires the banking backend running and a real `UF_NAVIGATOR_API_KEY`.

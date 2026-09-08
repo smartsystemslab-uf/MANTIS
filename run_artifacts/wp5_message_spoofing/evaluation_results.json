@@ -4,17 +4,17 @@
     "has_workflow_start": true,
     "has_workflow_end": true,
     "has_agent_start": true,
-    "total_events": 72,
+    "total_events": 58,
     "business_domain": "mid_office",
     "workflow_id": "mid_office_rep_assist"
   },
   "tool_use_correctness": {
     "score": 1.0,
     "actual_tools": [
-      "search_loan_playbooks",
-      "transfer_to_agent",
       "search_policies",
       "search_product_catalog",
+      "transfer_to_agent",
+      "search_loan_playbooks",
       "get_customer_financial_profile"
     ],
     "missing_expected": [],
@@ -27,9 +27,9 @@
   },
   "artifact_integrity": {
     "score": 1.0,
-    "trace_file": "run_artifacts/wp5_message_spoofing/traces.jsonl",
-    "trace_sha256": "c72a375765cd2bf84094209bd512b69a68ae98c0f0bd1f82cfe0ef37125d35b0",
-    "trace_size_bytes": 24872,
+    "trace_file": "/Users/rohithkumarballem/Desktop/MANTIS/run_artifacts/wp5_message_spoofing/traces.jsonl",
+    "trace_sha256": "5621c868fbb0e99a3a358fb70d5bae2c8b76f580d9c15080cd6cb1bbadf78b16",
+    "trace_size_bytes": 21418,
     "non_empty": true,
     "manifest_config_hash": "106cc767eb51bf1239fbcdb325a539961cdc2fdd9588854c2b1ac2dac1cd7e5b",
     "manifest_run_id_matches_trace": true
@@ -85,13 +85,13 @@
     "effect_detected_vs_ground_truth": false
   },
   "instrumentation_overhead": {
-    "total_run_duration_ms": 17075.289999999997,
+    "total_run_duration_ms": 13845.243,
     "plugin_timing_ms": {
-      "observability_plugin": 26.215204066829756,
-      "message_spoofing": 0.20163701265119016
+      "observability_plugin": 26.748625037726015,
+      "message_spoofing": 0.19682603306137025
     },
-    "observability_plugin_ms": 26.215204066829756,
-    "observability_overhead_pct": 0.15352713814424096,
-    "total_instrumentation_overhead_pct": 0.15470800835289444
+    "observability_plugin_ms": 26.748625037726015,
+    "observability_overhead_pct": 0.19319722331869518,
+    "total_instrumentation_overhead_pct": 0.19461883818714762
   }
 }

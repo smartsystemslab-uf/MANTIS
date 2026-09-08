@@ -58,31 +58,44 @@ def plot_observability_overhead(results_file: str, output_image: str):
 
 def plot_volume_scaling(results_file: str, output_image: str):
     """
-    Expects a JSON file matching BenchmarkRunner.execute()'s scaling output:
-    {"scaling": true, "concurrency": 1, "levels": [{"repetitions": 1, "avg_latency_s": ..., "throughput_runs_per_s": ...}, ...]}
+    Expects a JSON file matching BenchmarkRunner.execute()'s scaling output.
+    Two independent scaling axes are supported, selected by
+    data["scaling_axis"] (defaults to "repetitions" for older result files
+    that predate this field):
+      - "repetitions": {"scaling_axis": "repetitions", "concurrency": 1,
+         "levels": [{"repetitions": 1, "avg_latency_s": ..., ...}, ...]}
+      - "concurrency": {"scaling_axis": "concurrency", "repetitions": 8,
+         "levels": [{"concurrency": 1, "avg_latency_s": ..., ...}, ...]}
+    Plotting the wrong key as x here silently produces a flat/misleading
+    line (every level sharing the *fixed* axis's value) -- this bit us once
+    while adding the concurrency axis, caught before publishing the plot.
     """
     with open(results_file, "r") as f:
         data = json.load(f)
 
-    levels = sorted(data["levels"], key=lambda lv: lv["repetitions"])
-    reps = [lv["repetitions"] for lv in levels]
+    axis = data.get("scaling_axis", "repetitions")
+    axis_label = "Repetitions (transaction volume)" if axis == "repetitions" else "Concurrency (concurrent workflow executions)"
+
+    levels = sorted(data["levels"], key=lambda lv: lv[axis])
+    x_values = [lv[axis] for lv in levels]
     latency = [lv["avg_latency_s"] for lv in levels]
     throughput = [lv["throughput_runs_per_s"] for lv in levels]
 
     plt.style.use('seaborn-v0_8-whitegrid')
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.5))
 
-    ax1.plot(reps, latency, marker='o', color='#4C72B0')
-    ax1.set_title('Latency vs. Transaction Volume', fontsize=12)
-    ax1.set_xlabel('Repetitions (transaction volume)', fontsize=11)
+    ax1.plot(x_values, latency, marker='o', color='#4C72B0')
+    ax1.set_title(f'Latency vs. {axis.capitalize()}', fontsize=12)
+    ax1.set_xlabel(axis_label, fontsize=11)
     ax1.set_ylabel('Average Latency (s)', fontsize=11)
 
-    ax2.plot(reps, throughput, marker='o', color='#DD8452')
-    ax2.set_title('Throughput vs. Transaction Volume', fontsize=12)
-    ax2.set_xlabel('Repetitions (transaction volume)', fontsize=11)
+    ax2.plot(x_values, throughput, marker='o', color='#DD8452')
+    ax2.set_title(f'Throughput vs. {axis.capitalize()}', fontsize=12)
+    ax2.set_xlabel(axis_label, fontsize=11)
     ax2.set_ylabel('Throughput (runs/s)', fontsize=11)
 
-    fig.suptitle(f"Scaling at concurrency={data.get('concurrency')}" + (" (mock LLM)" if data.get("mock_llm") else ""), fontsize=13)
+    fixed_dim = f"concurrency={data.get('concurrency')}" if axis == "repetitions" else f"repetitions={data.get('repetitions')}"
+    fig.suptitle(f"Scaling at {fixed_dim}" + (" (mock LLM)" if data.get("mock_llm") else ""), fontsize=13)
     plt.tight_layout()
     plt.savefig(output_image, dpi=300)
     print(f"Scaling plot saved to {output_image}")

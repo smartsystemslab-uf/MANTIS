@@ -30,7 +30,7 @@
     }
   },
   "plugin_timing_ms": {
-    "observability_plugin": 31.58134687691927,
-    "tool_parameter_mutation": 0.1785739732440561
+    "observability_plugin": 28.93175999633968,
+    "tool_parameter_mutation": 0.10979999206028879
   }
 }

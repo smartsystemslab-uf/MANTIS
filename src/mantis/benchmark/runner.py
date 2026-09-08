@@ -30,6 +30,7 @@ class BenchmarkRunner:
         self.repetitions = self.benchmark.get("repetitions", 1)
         self.mock_llm = self.benchmark.get("mock_llm", False)
         self.scaling_repetitions = self.benchmark.get("scaling_repetitions")
+        self.scaling_concurrency = self.benchmark.get("scaling_concurrency")
         self._run_artifacts_dir = (
             Path("run_artifacts") / self.config.get("experiment", {}).get("name", "")
         )
@@ -145,6 +146,31 @@ class BenchmarkRunner:
         }
 
     def execute(self) -> dict:
+        # scaling_concurrency takes precedence over scaling_repetitions when
+        # both are set (spec §WP6: "increasing transaction/workflow volume
+        # AND concurrency" -- two independent axes, each varied while
+        # holding the other fixed, since varying both at once confounds
+        # which axis produced a given latency/throughput change).
+        if self.scaling_concurrency:
+            levels = []
+            original_concurrency = self.concurrency
+            try:
+                for c in self.scaling_concurrency:
+                    self.concurrency = c
+                    level_report = self._run_at(self.repetitions)
+                    level_report["concurrency"] = c
+                    level_report["repetitions"] = self.repetitions
+                    levels.append(level_report)
+            finally:
+                self.concurrency = original_concurrency
+            return {
+                "scaling": True,
+                "scaling_axis": "concurrency",
+                "repetitions": self.repetitions,
+                "mock_llm": self.mock_llm,
+                "levels": levels,
+            }
+
         if self.scaling_repetitions:
             levels = []
             for n in self.scaling_repetitions:
@@ -153,6 +179,7 @@ class BenchmarkRunner:
                 levels.append(level_report)
             return {
                 "scaling": True,
+                "scaling_axis": "repetitions",
                 "concurrency": self.concurrency,
                 "mock_llm": self.mock_llm,
                 "levels": levels,

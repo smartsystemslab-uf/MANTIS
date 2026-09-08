@@ -1,0 +1,20 @@
+experiment:
+  name: wp6_concurrency_scaling
+  seed: 42
+  domain: front_office
+  workflow: front_office_transaction_execution
+  scenario: front_office_transaction_execution
+
+observability:
+  mode: full
+  export: [jsonl]
+
+benchmark:
+  # Independent axis from wp6_benchmark_volume_scaling.yaml: repetitions
+  # held fixed, concurrency varied, so a change in latency/throughput can
+  # be attributed to concurrent load rather than conflated with transaction
+  # volume (spec §WP6: "increasing transaction/workflow volume AND
+  # concurrency" are two separate measurements).
+  repetitions: 8
+  scaling_concurrency: [1, 2, 4, 8]
+  mock_llm: true

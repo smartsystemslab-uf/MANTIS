@@ -4,7 +4,7 @@
     "has_workflow_start": true,
     "has_workflow_end": true,
     "has_agent_start": true,
-    "total_events": 42,
+    "total_events": 28,
     "business_domain": "front_office",
     "workflow_id": "front_office_monitoring"
   },
@@ -25,9 +25,9 @@
   },
   "artifact_integrity": {
     "score": 1.0,
-    "trace_file": "run_artifacts/wp5_route_confusion/traces.jsonl",
-    "trace_sha256": "5d5f812e45659924b20d9ece90dbb9bbbf61843537fd67e8f948d4d10ae6cab8",
-    "trace_size_bytes": 11610,
+    "trace_file": "/Users/rohithkumarballem/Desktop/MANTIS/run_artifacts/wp5_route_confusion/traces.jsonl",
+    "trace_sha256": "b9d0985b3ba696ad8e2830d99eb48ff9a2f0fa33032c0f6379fb0de548ca5b65",
+    "trace_size_bytes": 8524,
     "non_empty": true,
     "manifest_config_hash": "151a024a580dd056e7616ce1f6b33a45bb2a1cc6113791a972d5e0ff17f5eaf6",
     "manifest_run_id_matches_trace": true
@@ -83,13 +83,13 @@
     "effect_detected_vs_ground_truth": true
   },
   "instrumentation_overhead": {
-    "total_run_duration_ms": 7494.259999999999,
+    "total_run_duration_ms": 8649.508000000002,
     "plugin_timing_ms": {
-      "observability_plugin": 8.318512031110004,
-      "route_confusion": 0.09475104161538184
+      "observability_plugin": 8.994333998998627,
+      "route_confusion": 0.11861810344271362
     },
-    "observability_plugin_ms": 8.318512031110004,
-    "observability_overhead_pct": 0.11099844455770154,
-    "total_instrumentation_overhead_pct": 0.1122627594015338
+    "observability_plugin_ms": 8.994333998998627,
+    "observability_overhead_pct": 0.1039866544894649,
+    "total_instrumentation_overhead_pct": 0.10535804004622389
   }
 }

@@ -1,0 +1,312 @@
+{
+  "scaling": true,
+  "scaling_axis": "concurrency",
+  "repetitions": 8,
+  "mock_llm": true,
+  "levels": [
+    {
+      "total_runs": 8,
+      "successful_runs": 8,
+      "failed_runs": 0,
+      "concurrency": 1,
+      "mock_llm": true,
+      "total_time_s": 50.92428779602051,
+      "avg_latency_s": 6.364893078804016,
+      "stdev_latency_s": 0.19737755070175472,
+      "p50_latency_s": 6.276031017303467,
+      "p90_latency_s": 6.429989337921143,
+      "p99_latency_s": 6.823605060577393,
+      "throughput_runs_per_s": 0.15709596238330037,
+      "cpu_time_s": 50.573625,
+      "peak_rss_mb": 241.1484375,
+      "avg_trace_events_per_run": 13.0,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 6.254583835601807,
+          "trace_event_count": 13,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 6.233863115310669,
+          "trace_event_count": 13,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "success": true,
+          "latency_s": 6.429989337921143,
+          "trace_event_count": 13,
+          "error": null
+        },
+        {
+          "run_idx": 3,
+          "success": true,
+          "latency_s": 6.2269062995910645,
+          "trace_event_count": 13,
+          "error": null
+        },
+        {
+          "run_idx": 4,
+          "success": true,
+          "latency_s": 6.276031017303467,
+          "trace_event_count": 13,
+          "error": null
+        },
+        {
+          "run_idx": 5,
+          "success": true,
+          "latency_s": 6.823605060577393,
+          "trace_event_count": 13,
+          "error": null
+        },
+        {
+          "run_idx": 6,
+          "success": true,
+          "latency_s": 6.326348066329956,
+          "trace_event_count": 13,
+          "error": null
+        },
+        {
+          "run_idx": 7,
+          "success": true,
+          "latency_s": 6.347817897796631,
+          "trace_event_count": 13,
+          "error": null
+        }
+      ],
+      "repetitions": 8
+    },
+    {
+      "total_runs": 8,
+      "successful_runs": 8,
+      "failed_runs": 0,
+      "concurrency": 2,
+      "mock_llm": true,
+      "total_time_s": 27.684088230133057,
+      "avg_latency_s": 6.916171967983246,
+      "stdev_latency_s": 0.36562823828304636,
+      "p50_latency_s": 6.70675802230835,
+      "p90_latency_s": 7.4989728927612305,
+      "p99_latency_s": 7.504211902618408,
+      "throughput_runs_per_s": 0.28897466058832705,
+      "cpu_time_s": 54.31641799999999,
+      "peak_rss_mb": 241.24609375,
+      "avg_trace_events_per_run": 25.5,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 6.70675802230835,
+          "trace_event_count": 25,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 6.700499773025513,
+          "trace_event_count": 25,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "success": true,
+          "latency_s": 6.663838148117065,
+          "trace_event_count": 26,
+          "error": null
+        },
+        {
+          "run_idx": 3,
+          "success": true,
+          "latency_s": 6.6513590812683105,
+          "trace_event_count": 26,
+          "error": null
+        },
+        {
+          "run_idx": 4,
+          "success": true,
+          "latency_s": 6.806474924087524,
+          "trace_event_count": 26,
+          "error": null
+        },
+        {
+          "run_idx": 5,
+          "success": true,
+          "latency_s": 6.797260999679565,
+          "trace_event_count": 26,
+          "error": null
+        },
+        {
+          "run_idx": 6,
+          "success": true,
+          "latency_s": 7.504211902618408,
+          "trace_event_count": 25,
+          "error": null
+        },
+        {
+          "run_idx": 7,
+          "success": true,
+          "latency_s": 7.4989728927612305,
+          "trace_event_count": 25,
+          "error": null
+        }
+      ],
+      "repetitions": 8
+    },
+    {
+      "total_runs": 8,
+      "successful_runs": 8,
+      "failed_runs": 0,
+      "concurrency": 4,
+      "mock_llm": true,
+      "total_time_s": 15.05872631072998,
+      "avg_latency_s": 7.515672564506531,
+      "stdev_latency_s": 0.04361235783327463,
+      "p50_latency_s": 7.4795448780059814,
+      "p90_latency_s": 7.558528900146484,
+      "p99_latency_s": 7.565821886062622,
+      "throughput_runs_per_s": 0.5312534297339384,
+      "cpu_time_s": 59.680561999999995,
+      "peak_rss_mb": 241.24609375,
+      "avg_trace_events_per_run": 49.5,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 7.565821886062622,
+          "trace_event_count": 50,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 7.558528900146484,
+          "trace_event_count": 50,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "success": true,
+          "latency_s": 7.5538201332092285,
+          "trace_event_count": 50,
+          "error": null
+        },
+        {
+          "run_idx": 3,
+          "success": true,
+          "latency_s": 7.545923233032227,
+          "trace_event_count": 50,
+          "error": null
+        },
+        {
+          "run_idx": 4,
+          "success": true,
+          "latency_s": 7.468225002288818,
+          "trace_event_count": 49,
+          "error": null
+        },
+        {
+          "run_idx": 5,
+          "success": true,
+          "latency_s": 7.478652238845825,
+          "trace_event_count": 49,
+          "error": null
+        },
+        {
+          "run_idx": 6,
+          "success": true,
+          "latency_s": 7.4795448780059814,
+          "trace_event_count": 49,
+          "error": null
+        },
+        {
+          "run_idx": 7,
+          "success": true,
+          "latency_s": 7.47486424446106,
+          "trace_event_count": 49,
+          "error": null
+        }
+      ],
+      "repetitions": 8
+    },
+    {
+      "total_runs": 8,
+      "successful_runs": 8,
+      "failed_runs": 0,
+      "concurrency": 8,
+      "mock_llm": true,
+      "total_time_s": 11.269766807556152,
+      "avg_latency_s": 11.234178960323334,
+      "stdev_latency_s": 0.022509269003126085,
+      "p50_latency_s": 11.23141884803772,
+      "p90_latency_s": 11.25651502609253,
+      "p99_latency_s": 11.26249384880066,
+      "throughput_runs_per_s": 0.7098638451539353,
+      "cpu_time_s": 87.571013,
+      "peak_rss_mb": 241.31640625,
+      "avg_trace_events_per_run": 97.0,
+      "runs": [
+        {
+          "run_idx": 0,
+          "success": true,
+          "latency_s": 11.26249384880066,
+          "trace_event_count": 97,
+          "error": null
+        },
+        {
+          "run_idx": 1,
+          "success": true,
+          "latency_s": 11.244818925857544,
+          "trace_event_count": 97,
+          "error": null
+        },
+        {
+          "run_idx": 2,
+          "success": true,
+          "latency_s": 11.25651502609253,
+          "trace_event_count": 97,
+          "error": null
+        },
+        {
+          "run_idx": 3,
+          "success": true,
+          "latency_s": 11.226362943649292,
+          "trace_event_count": 97,
+          "error": null
+        },
+        {
+          "run_idx": 4,
+          "success": true,
+          "latency_s": 11.231096029281616,
+          "trace_event_count": 97,
+          "error": null
+        },
+        {
+          "run_idx": 5,
+          "success": true,
+          "latency_s": 11.231813192367554,
+          "trace_event_count": 97,
+          "error": null
+        },
+        {
+          "run_idx": 6,
+          "success": true,
+          "latency_s": 11.23141884803772,
+          "trace_event_count": 97,
+          "error": null
+        },
+        {
+          "run_idx": 7,
+          "success": true,
+          "latency_s": 11.188912868499756,
+          "trace_event_count": 97,
+          "error": null
+        }
+      ],
+      "repetitions": 8
+    }
+  ]
+}
