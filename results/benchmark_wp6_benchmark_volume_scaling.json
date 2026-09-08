@@ -9,18 +9,22 @@
       "failed_runs": 0,
       "concurrency": 2,
       "mock_llm": true,
-      "total_time_s": 6.480629920959473,
-      "avg_latency_s": 6.479992628097534,
+      "total_time_s": 8.334187984466553,
+      "avg_latency_s": 8.33312201499939,
       "stdev_latency_s": 0.0,
-      "p50_latency_s": 6.479992628097534,
-      "p90_latency_s": 6.479992628097534,
-      "p99_latency_s": 6.479992628097534,
-      "throughput_runs_per_s": 0.15430598756547229,
+      "p50_latency_s": 8.33312201499939,
+      "p90_latency_s": 8.33312201499939,
+      "p99_latency_s": 8.33312201499939,
+      "throughput_runs_per_s": 0.11998769428573276,
+      "cpu_time_s": 7.368523999999999,
+      "peak_rss_mb": 241.04296875,
+      "avg_trace_events_per_run": 13.0,
       "runs": [
         {
           "run_idx": 0,
           "success": true,
-          "latency_s": 6.479992628097534,
+          "latency_s": 8.33312201499939,
+          "trace_event_count": 13,
           "error": null
         }
       ],
@@ -32,24 +36,29 @@
       "failed_runs": 0,
       "concurrency": 2,
       "mock_llm": true,
-      "total_time_s": 6.955533742904663,
-      "avg_latency_s": 6.948828101158142,
-      "stdev_latency_s": 0.004430645302859224,
-      "p50_latency_s": 6.945695161819458,
-      "p90_latency_s": 6.951961040496826,
-      "p99_latency_s": 6.951961040496826,
-      "throughput_runs_per_s": 0.2875408378314891,
+      "total_time_s": 7.563741207122803,
+      "avg_latency_s": 7.559762597084045,
+      "stdev_latency_s": 0.004623846456433162,
+      "p50_latency_s": 7.556493043899536,
+      "p90_latency_s": 7.563032150268555,
+      "p99_latency_s": 7.563032150268555,
+      "throughput_runs_per_s": 0.2644194116684734,
+      "cpu_time_s": 14.491215,
+      "peak_rss_mb": 241.10546875,
+      "avg_trace_events_per_run": 26.0,
       "runs": [
         {
           "run_idx": 0,
           "success": true,
-          "latency_s": 6.951961040496826,
+          "latency_s": 7.563032150268555,
+          "trace_event_count": 26,
           "error": null
         },
         {
           "run_idx": 1,
           "success": true,
-          "latency_s": 6.945695161819458,
+          "latency_s": 7.556493043899536,
+          "trace_event_count": 26,
           "error": null
         }
       ],
@@ -61,36 +70,43 @@
       "failed_runs": 0,
       "concurrency": 2,
       "mock_llm": true,
-      "total_time_s": 13.96047306060791,
-      "avg_latency_s": 6.976600170135498,
-      "stdev_latency_s": 0.19270853535140325,
-      "p50_latency_s": 6.812456846237183,
-      "p90_latency_s": 7.146420955657959,
-      "p99_latency_s": 7.146420955657959,
-      "throughput_runs_per_s": 0.28652324191554435,
+      "total_time_s": 13.173667192459106,
+      "avg_latency_s": 6.582955479621887,
+      "stdev_latency_s": 0.003455240146596826,
+      "p50_latency_s": 6.5821099281311035,
+      "p90_latency_s": 6.586920738220215,
+      "p99_latency_s": 6.586920738220215,
+      "throughput_runs_per_s": 0.30363602947929996,
+      "cpu_time_s": 26.217035000000003,
+      "peak_rss_mb": 241.29296875,
+      "avg_trace_events_per_run": 26.0,
       "runs": [
         {
           "run_idx": 0,
           "success": true,
-          "latency_s": 7.146420955657959,
+          "latency_s": 6.586920738220215,
+          "trace_event_count": 26,
           "error": null
         },
         {
           "run_idx": 1,
           "success": true,
-          "latency_s": 7.140511989593506,
+          "latency_s": 6.5821099281311035,
+          "trace_event_count": 26,
           "error": null
         },
         {
           "run_idx": 2,
           "success": true,
-          "latency_s": 6.812456846237183,
+          "latency_s": 6.584089279174805,
+          "trace_event_count": 26,
           "error": null
         },
         {
           "run_idx": 3,
           "success": true,
-          "latency_s": 6.807010889053345,
+          "latency_s": 6.578701972961426,
+          "trace_event_count": 26,
           "error": null
         }
       ],
@@ -102,60 +118,71 @@
       "failed_runs": 0,
       "concurrency": 2,
       "mock_llm": true,
-      "total_time_s": 28.874847173690796,
-      "avg_latency_s": 7.214504897594452,
-      "stdev_latency_s": 0.4359811071625064,
-      "p50_latency_s": 7.033323049545288,
-      "p90_latency_s": 7.901583909988403,
-      "p99_latency_s": 7.907760143280029,
-      "throughput_runs_per_s": 0.2770577434359261,
+      "total_time_s": 26.809388875961304,
+      "avg_latency_s": 6.698036730289459,
+      "stdev_latency_s": 0.08591115765231806,
+      "p50_latency_s": 6.628075838088989,
+      "p90_latency_s": 6.804114818572998,
+      "p99_latency_s": 6.81035590171814,
+      "throughput_runs_per_s": 0.29840292283473935,
+      "cpu_time_s": 53.269881000000005,
+      "peak_rss_mb": 241.29296875,
+      "avg_trace_events_per_run": 25.5,
       "runs": [
         {
           "run_idx": 0,
           "success": true,
-          "latency_s": 7.033323049545288,
+          "latency_s": 6.81035590171814,
+          "trace_event_count": 26,
           "error": null
         },
         {
           "run_idx": 1,
           "success": true,
-          "latency_s": 7.032692909240723,
+          "latency_s": 6.804114818572998,
+          "trace_event_count": 26,
           "error": null
         },
         {
           "run_idx": 2,
           "success": true,
-          "latency_s": 7.078584671020508,
+          "latency_s": 6.745415925979614,
+          "trace_event_count": 25,
           "error": null
         },
         {
           "run_idx": 3,
           "success": true,
-          "latency_s": 7.072449684143066,
+          "latency_s": 6.740038871765137,
+          "trace_event_count": 25,
           "error": null
         },
         {
           "run_idx": 4,
           "success": true,
-          "latency_s": 6.847005844116211,
+          "latency_s": 6.623117208480835,
+          "trace_event_count": 25,
           "error": null
         },
         {
           "run_idx": 5,
           "success": true,
-          "latency_s": 6.842638969421387,
+          "latency_s": 6.6140782833099365,
+          "trace_event_count": 25,
           "error": null
         },
         {
           "run_idx": 6,
           "success": true,
-          "latency_s": 7.907760143280029,
+          "latency_s": 6.628075838088989,
+          "trace_event_count": 26,
           "error": null
         },
         {
           "run_idx": 7,
           "success": true,
-          "latency_s": 7.901583909988403,
+          "latency_s": 6.619096994400024,
+          "trace_event_count": 26,
           "error": null
         }
       ],

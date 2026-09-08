@@ -1,33 +1,43 @@
 {
   "trace_completeness": {
-    "score": 1.0,
+    "score": 0.0,
     "has_workflow_start": true,
-    "has_workflow_end": true,
+    "has_workflow_end": false,
     "has_agent_start": true,
-    "total_events": 13,
+    "total_events": 6,
     "business_domain": "front_office",
     "workflow_id": "front_office_monitoring"
   },
   "tool_use_correctness": {
     "score": 1.0,
-    "actual_tools": [
-      "transfer_to_agent"
-    ],
+    "actual_tools": [],
     "missing_expected": [],
     "used_forbidden": []
   },
   "workflow_outcome": {
     "score": 1.0,
     "expected_outcome": null,
-    "actual_outcome": "completed"
+    "actual_outcome": null
   },
-  "instrumentation_overhead": {
-    "total_run_duration_ms": 2362.754,
-    "plugin_timing_ms": {
-      "observability_plugin": 2.9061410459689796
-    },
-    "observability_plugin_ms": 2.9061410459689796,
-    "observability_overhead_pct": 0.12299803728906944,
-    "total_instrumentation_overhead_pct": 0.12299803728906944
+  "artifact_integrity": {
+    "score": 1.0,
+    "trace_file": "run_artifacts/front_office_monitoring/traces.jsonl",
+    "trace_sha256": "a21c247dcdfacddc90c729818246a35a2304cc24217bea8fc8728699894846c8",
+    "trace_size_bytes": 1547,
+    "non_empty": true,
+    "manifest_config_hash": "1385aac9066be9737002e902a3a788796a47929304e12f0465bb562f8a9eb5dc",
+    "manifest_run_id_matches_trace": true
+  },
+  "banking_workflow_coverage": {
+    "score": 0.3333,
+    "domains_exercised": [
+      "front_office"
+    ],
+    "domains_missing": [
+      "back_office",
+      "mid_office"
+    ],
+    "total_known_domains": 3,
+    "domains_covered": 1
   }
 }

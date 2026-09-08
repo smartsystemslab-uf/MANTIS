@@ -41,46 +41,52 @@ assert_attack_fired() {
         if [ -n "$BACKEND_PID" ]; then kill "$BACKEND_PID"; fi
         exit 1
     fi
-    if ! grep -q '"ATTACK_INJECTED"' "$trace_file"; then
-        echo "❌ ERROR: No ATTACK_INJECTED event in $trace_file -- the attack plugin never actually fired."
+    if ! grep -qE '"(ATTACK_INJECTED|ANOMALY)"' "$trace_file"; then
+        echo "❌ ERROR: No ATTACK_INJECTED/ANOMALY event in $trace_file -- the plugin never actually fired."
         if [ -n "$BACKEND_PID" ]; then kill "$BACKEND_PID"; fi
         exit 1
     fi
-    echo "✅ Finished. Attack fired -- traces exported to $trace_file"
+    echo "✅ Finished. Plugin fired -- traces exported to $trace_file"
 }
 
-echo "[1/5] Running Prompt Injection Attack..."
+echo "[1/6] Running Prompt Injection Attack..."
 echo "-> Injecting malicious instructions into the Front Office Transaction Monitor."
 mantis --run configs/attacks/wp5_prompt_injection.yaml > /dev/null 2>&1
 assert_attack_fired wp5_prompt_injection
 echo ""
 
-echo "[2/5] Running Message Spoofing Attack..."
+echo "[2/6] Running Message Spoofing Attack..."
 echo "-> Spoofing a compliance clearance message in the Mid Office Rep Assist."
 mantis --run configs/attacks/wp5_message_spoofing.yaml > /dev/null 2>&1
 assert_attack_fired wp5_message_spoofing
 echo ""
 
-echo "[3/5] Running Route Confusion Attack..."
-echo "-> Forcing Front Office Router to bypass Compliance and go straight to Decision Making."
+echo "[3/6] Running Route Confusion Attack..."
+echo "-> Forcing Front Office Router to divert a suspicious-transaction review into the customer-service chatbot workflow, bypassing fraud detection and compliance review entirely."
 mantis --run configs/attacks/wp5_route_confusion.yaml > /dev/null 2>&1
 assert_attack_fired wp5_route_confusion
 echo ""
 
-echo "[4/5] Running Tool Parameter Mutation Attack..."
+echo "[4/6] Running Tool Parameter Mutation Attack..."
 echo "-> Mutating the destination account in a Front Office execution workflow."
 mantis --run configs/attacks/wp5_tool_mutation.yaml > /dev/null 2>&1
 assert_attack_fired wp5_tool_mutation
 echo ""
 
-echo "[5/5] Running Back Office Tool Parameter Mutation Attack..."
+echo "[5/6] Running Back Office Tool Parameter Mutation Attack..."
 echo "-> Redirecting a validated EOD ledger post onto an unvalidated batch."
 mantis --run configs/attacks/wp5_back_office_tool_mutation.yaml > /dev/null 2>&1
 assert_attack_fired wp5_back_office_tool_mutation
+echo ""
+
+echo "[6/6] Running Reliability Failure Control (malformed upstream response)..."
+echo "-> Simulating a corrupted search_policies response, independent of any adversarial plugin."
+mantis --run configs/attacks/wp5_failure_malformed.yaml > /dev/null 2>&1
+assert_attack_fired wp5_failure_malformed
 echo ""
 
 if [ -n "$BACKEND_PID" ]; then
     kill $BACKEND_PID
 fi
 
-echo "WP5 Demo Complete! Every attack plugin was confirmed to have actually fired, not just to have exited cleanly."
+echo "WP5 Demo Complete! Every attack/failure plugin was confirmed to have actually fired, not just to have exited cleanly."

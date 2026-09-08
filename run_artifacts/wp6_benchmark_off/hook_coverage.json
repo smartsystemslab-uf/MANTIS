@@ -17,5 +17,6 @@
     "interaction": {},
     "tool": {},
     "output": {}
-  }
+  },
+  "plugin_timing_ms": {}
 }

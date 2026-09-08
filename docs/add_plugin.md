@@ -40,6 +40,7 @@ class CustomDelayPlugin:
 | `HookAction.MUTATE` | Replace input/arguments with `payload` provided in `HookResult`. |
 | `HookAction.DENY` | Block operation with an optional `error_message`. |
 | `HookAction.SKIP` | Skip this stage entirely. |
+| `HookAction.ERROR` | Report a failure for this stage (e.g. a simulated timeout), with `error_message`. |
 
 ---
 

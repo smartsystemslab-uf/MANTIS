@@ -29,9 +29,12 @@ def test_hook_bus_mutation_and_denial():
         payload={"customer_id": "CUST-001"}
     )
     result1 = bus.dispatch("before_tool", ctx1)
-    
-    assert result1.action == HookAction.CONTINUE # After processing, the final return is CONTINUE if no one denied. Wait!
-    # Actually, dispatch returns HookResult(action=HookAction.CONTINUE, payload=current_payload) if the chain completes!
+
+    # dispatch() must report MUTATE (not just thread the mutated payload
+    # through silently as CONTINUE) -- callers like MantisHookPlugin only
+    # apply a dispatch's payload to the real tool/LLM call when the
+    # aggregate action is exactly MUTATE.
+    assert result1.action == HookAction.MUTATE
     assert result1.payload["customer_id"] == "HACKED-CUST-999"
 
     # 2. Test blocking action
@@ -86,6 +89,39 @@ def test_security_actions_visible_to_later_plugin():
         stage="tool", target="get_customer_context",
         payload={"customer_id": "CUST-001"},
     )
-    bus.dispatch("before_tool", ctx)
+    result = bus.dispatch("before_tool", ctx)
 
     assert observer.seen_security_actions == [{"plugin": "mock_attack", "action": "mutate"}]
+    # Regression test for a real bug: this is exactly the shape of every
+    # real run (attack plugin registered before ObservabilityPlugin, which
+    # only observes and returns CONTINUE) -- the aggregate dispatch result
+    # must still surface MUTATE with the mutated payload, not silently
+    # collapse to CONTINUE just because the *last* plugin in the chain
+    # didn't itself mutate anything.
+    assert result.action == HookAction.MUTATE
+    assert result.payload["customer_id"] == "HACKED-CUST-999"
+
+
+def test_denied_action_is_still_observed_by_later_plugin():
+    # Regression test for a real bug: a DENY/SKIP/ERROR from an earlier
+    # plugin used to make dispatch() return immediately, so a
+    # later-registered plugin (ObservabilityPlugin, always registered last)
+    # never ran at all -- a blocked/denied tool call produced no TOOL_CALL
+    # or ATTACK_INJECTED event whatsoever, even though the block itself
+    # worked correctly. This affects every DENY/ERROR-based plugin
+    # (ReliabilityFailurePlugin's malformed/timeout failures included).
+    bus = HookBus()
+    attack = MockAttackPlugin()
+    observer = ObserverPlugin()
+    bus.register(attack)
+    bus.register(observer)
+
+    ctx = HookContext(
+        run_id="test", trace_id="test", workflow_id="test",
+        stage="tool", target="execute_transfer",
+        payload={"amount": 1000},
+    )
+    result = bus.dispatch("before_tool", ctx)
+
+    assert observer.seen_security_actions == [{"plugin": "mock_attack", "action": "deny"}]
+    assert result.action == HookAction.DENY

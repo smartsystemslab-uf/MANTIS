@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-09-08T01:37:52.829623Z",
+  "config_hash": "4de7785c9139a98cc9854e436ecc4d0d9f1f615f22bae267001db475db0d7648",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "wp6_mock_llm_overhead_mid_office",
+      "seed": 42,
+      "domain": "mid_office",
+      "workflow": "mid_office_planning",
+      "scenario": "mid_office_planning"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "benchmark": {
+      "concurrency": 1,
+      "repetitions": 20,
+      "mock_llm": true
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "134c287e808cf9ab9ecb831a44b83a0118003146"
+  }
+}

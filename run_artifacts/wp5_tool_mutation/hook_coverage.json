@@ -28,5 +28,9 @@
     "output": {
       "observability_plugin": 2
     }
+  },
+  "plugin_timing_ms": {
+    "observability_plugin": 24.4677500159014,
+    "tool_parameter_mutation": 0.09896294795908034
   }
 }

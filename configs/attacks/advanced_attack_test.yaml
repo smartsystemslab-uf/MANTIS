@@ -4,17 +4,30 @@ experiment:
   domain: front_office
   workflow: front_office_monitoring
   scenario: front_office_monitoring
+# Disabling transaction_monitoring_agent here (its model call is skipped
+# entirely -- see runtime/plugin.py:before_agent_callback) is deliberately
+# combined with an attack on a *different*, still-active agent
+# (compliance_agent) in the same workflow: it demonstrates that an
+# agent-level modification and a live attack coexist correctly through the
+# same config, rather than the attack silently targeting a hop that never
+# executes.
 modifications:
   agents:
     transaction_monitoring_agent:
       model: gpt-4
       enabled: false
+# control_point: interaction (before_message) -- the one stage where
+# MantisHookPlugin actually writes a MUTATE payload back onto the real
+# llm_request.contents (runtime/plugin.py:before_model_callback); see
+# prompt_injection.py. Targeting transaction_monitoring_agent here (as an
+# earlier version of this config did) could never have fired regardless,
+# since that agent is disabled above and never calls the model at all.
 attack:
   plugin: prompt_injection
-  control_point: input
-  target: transaction_monitoring_agent
+  control_point: interaction
+  target: compliance_agent
   parameters:
-    target_agent: transaction_monitoring_agent
+    target_agent: compliance_agent
     payload_file: attacks/prompt_01.txt
 
 observability:

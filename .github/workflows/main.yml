@@ -31,6 +31,15 @@ jobs:
         # exit-zero treats all errors as warnings
         flake8 src tests --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         
+    - name: Start Banking Backend
+      run: |
+        python -m uvicorn citi_banking_backend.app.main:app --host 127.0.0.1 --port 8000 > backend.log 2>&1 &
+        for i in $(seq 1 10); do
+          curl -s http://127.0.0.1:8000/docs > /dev/null && break
+          sleep 1
+        done
+        curl -sf http://127.0.0.1:8000/docs > /dev/null || (echo "Backend failed to start" && cat backend.log && exit 1)
+
     - name: Unit Tests
       run: |
         pytest tests/unit/ -v

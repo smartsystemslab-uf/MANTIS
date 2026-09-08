@@ -153,9 +153,10 @@ async def run_experiment(config_path: str):
                 print(json.dumps({scenario_id: _ser(res)}, indent=2, ensure_ascii=False))
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        print(f"❌ Failed to connect to MCP Server: {e}", file=sys.stderr)
+        if os.environ.get("MANTIS_DEBUG"):
+            import traceback
+            traceback.print_exc()
+        print(f"❌ Run failed: {e} (set MANTIS_DEBUG=1 for a full traceback)", file=sys.stderr)
         sys.exit(1)
 
 def validate_config(config_path: str) -> bool:
@@ -348,7 +349,7 @@ def main():
                     evidence_ref="evaluation_results.json",
                 )
                 for metric_name, metric_result in results.items()
-                if isinstance(metric_result, dict) and "score" in metric_result
+                if isinstance(metric_result, dict) and isinstance(metric_result.get("score"), (int, float))
             ]
             append_trace_events(args.evaluate, eval_events)
         return
@@ -362,13 +363,16 @@ def main():
         results = runner.execute()
         print(json.dumps(results, indent=2))
         
-        # Save benchmark results
+        # Save benchmark results (JSON + CSV + Parquet)
         out_dir = Path("results")
         out_dir.mkdir(exist_ok=True)
-        out_file = out_dir / f"benchmark_{Path(args.benchmark).stem}.json"
+        stem = Path(args.benchmark).stem
+        out_file = out_dir / f"benchmark_{stem}.json"
         with open(out_file, "w") as f:
             json.dump(results, f, indent=2)
         print(f"Benchmark results saved to {out_file}")
+        runner.export_csv(results, str(out_dir / f"benchmark_{stem}.csv"))
+        runner.export_parquet(results, str(out_dir / f"benchmark_{stem}.parquet"))
         return
 
     if args.campaign:

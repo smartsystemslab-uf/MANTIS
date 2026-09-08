@@ -16,6 +16,14 @@ from mantis.banking.tool_semantics import get_tool_semantics
 from typing import Optional, Any
 import time
 
+# Reliability/failure plugins (delay, timeout, malformed result) simulate
+# ordinary operational faults, not adversarial behavior -- the spec's own
+# event taxonomy (WP4 / section 5.4) separates ATTACK_INJECTED from ANOMALY
+# for exactly this reason. Keyed by plugin name since ExperimentPlugin has
+# no formal attack-vs-failure category field.
+_FAILURE_PLUGIN_NAMES = {"reliability_failure"}
+
+
 def _hash_payload(payload: Optional[dict]) -> Optional[str]:
     if not payload:
         return None
@@ -79,12 +87,17 @@ class ObservabilityPlugin:
         # what actually proves an attack did something, not just that a run
         # happened while an attack plugin was registered.
         for action_info in security_actions:
+            plugin_name = action_info.get("plugin", "unknown")
+            event_type = (
+                EventType.ANOMALY if plugin_name in _FAILURE_PLUGIN_NAMES
+                else EventType.ATTACK_INJECTED
+            )
             self.trace_writer.write_event(SecurityEvent(
-                event_type=EventType.ATTACK_INJECTED,
+                event_type=event_type,
                 run_id=ctx.run_id,
                 stage=ctx.stage,
                 target=ctx.target or ctx.source or "unknown",
-                plugin=action_info.get("plugin", "unknown"),
+                plugin=plugin_name,
                 observed_impact=action_info.get("action"),
             ))  # security events always emit, selective mode included
 

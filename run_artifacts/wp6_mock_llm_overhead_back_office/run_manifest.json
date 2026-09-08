@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-09-08T01:40:09.105588Z",
+  "config_hash": "cc4e84615a534d6483fafffb438d18cbb684fc3220a8ceb61bb5a8036ddd3dc4",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "wp6_mock_llm_overhead_back_office",
+      "seed": 42,
+      "domain": "back_office",
+      "workflow": "back_office_clean",
+      "scenario": "back_office_clean"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "benchmark": {
+      "concurrency": 1,
+      "repetitions": 20,
+      "mock_llm": true
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "134c287e808cf9ab9ecb831a44b83a0118003146"
+  }
+}

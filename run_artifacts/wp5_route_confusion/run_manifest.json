@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-07T21:38:48.926537Z",
-  "config_hash": "4d9a7878350a7d97f39580b9988902718dce368f632b451ca45d63112d2fbf67",
+  "timestamp": "2026-09-08T02:01:55.126091Z",
+  "config_hash": "151a024a580dd056e7616ce1f6b33a45bb2a1cc6113791a972d5e0ff17f5eaf6",
   "seed": 103,
   "config": {
     "experiment": {
@@ -15,8 +15,8 @@
       "control_point": "tool",
       "target": "transfer_to_agent",
       "parameters": {
-        "intercepted_route": "compliance_agent",
-        "forced_destination": "decision_making_agent"
+        "intercepted_route": "front_office_transaction_workflow",
+        "forced_destination": "customer_service_chatbot_workflow"
       }
     },
     "observability": {
@@ -24,6 +24,14 @@
       "export": [
         "jsonl"
       ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "transfer_to_agent",
+        "search_policies"
+      ],
+      "forbidden_tools": [],
+      "expected_terminal_state": "manual_review"
     }
   },
   "environment": {
@@ -36,6 +44,6 @@
       "mcp": "1.29.0",
       "pydantic": "2.13.4"
     },
-    "git_commit": "6e2a4c29c27935644cccca0c8bf5f30120c26ae3"
+    "git_commit": "134c287e808cf9ab9ecb831a44b83a0118003146"
   }
 }

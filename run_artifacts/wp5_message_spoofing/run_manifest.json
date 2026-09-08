@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-07T21:39:30.635288Z",
-  "config_hash": "d0184cce63daa9cf4b52d2038ce6ef1d6af9842845386c000cdbac781a98a0ea",
+  "timestamp": "2026-09-08T02:02:33.218172Z",
+  "config_hash": "106cc767eb51bf1239fbcdb325a539961cdc2fdd9588854c2b1ac2dac1cd7e5b",
   "seed": 102,
   "config": {
     "experiment": {
@@ -25,6 +25,12 @@
       "export": [
         "jsonl"
       ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "search_policies"
+      ],
+      "forbidden_tools": []
     }
   },
   "environment": {
@@ -37,6 +43,6 @@
       "mcp": "1.29.0",
       "pydantic": "2.13.4"
     },
-    "git_commit": "6e2a4c29c27935644cccca0c8bf5f30120c26ae3"
+    "git_commit": "134c287e808cf9ab9ecb831a44b83a0118003146"
   }
 }

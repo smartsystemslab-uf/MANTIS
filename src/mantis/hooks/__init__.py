@@ -76,10 +76,15 @@ class HookBus:
         """
         Dispatches the event to all registered plugins that support the context stage.
         If a plugin mutates the payload, the mutated payload is passed to the next plugin.
-        If a plugin returns SKIP, DENY, or ERROR, the chain is halted immediately.
+        If a plugin returns SKIP, DENY, or ERROR, later plugins still run (so
+        e.g. ObservabilityPlugin, always registered last, can still observe
+        and record the blocked action), but the dispatch's own aggregate
+        result reports that first blocking action rather than CONTINUE/MUTATE.
         """
         plugins_applied = []
         current_payload = dict(ctx.payload)
+        any_mutation = False
+        blocking_result: Optional[HookResult] = None
         # Actions taken by earlier plugins in this same dispatch, visible to
         # later ones via ctx.metadata -- lets a plugin registered after an
         # attack plugin (e.g. the observability plugin) know a mutation
@@ -107,16 +112,50 @@ class HookBus:
 
                     if result.action == HookAction.MUTATE and result.payload is not None:
                         current_payload = result.payload
-                    elif result.action in [HookAction.SKIP, HookAction.DENY, HookAction.ERROR]:
-                        self._record_coverage(specific_hook, ctx.stage, plugins_applied)
-                        return result
+                        any_mutation = True
+                    elif result.action in [HookAction.SKIP, HookAction.DENY, HookAction.ERROR] and blocking_result is None:
+                        # Record the first blocking action but keep
+                        # dispatching to later plugins instead of returning
+                        # immediately. ObservabilityPlugin is always
+                        # registered last specifically so it can observe an
+                        # attack/failure plugin's effect -- returning here
+                        # skipped it entirely, so a denied/errored tool call
+                        # (e.g. ReliabilityFailurePlugin's malformed/timeout
+                        # failures, or any future defense plugin's DENY)
+                        # never produced a TOOL_CALL or ATTACK_INJECTED
+                        # event at all, making the block invisible to the
+                        # trace and every evaluator that reads it.
+                        blocking_result = result
+                        if result.payload is not None:
+                            current_payload = result.payload
                 except Exception as e:
                     logger.error(f"Plugin {plugin.name} raised exception on stage {ctx.stage}: {e}")
                     self._record_coverage(specific_hook, ctx.stage, plugins_applied)
                     return HookResult(action=HookAction.ERROR, error_message=str(e))
 
         self._record_coverage(specific_hook, ctx.stage, plugins_applied)
-        return HookResult(action=HookAction.CONTINUE, payload=current_payload)
+
+        if blocking_result is not None:
+            return HookResult(
+                action=blocking_result.action,
+                payload=current_payload,
+                error_message=blocking_result.error_message,
+            )
+
+        # A plugin earlier in the chain may have mutated the payload even if
+        # every later plugin (e.g. the observability plugin, always
+        # registered last so it can observe an attack's effect) only
+        # observes and returns CONTINUE. The aggregate action must still
+        # report MUTATE here -- callers like MantisHookPlugin only apply a
+        # dispatch's payload to the real tool/LLM call when action is
+        # exactly MUTATE, so collapsing this to CONTINUE silently discarded
+        # every upstream mutation whenever it wasn't the last plugin
+        # dispatched, which -- given the attack-before-observability
+        # registration order used everywhere -- was every real run.
+        return HookResult(
+            action=HookAction.MUTATE if any_mutation else HookAction.CONTINUE,
+            payload=current_payload,
+        )
 
     def write_coverage(self, filepath: str) -> None:
         import json

@@ -1,0 +1,31 @@
+experiment:
+  name: ci_mock_prompt_injection
+  seed: 101
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+# CI-only smoke config (see scripts/ci_attack_smoke_test.sh): targets
+# user_proxy_agent, the root LlmAgent, specifically because it's the one
+# agent whose real model call MANTIS_MOCK_LLM=1 always reaches -- MockLlm
+# calls the first declared tool on whichever agent currently has control,
+# which for a fresh run is always the root orchestrator (see
+# mantis/banking/mock_llm.py). Any deeper sub-agent (transaction_monitoring_agent,
+# compliance_agent, ...) is unreachable under mock mode because ADK's
+# transfer_to_agent requires a real agent_name the mock model never
+# supplies. This is NOT the scenario used to demonstrate the real security
+# finding -- see configs/attacks/wp5_prompt_injection.yaml for that (targets
+# transaction_monitoring_agent, run live under a real LLM in
+# scripts/demo_wp5_attacks.sh). This config exists purely so CI can prove
+# the ATTACK_INJECTED pipeline fires end-to-end without a live API key.
+attack:
+  plugin: prompt_injection
+  control_point: interaction
+  target: user_proxy_agent
+  parameters:
+    payload_file: attacks/prompt_01.txt
+    target_agent: user_proxy_agent
+
+observability:
+  mode: full
+  export: [jsonl]

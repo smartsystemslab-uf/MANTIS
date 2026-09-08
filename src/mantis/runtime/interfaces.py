@@ -1,4 +1,4 @@
-from typing import Protocol, Mapping, Any
+from typing import Protocol, Mapping, Any, runtime_checkable
 from pydantic import BaseModel
 
 class BankingSystemInventory(BaseModel):
@@ -19,6 +19,7 @@ from mantis.hooks import HookBus
 class RuntimeHandle(Protocol):
     async def run_message(self, message: str) -> Any: ...
 
+@runtime_checkable
 class BankingRuntimeAdapter(Protocol):
     def inventory(self) -> BankingSystemInventory: ...
     def workflows(self) -> Mapping[str, WorkflowSpec]: ...

@@ -1,0 +1,41 @@
+{
+  "timestamp": "2026-09-08T02:14:49.869530Z",
+  "config_hash": "d182cd5923d297b0286db1e8dae2e7e09990d7e81a2d76f8481143a3daf8820a",
+  "seed": 101,
+  "config": {
+    "experiment": {
+      "name": "ci_mock_prompt_injection",
+      "seed": 101,
+      "domain": "front_office",
+      "workflow": "front_office_monitoring",
+      "scenario": "front_office_monitoring"
+    },
+    "attack": {
+      "plugin": "prompt_injection",
+      "control_point": "interaction",
+      "target": "user_proxy_agent",
+      "parameters": {
+        "payload_file": "attacks/prompt_01.txt",
+        "target_agent": "user_proxy_agent"
+      }
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "134c287e808cf9ab9ecb831a44b83a0118003146"
+  }
+}

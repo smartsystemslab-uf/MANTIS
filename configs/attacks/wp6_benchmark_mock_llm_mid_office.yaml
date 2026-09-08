@@ -1,0 +1,19 @@
+experiment:
+  name: wp6_mock_llm_overhead_mid_office
+  seed: 42
+  domain: mid_office
+  workflow: mid_office_planning
+  scenario: mid_office_planning
+
+observability:
+  mode: full
+  export: [jsonl]
+
+benchmark:
+  # Mirrors wp6_benchmark_mock_llm_full.yaml (front_office) for a
+  # mid_office workflow, closing the spec §WP6 requirement to benchmark
+  # "representative front-, mid-, and back-office workflows" rather than
+  # front_office alone.
+  concurrency: 1
+  repetitions: 20
+  mock_llm: true

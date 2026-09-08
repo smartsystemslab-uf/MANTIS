@@ -140,11 +140,30 @@ class MantisHookPlugin(BasePlugin):
         res = self.hook_bus.dispatch("before_tool", ctx)
 
         if res.action == HookAction.MUTATE and res.payload is not None:
-            # We must return a dict to replace the arguments to the tool!
-            return res.payload
+            # ADK treats a non-None return from before_tool_callback as a
+            # substitute *response* that skips calling the real tool
+            # entirely (see functions.py: "Step 1: Check if plugin
+            # before_tool_callback overrides the function response" / "Step
+            # 3: Otherwise, proceed calling the tool normally" only runs
+            # when the callback returned None). Returning res.payload here
+            # was silently turning every tool-stage MUTATE into "never call
+            # the real tool" -- fatal for a plugin like route_confusion,
+            # whose entire effect depends on the real transfer_to_agent()
+            # function actually running (its only side effect,
+            # tool_context.actions.transfer_to_agent = agent_name, is what
+            # ADK's routing logic reads). tool_args is the same dict object
+            # ADK passes on to the real tool call, so mutating it in place
+            # and returning None lets the real tool run with the modified
+            # arguments instead.
+            tool_args.clear()
+            tool_args.update(res.payload)
+            return None
         elif res.action in [HookAction.SKIP, HookAction.DENY]:
-            # Return an empty dict or error dict to simulate block
-            return {"error": "tool blocked by hook"}
+            # Prefer the plugin's own payload (e.g. ReliabilityFailurePlugin's
+            # crafted malformed-JSON string) over a generic fallback, so a
+            # failure/deny plugin's specific simulated error actually reaches
+            # the agent instead of being silently discarded.
+            return res.payload if res.payload is not None else {"error": "tool blocked by hook"}
         return None
 
     async def after_tool_callback(self, *, tool: BaseTool, tool_args: dict[str, Any], tool_context: Any, result: Any) -> Optional[dict[str, Any]]:
@@ -160,7 +179,7 @@ class MantisHookPlugin(BasePlugin):
         if res.action == HookAction.MUTATE and res.payload is not None:
             return res.payload
         elif res.action in [HookAction.SKIP, HookAction.DENY]:
-            return {"error": "result blocked by hook"}
+            return res.payload if res.payload is not None else {"error": "result blocked by hook"}
         return None
 
     async def on_tool_error_callback(self, *, tool: BaseTool, tool_args: dict[str, Any], tool_context: Any, error: Exception) -> Optional[dict[str, Any]]:

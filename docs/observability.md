@@ -32,9 +32,13 @@ Configured via `observability.export`:
 
 ## 3. Trace Event Hierarchy
 
-- `EXPERIMENT_START` / `EXPERIMENT_END`: Lifecycle of the run.
+- `EXPERIMENT_START` / `EXPERIMENT_END`: Lifecycle of the run, with config hash, seed, and status.
 - `WORKFLOW_START` / `WORKFLOW_END`: Workflow boundary and terminal outcome.
-- `AGENT_START` / `AGENT_END`: Agent activation, role, and execution latency.
+- `ROUTE_DECISION`: A real `transfer_to_agent` routing decision, with source, target, and step.
+- `AGENT_START` / `AGENT_END` / `AGENT_ERROR`: Agent activation, role, execution latency, and errors.
 - `MESSAGE_SEND` / `MESSAGE_RECEIVE` / `MESSAGE_MUTATE`: Inter-agent communication.
 - `TOOL_CALL` / `TOOL_RESULT` / `TOOL_ERROR`: Tool invocations, parameters, and side-effects.
-- `ATTACK_INJECTED`: Security event with injection stage, plugin, target, and observed effect.
+- `ATTACK_INJECTED`: Adversarial security event with injection stage, plugin, target, and observed effect.
+- `ANOMALY`: Operational security event for a reliability/failure plugin (delay, timeout, malformed result) -- kept distinct from `ATTACK_INJECTED` so an evaluator can separate a security-caused anomaly from a routine fault.
+- `POLICY_EVENT`: Reserved for a future policy/guardrail plugin (Zero Trust extension point); declared in the event model but not currently emitted by any shipped plugin.
+- `EVALUATION_RESULT`: Post-run metric results (one per evaluator, all 7 dimensions -- see `docs/reproducibility.md`) appended to traces automatically by `mantis --evaluate`, sharing the run's own `run_id`.

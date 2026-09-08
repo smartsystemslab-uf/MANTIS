@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-07T22:52:32.683725Z",
-  "config_hash": "11637e04ec074ee327b58ed0f338f578ff7a20b117533ebeda0257cd05faabe5",
+  "timestamp": "2026-09-08T02:02:10.267803Z",
+  "config_hash": "4ce08ef6b5dc88b1073444644a6c1f72663706dffa07c28a795ef6e1801fbad4",
   "seed": 105,
   "config": {
     "experiment": {
@@ -26,6 +26,12 @@
       "export": [
         "jsonl"
       ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "apply_ledger_updates"
+      ],
+      "forbidden_tools": []
     }
   },
   "environment": {
@@ -38,6 +44,6 @@
       "mcp": "1.29.0",
       "pydantic": "2.13.4"
     },
-    "git_commit": "3263908d924f1e8c58085cf52ba45cb54f72363e"
+    "git_commit": "134c287e808cf9ab9ecb831a44b83a0118003146"
   }
 }

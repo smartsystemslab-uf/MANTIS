@@ -1,0 +1,2 @@
+repetitions,concurrency,mock_llm,successful_runs,failed_runs,avg_latency_s,stdev_latency_s,p50_latency_s,p90_latency_s,p99_latency_s,throughput_runs_per_s,total_time_s,cpu_time_s,peak_rss_mb,avg_trace_events_per_run
+4,2,False,4,0,17.781796395778656,1.2003946373499303,16.99941611289978,19.45073628425598,19.45073628425598,0.10718354249294236,37.319162130355835,38.566199,375.3828125,

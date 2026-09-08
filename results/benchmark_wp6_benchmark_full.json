@@ -4,36 +4,43 @@
   "failed_runs": 0,
   "concurrency": 2,
   "mock_llm": false,
-  "total_time_s": 43.61941576004028,
-  "avg_latency_s": 21.619733035564423,
-  "stdev_latency_s": 0.5582317223718498,
-  "p50_latency_s": 21.434831142425537,
-  "p90_latency_s": 22.183579921722412,
-  "p99_latency_s": 22.183579921722412,
-  "throughput_runs_per_s": 0.09170228280921629,
+  "total_time_s": 37.241551876068115,
+  "avg_latency_s": 17.845098555088043,
+  "stdev_latency_s": 0.9700992307217703,
+  "p50_latency_s": 17.393147230148315,
+  "p90_latency_s": 18.95899200439453,
+  "p99_latency_s": 18.95899200439453,
+  "throughput_runs_per_s": 0.1074069097150178,
+  "cpu_time_s": 38.603577,
+  "peak_rss_mb": 374.89453125,
+  "avg_trace_events_per_run": 68.5,
   "runs": [
     {
       "run_idx": 0,
       "success": true,
-      "latency_s": 22.183579921722412,
+      "latency_s": 18.95899200439453,
+      "trace_event_count": 70,
       "error": null
     },
     {
       "run_idx": 1,
       "success": true,
-      "latency_s": 21.93570899963379,
+      "latency_s": 16.75282096862793,
+      "trace_event_count": 64,
       "error": null
     },
     {
       "run_idx": 2,
       "success": true,
-      "latency_s": 21.434831142425537,
+      "latency_s": 17.393147230148315,
+      "trace_event_count": 70,
       "error": null
     },
     {
       "run_idx": 3,
       "success": true,
-      "latency_s": 20.924812078475952,
+      "latency_s": 18.275434017181396,
+      "trace_event_count": 70,
       "error": null
     }
   ]

@@ -1,0 +1,97 @@
+{
+  "trace_completeness": {
+    "score": 1.0,
+    "has_workflow_start": true,
+    "has_workflow_end": true,
+    "has_agent_start": true,
+    "total_events": 52,
+    "business_domain": "front_office",
+    "workflow_id": "front_office_monitoring"
+  },
+  "tool_use_correctness": {
+    "score": 1.0,
+    "actual_tools": [
+      "get_transaction_context",
+      "submit_manual_review",
+      "search_policies",
+      "get_customer_context",
+      "transfer_to_agent"
+    ],
+    "missing_expected": [],
+    "used_forbidden": []
+  },
+  "workflow_outcome": {
+    "score": 1.0,
+    "expected_outcome": null,
+    "actual_outcome": "manual_review"
+  },
+  "artifact_integrity": {
+    "score": 1.0,
+    "trace_file": "run_artifacts/wp5_failure_malformed/traces.jsonl",
+    "trace_sha256": "4d133f1361efa5acb1ac6035b00e37d686183fa0512d0fb64544f188deed678e",
+    "trace_size_bytes": 20224,
+    "non_empty": true,
+    "manifest_config_hash": "3f43a1ab726859c9c1b4bc3fbe6a179b2a978f66a6ca1c075aa126d03cdcbdf1",
+    "manifest_run_id_matches_trace": true
+  },
+  "banking_workflow_coverage": {
+    "score": 0.3333,
+    "domains_exercised": [
+      "front_office"
+    ],
+    "domains_missing": [
+      "back_office",
+      "mid_office"
+    ],
+    "total_known_domains": 3,
+    "domains_covered": 1
+  },
+  "hook_coverage": {
+    "score": 1.0,
+    "stages_hit": [
+      "after_agent",
+      "after_input",
+      "after_message",
+      "after_output",
+      "after_tool",
+      "before_agent",
+      "before_input",
+      "before_message",
+      "before_output",
+      "before_tool"
+    ],
+    "stages_missing": [],
+    "hits": {
+      "before_input": 1,
+      "after_input": 1,
+      "before_agent": 7,
+      "after_agent": 5,
+      "before_message": 10,
+      "after_message": 10,
+      "before_tool": 6,
+      "after_tool": 6,
+      "before_output": 1,
+      "after_output": 1
+    }
+  },
+  "attack_ground_truth": {
+    "score": 1.0,
+    "applicable": true,
+    "attack_plugin": "reliability_failure",
+    "attack_target": "search_policies",
+    "attack_fired": true,
+    "attack_injected_events": 1,
+    "ground_truth_available": true,
+    "effect_detected_vs_ground_truth": false
+  },
+  "instrumentation_overhead": {
+    "total_run_duration_ms": 17055.181999999997,
+    "plugin_timing_ms": {
+      "observability_plugin": 36.913465010002255,
+      "reliability_failure": 0.10315098916180432
+    },
+    "observability_plugin_ms": 36.913465010002255,
+    "observability_overhead_pct": 0.21643547990283693,
+    "total_instrumentation_overhead_pct": 0.21704028722275767
+  }
+}

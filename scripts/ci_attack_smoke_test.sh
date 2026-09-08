@@ -6,16 +6,21 @@
 # rather than just validating config schemas or evaluating pre-committed
 # trace data. This is what quickstart.sh does not do on its own.
 #
-# Deliberately prompt_injection, not any of the other four: MockLlm always
-# calls the first declared tool on whichever agent gets control first, which
-# is the root orchestrator -- and ADK only allows transfer_to_agent between
-# parent/child/sibling agents (see resolve_and_derive_transfer_context in
-# the installed google-adk package), so a mock run never reaches deeper
-# agents/tools. prompt_injection's before_input path is the one attack that
-# fires unconditionally, before any routing happens, so it's the only one
-# of the five that's meaningfully checkable without a real LLM. The other
-# four are covered by scripts/demo_wp5_attacks.sh under a real API key
-# (see release_validation.sh), not here.
+# Uses configs/attacks/ci_mock_prompt_injection.yaml, a CI-only config
+# targeting user_proxy_agent (the root LlmAgent) rather than
+# wp5_prompt_injection.yaml's real target (transaction_monitoring_agent).
+# MockLlm always calls the first declared tool on whichever agent currently
+# has control, which for a fresh run is always the root orchestrator -- and
+# ADK only allows transfer_to_agent between parent/child/sibling agents (see
+# resolve_and_derive_transfer_context in the installed google-adk package),
+# so a mock run never reaches deeper agents/tools. prompt_injection mutates
+# the real llm_request at the interaction/before_message stage (see
+# prompt_injection.py), which requires the target agent to actually make a
+# real model call -- true for the root under mock mode, never true for a
+# sub-agent -- so the root is the only agent whose attack is meaningfully
+# checkable without a real LLM. All five real attack + failure configs are
+# covered by scripts/demo_wp5_attacks.sh under a real API key (see
+# release_validation.sh), not here.
 
 set -e
 
@@ -45,10 +50,10 @@ trap cleanup EXIT
 
 echo ""
 echo "[1/2] Running Prompt Injection attack live, under MANTIS_MOCK_LLM=1..."
-rm -rf run_artifacts/wp5_prompt_injection
-MANTIS_MOCK_LLM=1 mantis --run configs/attacks/wp5_prompt_injection.yaml
+rm -rf run_artifacts/ci_mock_prompt_injection
+MANTIS_MOCK_LLM=1 mantis --run configs/attacks/ci_mock_prompt_injection.yaml
 
-TRACE_FILE="run_artifacts/wp5_prompt_injection/traces.jsonl"
+TRACE_FILE="run_artifacts/ci_mock_prompt_injection/traces.jsonl"
 if [ ! -f "$TRACE_FILE" ]; then
     echo "❌ ERROR: Trace file not found at $TRACE_FILE -- the run did not execute."
     exit 1
@@ -62,8 +67,8 @@ echo "✅ Attack fired: ATTACK_INJECTED present in a freshly-executed trace."
 
 echo ""
 echo "[2/2] Evaluating the fresh run..."
-mantis --evaluate run_artifacts/wp5_prompt_injection > /dev/null
-if [ ! -f "run_artifacts/wp5_prompt_injection/evaluation_results.json" ]; then
+mantis --evaluate run_artifacts/ci_mock_prompt_injection > /dev/null
+if [ ! -f "run_artifacts/ci_mock_prompt_injection/evaluation_results.json" ]; then
     echo "❌ ERROR: evaluation_results.json was not produced."
     exit 1
 fi

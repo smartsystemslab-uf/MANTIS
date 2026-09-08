@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-07T21:38:23.694023Z",
-  "config_hash": "9272883d70e9e3d934c6ce858cee7380362149864eaef35583edb427900a4963",
+  "timestamp": "2026-09-08T02:01:26.974283Z",
+  "config_hash": "6e1c58c8fdbc169973f1210a7490cd3d706c6b1855d4728d623d9819c458c1e7",
   "seed": 42,
   "config": {
     "experiment": {
@@ -20,10 +20,10 @@
     },
     "attack": {
       "plugin": "prompt_injection",
-      "control_point": "input",
-      "target": "transaction_monitoring_agent",
+      "control_point": "interaction",
+      "target": "compliance_agent",
       "parameters": {
-        "target_agent": "transaction_monitoring_agent",
+        "target_agent": "compliance_agent",
         "payload_file": "attacks/prompt_01.txt"
       }
     },
@@ -46,6 +46,6 @@
       "mcp": "1.29.0",
       "pydantic": "2.13.4"
     },
-    "git_commit": "6e2a4c29c27935644cccca0c8bf5f30120c26ae3"
+    "git_commit": "134c287e808cf9ab9ecb831a44b83a0118003146"
   }
 }
