@@ -1,0 +1,132 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, fit, backgrounds, calc}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{MANTIS Extended — Five Post-Paper Extensions to a Banking Multi-Agent Security Testbed
+
+\thanks{Identify applicable funding agency here. If none, delete this.}
+}
+
+\author{\IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+City, Country \\
+email address or ORCID}
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+City, Country \\
+email address or ORCID}
+}
+
+\maketitle
+
+\begin{abstract}
+MANTIS (Modular Agent Network Testbed for Instrumentation and Security) is a configuration-driven security and observability testbed built directly on a real banking multi-agent system spanning front-, mid-, and back-office workflows. The first paper describing MANTIS scoped its contribution deliberately: a hook bus exposing five fixed control points, a compact attack and failure plugin library, a seven-dimension automated evaluator, and a benchmarking suite -- with a named, explicit list of extensions deferred to future work rather than attempted under that paper's schedule. This paper implements all five of those deferred extensions and reports live, measured evidence for each, without modifying the first paper's own artifact. \textbf{Additional exporters}: a Jaeger OTLP adapter, enabled by a one-line configuration change, that fails silently rather than aborting a run when no collector is reachable. \textbf{Security mechanism plugins}: a concrete guardrail, evaluated through the identical plugin interface as an attack, that we show live blocking a real attack -- a tool-parameter-mutation attack inflating a transfer's amount from \$125.50 to \$5{,}000 was denied before it reached the banking backend, with the denial recorded as a distinct \texttt{POLICY\_EVENT} rather than misclassified as an attack. \textbf{Zero Trust Backplane}: a default-deny-by-domain policy generator and enforcement plugin that a real, independently-developed Zero Trust Backplane project for this same testbed can supersede without changing the integration surface; building it also surfaced and fixed a real defect in the testbed's own domain-scoped tool inventory, which had been reporting every domain's tools as the full merged set rather than a real per-domain subset. \textbf{Additional banking workloads}: a new front-office dispute-filing and -tracking process, added as a third route alongside the existing transaction-review and customer-service workflows rather than a new prompt into an existing one -- and a debugging finding in its own right: an initial version silently produced zero tool calls across three live trials because its scenario prompt omitted a required identifier every other scenario in the codebase states explicitly, invisible until we actually inspected the emitted trace rather than a clean exit code. \textbf{Minimal UI}: a schema-driven experiment editor and trace viewer whose mutating actions shell out to the identical CLI subprocess a terminal user would run, verified by confirming a deliberately invalid configuration is rejected with the real CLI's own error message rather than a UI-side check. Thirty-six new tests, all exercised against real data rather than mocks, bring the project's offline suite to 179 passing tests.
+\end{abstract}
+
+\begin{IEEEkeywords}
+multi-agent systems, adversarial security, large language models, banking, observability, Zero Trust, extensibility
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+The first MANTIS paper~\cite{mantis_paper1} scoped its contribution narrowly on purpose: a hook bus exposing five fixed control points around an otherwise-unmodified banking multi-agent system, a compact library of attack and failure plugins registered through one shared interface, a seven-dimension automated evaluator, and a benchmarking suite isolating instrumentation overhead from LLM sampling noise. That paper's own coding plan named five extensions explicitly deferred rather than attempted under its schedule: additional observability exporters beyond OpenTelemetry and MLflow; security-mechanism plugins (guardrails, policy checks, rate limits) evaluated through the same framework as attacks; a Zero Trust Backplane consuming the testbed's application inventory and control-point metadata to generate or enforce protection; additional banking workloads beyond the ones the first paper's evaluation exercised; and a minimal, schema-driven UI over the existing command-line interface.
+
+This paper implements all five. Each is built to the same standard the first paper set for itself: a real, live-verified capability rather than a description of one, checked against the actual emitted trace rather than a clean process exit, with the evidence -- not just the claim -- checked into the repository. We report that standard being met unevenly on purpose: two of the five extensions (the dispute-filing workload and the Zero Trust default-deny policy) initially failed to do anything meaningful on first attempt, for reasons a single successful-looking run would not have surfaced, and we report both failures and their root causes alongside the working result, consistent with the first paper's own central methodological finding that verifying a security-relevant capability means inspecting what actually happened, not assuming it from a lack of an error.
+
+None of the five extensions required a change to \texttt{mantis.core}, \texttt{mantis.hooks}, or the banking workflow modules -- the same architectural claim the first paper made for its own attack and failure plugins now extends to defensive plugins, telemetry adapters, and an entirely separate Zero Trust project this testbed was not written with in mind but is, we show, already compatible with.
+
+\section{Extension 1: Additional Observability Exporters}
+
+The first paper's observability pipeline supported JSONL traces, MLflow run tracking, and a bare OpenTelemetry \texttt{TracerProvider} with no span exporter of its own attached -- creatable spans that were never actually shipped anywhere. We implemented the first of the coding plan's four named additional backends (Jaeger, Grafana, Langfuse, Phoenix), chosen because Jaeger accepts spans natively over OTLP, making it a direct extension of the OpenTelemetry SDK already present rather than a new protocol integration.
+
+\texttt{mantis.observability.jaeger\_exporter.setup\_jaeger\_otel()} attaches a real \texttt{OTLPSpanExporter} (gRPC) to the shared \texttt{TracerProvider}, registered in \texttt{exporter\_registry} as \texttt{"jaeger"} alongside the existing three. Enabling it is a configuration change -- \texttt{observability.export: [jsonl, jaeger]} -- not a code change to the banking workflow, the hook bus, or the observability plugin. Because a run's success must never depend on telemetry actually being delivered, we verified the failure path directly: with no collector listening at the configured endpoint, the SDK's \texttt{BatchSpanProcessor} retries and logs a warning rather than raising, confirmed both by a direct unit test asserting no exception propagates and by observing the expected \texttt{StatusCode.UNAVAILABLE} warnings during every subsequent offline test run in this development environment, where no Jaeger collector was running.
+
+\section{Extension 2: Security Mechanism Plugins}
+
+The first paper shipped \texttt{PolicyPlugin} as an interface only, matching the exact shape of \texttt{ExperimentPlugin} so a future defensive plugin would not need to masquerade as an attack plugin, without a concrete implementation. We built \texttt{AmountLimitGuardrailPlugin}: a guardrail denying a tool call whose declared amount field exceeds a configured limit, through the identical \texttt{apply(ctx) -> HookResult} contract every attack plugin already uses.
+
+The demonstration pairs this guardrail with the first paper's own tool-parameter-mutation attack rather than an undefended baseline, because the interesting property is not that the guardrail can deny a call in isolation but that it evaluates a call an attack has already mutated. Policy plugins are registered onto the hook bus after any configured attack (mirroring the attack-before-observability ordering the first paper established, for the identical reason: a plugin registered later in a dispatch sees the effect of everything registered before it). Run live against a real model with a \$2{,}000 limit: \texttt{execute\_transfer} was called with a legitimate \$125.50 transfer; the attack mutated it to \$5{,}000 destined for an account named \texttt{HACKER-9999}; the guardrail denied the mutated call before it reached the banking backend; and the agent correctly reported the block back to the customer as a payment-limit restriction rather than a generic failure.
+
+This also required a small but consequential change to the observability layer's own event classification. The first paper's \texttt{ObservabilityPlugin} classified every non-trivial plugin action as \texttt{ATTACK\_INJECTED} except a named set of failure-plugin names, which it classified as \texttt{ANOMALY}. A guardrail's \texttt{DENY} is a defense working as intended, not an attack; classifying it as \texttt{ATTACK\_INJECTED} would have made every future evaluator built on that event type unable to tell a caught attack apart from a successful one. We added a parallel \texttt{POLICY\_EVENT} classification, keyed the same way the existing failure-plugin split already was. The live run's trace confirms both classifications appear correctly and distinctly in the same run: one \texttt{ATTACK\_INJECTED} record for the mutation, one \texttt{POLICY\_EVENT} record for the denial.
+
+\section{Extension 3: Zero Trust Backplane}
+
+\subsection{A representative slice, and a real, separate project}
+
+The first paper's extension-point documentation described what a Zero Trust Backplane would need from MANTIS -- the live \texttt{inventory()} interface and per-run \texttt{HookContext} metadata -- without shipping a concrete implementation, and without MANTIS depending on one existing to install or run. We built a representative slice of both halves of that interface, kept entirely outside \texttt{src/mantis}: a policy generator reading the live inventory to produce a default-deny-by-domain policy (an agent may only call tools its own domain declares), and \texttt{ZeroTrustEnforcementPlugin}, a concrete \texttt{PolicyPlugin} enforcing that policy at the tool control point. The plugin self-registers into the shared plugin registry only when explicitly imported -- MANTIS's own code never imports it, preserving the no-dependency property the first paper's extension-point design required.
+
+While building this, we learned that a substantially more complete Zero Trust Backplane for this same banking testbed already exists as an independent project~\cite{ztb_repo}: a five-stage pipeline (source-code scanning, PEP placement, a signed PDP issuing allow, deny, manual-review, conditional-allow, or reauthenticate decisions, and short-lived signed Permit Leases with replay and request-binding protection) already protecting real read and write operations against this repository's own banking backend. That project's own stated next stage is moving from its current Backplane-driven direct tool invocation to interception inside the real agent-routed workflow -- precisely the integration surface this extension demonstrates. The two projects are compatible by construction rather than by coincidence: that project's own Task 1/2 discovers agents and tools by scanning source code into a canonical-identity, runtime-binding manifest (for example \texttt{agent.front\_office.fraud} bound to \texttt{runtime\_id: fraud\_agent}); MANTIS's \texttt{inventory()} already reports that same information live and structurally, since it is introspected from the running system rather than scanned or maintained by hand. We implemented \texttt{to\_zt\_manifest\_subjects()}, mapping MANTIS's live inventory directly onto that project's canonical/runtime-binding convention, as a concrete demonstration that MANTIS's inventory is a substitute data source for what that project's scanner otherwise discovers -- and left our own enforcement plugin's logic deliberately simple (in-process, unsigned, no lease or revocation state), since demonstrating the extension point, not competing with a real security product, is this slice's purpose. A production integration would substitute that project's real, signed Task 4 decision for this slice's own default-deny-by-domain logic behind the identical \texttt{apply(ctx) -> HookResult} seam.
+
+\subsection{A defect this work surfaced: tool inventory was not actually domain-scoped}
+
+A default-deny-by-domain policy is vacuous if every domain reports being able to call every tool in the system. That is exactly what \texttt{NativeBankingAdapter.inventory()} did: its own code comment claimed tools were not domain-tagged and attached the full merged tool list under every domain. This was false. Tools are domain-tagged, through which of five tool modules a domain's agents actually import from -- \texttt{front\_office} imports from \texttt{customer\_tools} and (partially) \texttt{knowledge\_tools}; \texttt{mid\_office} imports from \texttt{csr\_tools}, \texttt{ops\_tools}, and the other half of \texttt{knowledge\_tools}; \texttt{back\_office} imports from its own dedicated module -- the adapter simply was not using that structure. We fixed \texttt{inventory()} to scope each domain's reported tools to what its agents actually import, verified with two new regression tests: that no domain's reported tool set equals the universal set, and that a back-office-only tool (\texttt{apply\_ledger\_updates}) does not appear in front- or mid-office's reported inventory. This was a real, previously undetected defect in a Paper 1 interface, found only because a downstream consumer -- this extension -- finally depended on the property that interface was supposed to guarantee and failed a test when it did not hold.
+
+With the fix in place, the enforcement plugin's live run against an ordinary, unattacked front-office scenario recorded zero policy denials and identical tool-use-correctness and workflow-outcome scores to the undefended baseline -- transparency to legitimate operation being the property that actually matters for a default-deny policy meant to run continuously, not only in the presence of an attack.
+
+\section{Extension 4: Additional Banking Workloads}
+
+The coding plan's fourth extension calls for "more banking processes... or workflow patterns," which we read as a requirement for a genuinely new business process, not a new prompt into an existing one. We added dispute filing and status lookup as a front-office capability: a new \texttt{disputes} table in the same SQLite repository \texttt{submit\_manual\_review} already uses, a new tool module, and \texttt{dispute\_resolution\_agent} registered as a third route under \texttt{front\_office\_router}, alongside the existing transaction-review and customer-service-chatbot routes -- distinct from the chatbot's pre-existing FAQ-only "how do I dispute a transaction" answer, which remains purely informational and never files a real case.
+
+The first attempt at this extension produced a run that exited cleanly and called no tool at all, across three consecutive live trials against a real model. The cause was not a defect in the tool or the agent's routing -- both worked correctly, confirmed by the real transfer to \texttt{dispute\_resolution\_agent} appearing in every trace -- but in the scenario prompt itself, which never stated a customer identifier, unlike every other scenario in this codebase. \texttt{file\_dispute(customer\_id, transaction\_id, reason)} requires one as its first argument; without it stated in the prompt the model apparently could not commit to calling the tool at all, silently, with no error the process's own exit code would reveal. Adding the customer identifier to the prompt -- not changing the tool's signature -- produced, on the next live run, a real case filed with a generated identifier, correctly persisted, and a correct customer-facing confirmation message referencing that identifier. We report this not as an aside but because it is the same class of finding the first paper's own central claim predicts: a clean exit and a correctly-routed trace both looked identical whether or not the actual business action happened, and only inspecting the tool-call events specifically distinguished the two.
+
+\section{Extension 5: Minimal UI}
+
+The coding plan's final named extension is deliberately constrained: "a schema-driven editor and trace viewer that invokes the same CLI/API; no separate business logic." We built a small FastAPI application whose two mutating actions -- validate and run -- shell out to the exact \texttt{mantis} console-script entrypoint a terminal user would invoke, as a real subprocess, rather than a second, UI-specific implementation of configuration validation or experiment execution. Every read-only endpoint -- the configuration schema, the domain/workflow/scenario/plugin registries, the live inventory, and a run's own trace file -- calls the identical underlying objects the CLI itself reads from, so the editor's form fields are populated from live data rather than a hardcoded list that could drift from the deployed system.
+
+We verified the "no separate business logic" property directly rather than assuming it from the implementation's structure: submitting a configuration with a deliberately invalid domain through the UI's validate endpoint returns the real CLI's own \texttt{"Unknown domain"} error text, produced by the same subprocess a terminal invocation of \texttt{mantis --validate} would produce, not a UI-side check reproducing that logic. The application was also confirmed running as a real server, not only through an in-process test client: launched via \texttt{mantis --ui}, it correctly reported the current live inventory (32 agents, 22 tools) and the full set of existing run artifacts (27 runs) over real HTTP requests.
+
+\section{Evaluation Summary}
+
+Table~\ref{tab:extensions} summarizes each extension's verification evidence. All five were checked against real data or a real live run rather than a mock, consistent with the first paper's own testing philosophy; none required a change to \texttt{mantis.core}, \texttt{mantis.hooks}, or the banking workflow modules. Thirty-six new tests -- four for the Jaeger exporter, six for the guardrail (including one exercising the real hook bus with both an attack and a guardrail plugin registered, confirming the guardrail sees the attack's already-mutated payload), seven for Zero Trust (including a cross-domain-denial test demonstrating the actual security property: an agent from one domain is denied a tool exclusive to a different domain), two for the corrected domain-scoped inventory, seven for the dispute workflow, and ten for the UI -- bring the project's offline suite from 143 to 179 passing tests, all still executing in well under a minute with no live LLM key required.
+
+\begin{table}[t]
+\centering
+\caption{Post-Paper Extensions: verification evidence.}
+\label{tab:extensions}
+\scriptsize
+\begin{tabular}{@{}p{1.7cm}p{1.0cm}p{5.0cm}@{}}
+\toprule
+Extension & Tests & Live evidence \\
+\midrule
+Jaeger exporter & 4 & Real OTLP span processor attached; confirmed silent-safe with no collector listening. \\
+Guardrail plugin & 6 & Live run: \$125.50 transfer mutated to \$5{,}000 by a real attack, denied by the guardrail before reaching the backend; both events correctly classified. \\
+Zero Trust & 7 & Live run: zero spurious denials on an unattacked scenario; cross-domain denial confirmed against real inventory data; surfaced and fixed a real domain-scoping defect. \\
+Dispute workload & 7 & Live run: real case filed and persisted after correcting a scenario-prompt defect found only by inspecting the trace. \\
+Minimal UI & 10 & Real invalid config rejected with the real CLI's own error text; real running server confirmed via HTTP, not only a test client. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+
+We implemented all five extensions the first MANTIS paper explicitly deferred, to the same evidentiary standard that paper set for itself: live-verified behavior, checked against the actual emitted trace, with the evidence checked into the repository rather than described in prose. Two of the five surfaced real defects along the way -- a domain-scoping bug in the testbed's own inventory interface, and a scenario-design gap that silently produced zero tool calls across three live trials -- neither visible from a clean process exit, both found only because each extension's own verification pass insisted on checking real behavior rather than accepting that a run had completed. None of the five required a change to the first paper's core interfaces, and one -- the Zero Trust Backplane slice -- is deliberately built to be superseded by a real, independently-developed project for this same testbed rather than to compete with it. Future work includes the deeper statistical campaigns the first paper's own conclusion already named as open, extended now across five additional surfaces: repeated-trial efficacy statistics for the guardrail and Zero Trust denial paths, additional exporters (Grafana, Langfuse, Phoenix) following the same adapter pattern established here, and a production integration between this testbed's inventory and the real Zero Trust Backplane's signed decision pipeline.
+
+\section*{Acknowledgment}
+% Insert acknowledgment of funding sources and individual contributions here.
+
+\begin{thebibliography}{00}
+
+\bibitem{mantis_paper1}
+[Authors], ``MANTIS -- Modular Agent Network Testbed for Instrumentation and Security in Multi-Agent Banking Systems,'' 2026. (Companion paper; this work's Section II onward assumes its architecture and terminology.)
+
+\bibitem{ztb_repo}
+smartsystemslab-uf, ``Citi P3 Zero Trust Backplane,'' \texttt{github.com/smartsystemslab-uf/Citi\_P3\_Zero\_Trust\_Backplane}, 2026.
+
+\end{thebibliography}
+\vspace{12pt}
+
+\end{document}
