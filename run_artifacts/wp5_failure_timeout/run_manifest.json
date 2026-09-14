@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-09-14T20:29:53.469807Z",
+  "config_hash": "c29fead3fcd38fffc84409f80cd21a2f92ba14f3af1a23d2b0ec4fffe3e0cb6f",
+  "seed": 108,
+  "config": {
+    "experiment": {
+      "name": "wp5_failure_timeout",
+      "seed": 108,
+      "domain": "front_office",
+      "workflow": "front_office_monitoring",
+      "scenario": "front_office_monitoring"
+    },
+    "attack": {
+      "plugin": "reliability_failure",
+      "control_point": "tool",
+      "target": "search_policies",
+      "parameters": {
+        "target_tool": "search_policies",
+        "failure_type": "timeout",
+        "delay_ms": 1500
+      }
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "search_policies"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "663c8a3036ccbab06836d778f71407d52c6d9742"
+  }
+}

@@ -157,6 +157,57 @@ def test_run_produces_trace_and_manifest(tmp_path):
     assert len(log_file.read_text()) > 0, "run.log is empty"
 
 
+@pytest.mark.skipif(
+    _SKIP_RUN_TEST,
+    reason="google.adk or MCP server not available; full --run integration skipped in this environment",
+)
+def test_identical_seed_produces_identical_bounded_behavior(tmp_path):
+    """WP2's own acceptance criterion, checked directly rather than assumed:
+    "identical manifest and seed reproduce the same bounded behavior."
+
+    Runs the exact same config twice under the mock model (deterministic
+    by construction -- no live LLM sampling variance to confound this) and
+    compares the resulting traces structurally: the same sequence of
+    (event_type, agent_id/tool_name) pairs, and the same terminal outcome.
+    Not byte-identical (timestamps and latencies genuinely differ between
+    runs), but identical in every way the spec's own evaluators treat as
+    meaningful -- exactly the "bounded reproducibility" the coding plan
+    describes given LLM-backed agents, demonstrated for real rather than
+    asserted from a live model's own semantic-but-not-exact-text
+    reproducibility (which no seed can guarantee).
+    """
+    import shutil
+
+    run_name = "front_office_monitoring"
+    run_artifacts_dir = _REPO_ROOT / "run_artifacts" / run_name
+
+    def _run_once():
+        shutil.rmtree(run_artifacts_dir, ignore_errors=True)
+        env = os.environ.copy()
+        env["MANTIS_MOCK_LLM"] = "1"
+        result = subprocess.run(
+            MANTIS_CMD + ["--run", str(CONFIG_FILE)],
+            env=env, capture_output=True, text=True, timeout=180, cwd=str(_REPO_ROOT),
+        )
+        assert result.returncode == 0, f"--run failed:\nstdout: {result.stdout}\nstderr: {result.stderr}"
+        trace_file = run_artifacts_dir / "traces.jsonl"
+        events = [json.loads(ln) for ln in trace_file.read_text().splitlines() if ln.strip()]
+        return [
+            (e.get("event_type"), e.get("agent_id") or e.get("tool_name") or e.get("outcome"))
+            for e in events
+            if e.get("event_type") not in ("EXPERIMENT_START", "EXPERIMENT_END")  # carry a run-unique config_hash/timestamp, not behavior
+        ]
+
+    shape_1 = _run_once()
+    shape_2 = _run_once()
+
+    assert shape_1 == shape_2, (
+        f"Same config, same seed (42), same mock model produced different event/tool sequences:\n"
+        f"run 1: {shape_1}\nrun 2: {shape_2}"
+    )
+    assert len(shape_1) > 0, "test is meaningless if neither run produced any events"
+
+
 # ---------------------------------------------------------------------------
 # WP8 -- pytest-level end-to-end test for an ATTACKED workflow (not just
 # baseline). Previously this coverage existed only in

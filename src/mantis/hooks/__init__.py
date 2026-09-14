@@ -12,6 +12,7 @@ class HookAction(str, Enum):
     SKIP = "skip"
     DENY = "deny"
     ERROR = "error"
+    DELAY = "delay"
 
 class HookContext(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -29,6 +30,12 @@ class HookResult(BaseModel):
     action: HookAction = HookAction.CONTINUE
     payload: Optional[Dict[str, Any]] = None
     error_message: Optional[str] = None
+    # Only meaningful with action=DELAY -- the bus (not the plugin) performs
+    # the actual wait, in dispatch() below, so "how long to delay" is a
+    # declarative part of the result a plugin returns, the same way MUTATE's
+    # payload declares what to change rather than the plugin mutating
+    # anything itself.
+    delay_ms: Optional[float] = None
 
 class ExperimentPlugin(Protocol):
     name: str
@@ -113,6 +120,13 @@ class HookBus:
                     if result.action == HookAction.MUTATE and result.payload is not None:
                         current_payload = result.payload
                         any_mutation = True
+                    elif result.action == HookAction.DELAY:
+                        # Declarative: the plugin says how long, the bus
+                        # actually waits -- and the chain continues
+                        # afterward (a slow dependency, not a blocked one;
+                        # see HookAction.ERROR/"timeout" for delay-then-fail).
+                        if result.delay_ms:
+                            time.sleep(result.delay_ms / 1000.0)
                     elif result.action in [HookAction.SKIP, HookAction.DENY, HookAction.ERROR] and blocking_result is None:
                         # Record the first blocking action but keep
                         # dispatching to later plugins instead of returning

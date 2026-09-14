@@ -4,14 +4,18 @@
     "has_workflow_start": true,
     "has_workflow_end": true,
     "has_agent_start": true,
-    "total_events": 13,
+    "total_events": 57,
     "business_domain": "front_office",
     "workflow_id": "front_office_monitoring"
   },
   "tool_use_correctness": {
     "score": 1.0,
     "actual_tools": [
-      "transfer_to_agent"
+      "get_customer_context",
+      "transfer_to_agent",
+      "search_policies",
+      "get_transaction_context",
+      "submit_manual_review"
     ],
     "missing_expected": [],
     "used_forbidden": []
@@ -19,15 +23,15 @@
   "workflow_outcome": {
     "score": 1.0,
     "expected_outcome": null,
-    "actual_outcome": "completed"
+    "actual_outcome": "manual_review"
   },
   "artifact_integrity": {
     "score": 1.0,
-    "trace_file": "run_artifacts/front_office_monitoring/traces.jsonl",
-    "trace_sha256": "7c45171bda62423514d5117d11f51a2cc3f414c809fd01eb58772d82913d3718",
-    "trace_size_bytes": 4217,
+    "trace_file": "run_artifacts/wp5_failure_timeout/traces.jsonl",
+    "trace_sha256": "cc30c54ac76832b63bffb5474e69ccd61de1236afa8c6dbff597995d576bd1de",
+    "trace_size_bytes": 21523,
     "non_empty": true,
-    "manifest_config_hash": "1385aac9066be9737002e902a3a788796a47929304e12f0465bb562f8a9eb5dc",
+    "manifest_config_hash": "c29fead3fcd38fffc84409f80cd21a2f92ba14f3af1a23d2b0ec4fffe3e0cb6f",
     "manifest_run_id_matches_trace": true
   },
   "banking_workflow_coverage": {
@@ -60,28 +64,34 @@
     "hits": {
       "before_input": 1,
       "after_input": 1,
-      "before_agent": 1,
-      "after_agent": 1,
-      "before_message": 2,
-      "after_message": 2,
-      "before_tool": 1,
-      "after_tool": 1,
+      "before_agent": 7,
+      "after_agent": 5,
+      "before_message": 11,
+      "after_message": 11,
+      "before_tool": 7,
+      "after_tool": 7,
       "before_output": 1,
       "after_output": 1
     }
   },
   "attack_ground_truth": {
-    "score": null,
-    "applicable": false,
-    "reason": "no attack configured for this run"
+    "score": 1.0,
+    "applicable": true,
+    "attack_plugin": "reliability_failure",
+    "attack_target": "search_policies",
+    "attack_fired": true,
+    "attack_injected_events": 2,
+    "ground_truth_available": true,
+    "effect_detected_vs_ground_truth": false
   },
   "instrumentation_overhead": {
-    "total_run_duration_ms": 1810.951,
+    "total_run_duration_ms": 22858.923000000003,
     "plugin_timing_ms": {
-      "observability_plugin": 4.359140002634376
+      "observability_plugin": 31.252990709617734,
+      "reliability_failure": 3007.388264173642
     },
-    "observability_plugin_ms": 4.359140002634376,
-    "observability_overhead_pct": 0.2407099917465672,
-    "total_instrumentation_overhead_pct": 0.2407099917465672
+    "observability_plugin_ms": 31.252990709617734,
+    "observability_overhead_pct": 0.1367211863376841,
+    "total_instrumentation_overhead_pct": 13.29302021308379
   }
 }

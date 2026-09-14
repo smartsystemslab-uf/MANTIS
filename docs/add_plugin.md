@@ -41,6 +41,7 @@ class CustomDelayPlugin:
 | `HookAction.DENY` | Block operation with an optional `error_message`. |
 | `HookAction.SKIP` | Skip this stage entirely. |
 | `HookAction.ERROR` | Report a failure for this stage (e.g. a simulated timeout), with `error_message`. |
+| `HookAction.DELAY` | Declarative: set `delay_ms`, and the hook bus itself waits that long before continuing the chain — a slow dependency, not a blocked one. The plugin never calls `time.sleep()` itself. |
 
 ---
 

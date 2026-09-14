@@ -1,0 +1,80 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "front_office_monitoring": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "front_office_router"
+    },
+    {
+      "agent": "front_office_router",
+      "event": "transfer",
+      "to": "front_office_transaction_workflow"
+    },
+    {
+      "agent": "transaction_monitoring_agent",
+      "event": "tool_call",
+      "tool": "get_transaction_context",
+      "args": {
+        "transaction_id": "TXN-1001"
+      }
+    },
+    {
+      "agent": "transaction_monitoring_agent",
+      "event": "tool_call",
+      "tool": "get_customer_context",
+      "args": {
+        "customer_id": "CUST-001"
+      }
+    },
+    {
+      "agent": "compliance_agent",
+      "event": "tool_call",
+      "tool": "search_policies",
+      "args": {
+        "query": "wire transfer high amount 22% of balance new external counterparty device change unusual geography AML KYC sanctions policy compliance"
+      }
+    },
+    {
+      "agent": "compliance_agent",
+      "event": "tool_call",
+      "tool": "search_policies",
+      "args": {
+        "query": "wire transfer new external counterparty exception"
+      }
+    },
+    {
+      "agent": "decision_making_agent",
+      "event": "tool_call",
+      "tool": "submit_manual_review",
+      "args": {
+        "case_type": "manual_review",
+        "payload": "High risk due to new external counterparty, high amount, device change, unusual geography."
+      }
+    },
+    {
+      "agent": "decision_making_agent",
+      "event": "tool_result",
+      "tool": "submit_manual_review",
+      "result": {
+        "case_id": "MR-1769AFDD",
+        "case_type": "manual_review",
+        "status": "open",
+        "created_at": "2026-09-14T20:30:17.480727+00:00"
+      }
+    },
+    {
+      "agent": "decision_making_agent",
+      "event": "result",
+      "key": "fo_decision_report",
+      "value": {
+        "decision": "manual_review",
+        "confidence": 0.8,
+        "manual_review_needed": true,
+        "approval_scope": "hold",
+        "rationale": "High fraud and compliance risk due to new external counterparty, large amount (~22% of balance), device change, unusual geography, and overall high risk score. Customer risk is medium but triggers indicate potential account takeover or illicit activity.",
+        "next_step": "Initiate manual review with enhanced due diligence—verify identity, confirm beneficiary legitimacy, review supporting documentation, enforce multi‑factor authentication, place temporary hold on transfer, and monitor for additional anomalous activity."
+      }
+    }
+  ]
+}

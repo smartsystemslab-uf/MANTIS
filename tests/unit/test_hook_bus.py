@@ -1,3 +1,4 @@
+import time
 import pytest
 from mantis.hooks import HookBus, HookContext, HookAction, HookResult, ExperimentPlugin
 
@@ -125,3 +126,60 @@ def test_denied_action_is_still_observed_by_later_plugin():
 
     assert observer.seen_security_actions == [{"plugin": "mock_attack", "action": "deny"}]
     assert result.action == HookAction.DENY
+
+
+class DelayPlugin:
+    """Declares a delay, doesn't wait for it itself -- HookAction.DELAY
+    (hooks/__init__.py) is the bus's job to actually enact, the same way
+    MUTATE's payload is the bus's job to thread through, not the plugin's."""
+    name = "delay_plugin"
+    supported_stages = {"tool"}
+
+    def __init__(self, delay_ms):
+        self.delay_ms = delay_ms
+
+    def apply(self, ctx: HookContext) -> HookResult:
+        return HookResult(action=HookAction.DELAY, delay_ms=self.delay_ms)
+
+
+def test_bus_actually_waits_for_a_declared_delay():
+    bus = HookBus()
+    bus.register(DelayPlugin(delay_ms=120))
+    ctx = HookContext(run_id="t", trace_id="t", workflow_id="t", stage="tool", target="slow_tool", payload={})
+
+    start = time.perf_counter()
+    bus.dispatch("before_tool", ctx)
+    elapsed_ms = (time.perf_counter() - start) * 1000
+
+    assert elapsed_ms >= 120, f"dispatch() must actually block for the declared delay, took {elapsed_ms:.1f}ms"
+
+
+def test_delay_does_not_block_the_chain_or_the_aggregate_result():
+    """Unlike SKIP/DENY/ERROR, a delay is a slow dependency, not a blocked
+    one -- later plugins still run, and the aggregate result reports
+    CONTINUE (or MUTATE, if something else in the chain mutated), not
+    DELAY itself."""
+    bus = HookBus()
+    observer = ObserverPlugin()
+    bus.register(DelayPlugin(delay_ms=1))
+    bus.register(observer)
+
+    ctx = HookContext(run_id="t", trace_id="t", workflow_id="t", stage="tool", target="slow_tool", payload={"x": 1})
+    result = bus.dispatch("before_tool", ctx)
+
+    assert observer.seen_security_actions == [{"plugin": "delay_plugin", "action": "delay"}]
+    assert result.action == HookAction.CONTINUE
+    assert result.payload["x"] == 1
+
+
+def test_reliability_plugin_delay_failure_type_is_a_real_declared_delay():
+    from mantis.plugins.failures.reliability import ReliabilityFailurePlugin
+
+    plugin = ReliabilityFailurePlugin(target_tool="slow_tool", failure_type="delay", delay_ms=250)
+    ctx = HookContext(
+        run_id="t", trace_id="t", workflow_id="t", stage="tool", target="slow_tool",
+        payload={}, metadata={"specific_hook": "before_tool"},
+    )
+    result = plugin.apply(ctx)
+    assert result.action == HookAction.DELAY
+    assert result.delay_ms == 250

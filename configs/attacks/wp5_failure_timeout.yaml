@@ -1,0 +1,33 @@
+experiment:
+  name: wp5_failure_timeout
+  seed: 108
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+# Reliability failure control (WP5), not a security attack: simulates an
+# upstream dependency for search_policies that never comes back at all --
+# distinct from failure_type: delay (wp5_failure_delay.yaml),
+# which still succeeds, just slowly. A timeout fails the call outright
+# (HookAction.ERROR) after waiting delay_ms.
+attack:
+  plugin: reliability_failure
+  control_point: tool
+  target: search_policies
+  parameters:
+    target_tool: search_policies
+    failure_type: timeout
+    delay_ms: 1500
+
+observability:
+  mode: full
+  export: [jsonl]
+
+# compliance_agent should still surface a result (graceful degradation)
+# even when its policy lookup times out entirely -- there is no
+# expected_terminal_state ground truth here, the same reasoning as
+# wp5_failure_malformed.yaml: an upstream timeout is a resiliency check,
+# not itself a security ground truth.
+evaluation:
+  expected_tools:
+    - search_policies
