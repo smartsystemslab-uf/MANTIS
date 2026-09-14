@@ -52,6 +52,7 @@ _TOOL_MODULE_PATHS = [
     "mantis.banking.tools.knowledge_tools",
     "mantis.banking.tools.ops_tools",
     "mantis.banking.tools.back_office_tools",
+    "mantis.banking.tools.dispute_tools",
 ]
 
 # Not a banking tool -- ADK auto-generates this on every agent that has
@@ -73,6 +74,7 @@ _DOMAIN_TOOL_NAMES: dict[str, list[str]] = {
         "execute_transfer", "get_customer_context", "get_transaction_context",
         "list_recent_transactions", "submit_manual_review",
         "search_faqs", "search_policies",
+        "file_dispute", "get_dispute_status",
     ],
     "mid_office": [
         "get_customer_financial_profile", "search_loan_playbooks", "search_product_catalog",

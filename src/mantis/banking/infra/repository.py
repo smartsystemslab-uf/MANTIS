@@ -54,6 +54,10 @@ class BankingRepository:
         CREATE TABLE IF NOT EXISTS reports (
             report_id TEXT PRIMARY KEY, batch_id TEXT, report_body TEXT, created_at TEXT, status TEXT
         );
+        CREATE TABLE IF NOT EXISTS disputes (
+            dispute_id TEXT PRIMARY KEY, customer_id TEXT, transaction_id TEXT,
+            reason TEXT, created_at TEXT, status TEXT
+        );
         """
         with self.connect() as conn:
             conn.executescript(schema)
@@ -136,6 +140,24 @@ class BankingRepository:
         with self.connect() as conn:
             conn.execute("INSERT INTO manual_reviews VALUES (?, ?, ?, ?, ?)", (case_id, case_type, payload, now, "open"))
         return {"case_id":case_id,"case_type":case_type,"status":"open","created_at":now}
+
+    def create_dispute(self, customer_id: str, transaction_id: str, reason: str):
+        dispute_id = f"DSP-{uuid.uuid4().hex[:8].upper()}"
+        now = datetime.now(timezone.utc).isoformat()
+        with self.connect() as conn:
+            conn.execute(
+                "INSERT INTO disputes VALUES (?, ?, ?, ?, ?, ?)",
+                (dispute_id, customer_id, transaction_id, reason, now, "filed"),
+            )
+        return {
+            "dispute_id": dispute_id, "customer_id": customer_id, "transaction_id": transaction_id,
+            "reason": reason, "status": "filed", "created_at": now,
+        }
+
+    def get_dispute(self, dispute_id: str):
+        with self.connect() as conn:
+            row = conn.execute("SELECT * FROM disputes WHERE dispute_id = ?", (dispute_id,)).fetchone()
+        return dict(row) if row else None
 
     def save_schedule(self, schedule_json: str):
         sid = f"SCH-{uuid.uuid4().hex[:8].upper()}"

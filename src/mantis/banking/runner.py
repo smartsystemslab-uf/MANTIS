@@ -11,6 +11,7 @@ IMPORTANT_RESULT_KEYS = {
     "fo_decision_report",
     "fo_knowledge_answer",
     "fo_transaction_execution",
+    "fo_dispute_result",
     "mid_office_planning_result",
     "mid_office_representative_result",
     "bo_report_output",
@@ -22,6 +23,8 @@ TOOL_RESULT_WHITELIST = {
     "submit_manual_review",
     "store_report",
     "create_exception_case",
+    "file_dispute",
+    "get_dispute_status",
 }
 
 

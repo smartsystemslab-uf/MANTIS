@@ -10,6 +10,7 @@ DOMAIN_AGENTS: dict[str, list[str]] = {
         "decision_making_agent", "front_office_transaction_workflow", "knowledge_base_agent",
         "transaction_processing_agent", "customer_service_agent", "chatbot_intent_agent",
         "customer_service_chatbot_workflow", "front_office_router",
+        "dispute_resolution_agent",
     ],
     "mid_office": [
         "data_analysis_agent", "forecasting_agent", "staff_scheduling_agent", "validation_agent",

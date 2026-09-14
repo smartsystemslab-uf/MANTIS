@@ -1,0 +1,19 @@
+# Post-Paper Extension demo: an additional banking workload (coding plan
+# §11 "Additional banking workloads and deployment variants") -- a
+# genuinely new front-office business process (filing and tracking a
+# transaction dispute), not a new prompt into an existing workflow. See
+# dispute_resolution_agent in src/mantis/banking/front_office/__init__.py.
+experiment:
+  name: front_office_card_dispute
+  seed: 42
+  domain: front_office
+  workflow: front_office_card_dispute
+  scenario: front_office_card_dispute
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - file_dispute

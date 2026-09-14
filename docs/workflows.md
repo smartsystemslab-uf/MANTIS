@@ -1,6 +1,6 @@
 # Banking Operational Workflows
 
-This document describes the three banking workflows supported in MANTIS, their expected paths, and tool invariants.
+This document describes the banking workflows supported in MANTIS, their expected paths, and tool invariants.
 
 ---
 
@@ -40,3 +40,14 @@ This document describes the three banking workflows supported in MANTIS, their e
   3. `ledger_update_agent`: Calls `apply_ledger_updates`.
   4. `reconciliation_agent`: Calls `get_reconciliation_data`.
   5. `report_writing_agent`: Calls `store_report`.
+
+---
+
+## 4. Front-Office Dispute Resolution Workflow *(Post-Paper Extension, coding plan §11 "Additional banking workloads and deployment variants")*
+
+- **Scenario ID:** `front_office_card_dispute`
+- **Business Purpose:** File a new transaction dispute case, or look up the status of an existing one -- a genuinely new front-office process, not a new prompt into an existing workflow.
+- **Entry Agent:** `user_proxy_agent` -> `front_office_router` -> `dispute_resolution_agent` (a third route alongside the transaction-review and chatbot workflows, not a custom multi-agent workflow of its own)
+- **Agent Sequence:**
+  1. `dispute_resolution_agent`: Calls `file_dispute` (new case) or `get_dispute_status` (existing case), backed by a real `disputes` table in the same SQLite repository `submit_manual_review` uses.
+- Distinct from `front_office_chatbot`'s existing FAQ-style "how do I dispute a transaction" informational answer, which stays purely informational and never files a real case.

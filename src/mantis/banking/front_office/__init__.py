@@ -3,6 +3,7 @@ from mantis.banking.llm import build_model
 from mantis.banking.callbacks import sanitize_tool_call_names
 from ..tools.customer_tools import execute_transfer, get_customer_context, get_transaction_context, list_recent_transactions, submit_manual_review
 from ..tools.knowledge_tools import search_faqs, search_policies
+from ..tools.dispute_tools import file_dispute, get_dispute_status
 from mantis.banking.agents.workflow_agents import CustomerServiceChatbotWorkflowAgent, FrontOfficeTransactionWorkflowAgent
 
 
@@ -91,12 +92,28 @@ def build_front_office_router() -> LlmAgent:
         service_agent=customer_service_agent,
         processing_agent=transaction_processing_agent,
     )
+    # Post-Paper Extension (coding plan §11: "Additional banking workloads
+    # and deployment variants") -- a genuinely new front-office process, not
+    # a new prompt into an existing workflow: filing and tracking a
+    # transaction dispute, as its own tool-backed agent and case record
+    # (mantis.banking.infra.repository.create_dispute/get_dispute),
+    # distinct from the chatbot's existing FAQ-only "how do I dispute"
+    # informational answer.
+    dispute_resolution_agent = LlmAgent(
+        after_model_callback=sanitize_tool_call_names,
+        name="dispute_resolution_agent",
+        model=build_model("dispute_resolution_agent"),
+        description="Files and tracks customer transaction dispute cases.",
+        instruction="You are the dispute resolution agent. If the customer wants to file a new dispute, gather the transaction id and reason, then call file_dispute. If the customer is asking about an existing dispute, call get_dispute_status with the dispute id they provided. Return a compact JSON string with keys dispute_id, status, and customer_message. When calling a tool, use the exact tool name only. Never include commentary, channel markers, or prefixes such as to=functions.",
+        tools=[file_dispute, get_dispute_status],
+        output_key="fo_dispute_result",
+    )
     return LlmAgent(
         after_model_callback=sanitize_tool_call_names,
         name="front_office_router",
         model=build_model("front_office_router"),
-        description="Routes customer-facing work into either the transaction risk workflow or the customer-service chatbot workflow.",
-        instruction="Route the request to the correct front-office workflow. Use front_office_transaction_workflow for suspicious transaction review, fraud screening, compliance checks, or transaction monitoring. Use customer_service_chatbot_workflow for customer Q and A, service requests, and approved customer transaction execution.",
-        sub_agents=[transaction_workflow_agent, chatbot_workflow_agent],
+        description="Routes customer-facing work into the transaction risk workflow, the customer-service chatbot workflow, or dispute resolution.",
+        instruction="Route the request to the correct front-office workflow. Use front_office_transaction_workflow for suspicious transaction review, fraud screening, compliance checks, or transaction monitoring. Use dispute_resolution_agent when the customer wants to file a new transaction dispute or check the status of an existing dispute case. Use customer_service_chatbot_workflow for customer Q and A (including general questions about how disputes work), service requests, and approved customer transaction execution.",
+        sub_agents=[transaction_workflow_agent, chatbot_workflow_agent, dispute_resolution_agent],
         output_key="front_office_router_result",
     )

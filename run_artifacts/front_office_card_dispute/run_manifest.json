@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-09-14T19:05:49.128299Z",
+  "config_hash": "0d65f9c44732994a62ff8ddf991ee1125b21e6dfda4eeb418d84ecb4f9a762b4",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "front_office_card_dispute",
+      "seed": 42,
+      "domain": "front_office",
+      "workflow": "front_office_card_dispute",
+      "scenario": "front_office_card_dispute"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "file_dispute"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "269484051e9df538c99af46efa3f2b09e97fac9e"
+  }
+}

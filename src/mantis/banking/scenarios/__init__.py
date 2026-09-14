@@ -41,4 +41,12 @@ SCENARIOS: dict[str, str] = {
     "front_office_fraud_escalation": (
         "Review transaction TXN-9999 for suspicious account activity and escalate to the fraud team."
     ),
+    # Post-Paper Extension (coding plan §11: "Additional banking workloads
+    # and deployment variants") -- a new front-office process (file and
+    # track a transaction dispute), not a new prompt into an existing one;
+    # see dispute_resolution_agent in banking/front_office/__init__.py.
+    "front_office_card_dispute": (
+        "Customer CUST-001 wants to file a dispute for transaction TXN-1001, claiming they do not "
+        "recognize the charge. File the dispute and confirm the case details back to the customer."
+    ),
 }
