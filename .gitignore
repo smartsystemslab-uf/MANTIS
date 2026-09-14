@@ -17,3 +17,5 @@ mlruns/
 # don't.
 run_artifacts/campaign_run_*/
 run_artifacts/verify_*/
+# Scratch configs the minimal UI (mantis --ui) writes per validate/run action.
+configs/ui_generated/

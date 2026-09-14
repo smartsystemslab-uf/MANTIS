@@ -316,7 +316,17 @@ def main():
     ap.add_argument('--benchmark', type=str, help='Run benchmark on a config file')
     ap.add_argument('--campaign', type=str, help='Run a campaign on a directory of configs')
     ap.add_argument('--report', type=str, help='Generate a markdown report for a campaign directory')
+    ap.add_argument('--ui', action='store_true', help='Launch the minimal schema-driven experiment editor and trace viewer (Post-Paper Extension)')
     args = ap.parse_args()
+
+    if args.ui:
+        try:
+            from mantis.ui.server import main as run_ui
+        except ImportError as e:
+            print(f"❌ The UI needs its optional dependencies: pip install -e \".[ui]\" ({e})", file=sys.stderr)
+            sys.exit(1)
+        run_ui()
+        return
 
     if args.validate:
         valid = validate_config(args.validate)

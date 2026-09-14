@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MANTIS — Experiment Editor &amp; Trace Viewer</title>
+<style>
+  :root {
+    --navy: #123a68; --navy-dark: #081226; --orange: #fa4616; --line: #d7dce6;
+    --ink: #101a2e; --ink-soft: #4c5a72; --paper: #f4f6fa; --good: #1c8a58; --bad: #c8380f;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Arial, sans-serif; margin: 0; background: var(--paper); color: var(--ink); }
+  header { background: var(--navy-dark); color: #eef2f8; padding: 14px 20px; display: flex; align-items: baseline; gap: 12px; }
+  header h1 { font-size: 16px; margin: 0; }
+  header p { margin: 0; font-size: 12px; color: #aebbd2; }
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 0; height: calc(100vh - 50px); }
+  section { padding: 16px 20px; overflow-y: auto; }
+  section + section { border-left: 1px solid var(--line); }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--navy); border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  label { display: block; font-size: 12px; font-weight: 600; margin: 10px 0 3px; }
+  input, select, textarea { width: 100%; padding: 6px 8px; font-size: 13px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; }
+  textarea { font-family: ui-monospace, monospace; font-size: 12px; min-height: 56px; }
+  fieldset { border: 1px solid var(--line); border-radius: 6px; margin: 12px 0 0; padding: 8px 10px 10px; }
+  legend { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); padding: 0 4px; }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+  .checks { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; font-weight: normal; margin-top: 4px; }
+  .checks label { display: flex; align-items: center; gap: 5px; font-weight: normal; margin: 0; }
+  .checks input { width: auto; }
+  button { background: var(--navy); color: #fff; border: none; padding: 8px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-top: 12px; margin-right: 8px; }
+  button.secondary { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+  button:hover { opacity: .9; }
+  pre { background: var(--navy-dark); color: #d7e3f7; padding: 10px; border-radius: 6px; font-size: 11.5px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+  .status { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; display: inline-block; margin-bottom: 6px; }
+  .status.ok { background: #e7f4ee; color: var(--good); }
+  .status.err { background: #fbe9e4; color: var(--bad); }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 8px; }
+  th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--ink-soft); font-weight: 600; text-transform: uppercase; font-size: 10px; }
+  .muted { color: var(--ink-soft); font-size: 12px; }
+  .schema-note { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>MANTIS</h1>
+  <p>Minimal UI — schema-driven editor &amp; trace viewer, invoking the real CLI underneath (Post-Paper Extension, coding plan §11)</p>
+</header>
+<main>
+  <section id="editor">
+    <h2>Experiment Editor</h2>
+    <p class="schema-note">Domain / workflow / scenario / plugin lists below are read live from the same registries <code>mantis --validate</code> checks against. No experiment logic lives in this page — Validate/Run shell out to the real <code>mantis</code> CLI.</p>
+
+    <div class="row">
+      <div><label>Name</label><input id="f-name" value="ui_experiment"></div>
+      <div><label>Seed</label><input id="f-seed" type="number" value="42"></div>
+    </div>
+    <div class="row">
+      <div><label>Domain</label><select id="f-domain"></select></div>
+      <div><label>Workflow</label><select id="f-workflow"></select></div>
+      <div><label>Scenario</label><select id="f-scenario"></select></div>
+    </div>
+
+    <fieldset>
+      <legend>Attack (optional)</legend>
+      <div class="row">
+        <div><label>Plugin</label><select id="a-plugin"><option value="">— none —</option></select></div>
+        <div><label>Control point</label>
+          <select id="a-cp"><option value="">—</option><option>input</option><option>agent</option><option>interaction</option><option>tool</option><option>output</option></select>
+        </div>
+      </div>
+      <label>Target</label><input id="a-target" placeholder="agent or tool name">
+      <label>Parameters (JSON)</label><textarea id="a-params" placeholder="{}"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Policy (optional)</legend>
+      <label>Plugin</label><select id="p-plugin"><option value="">— none —</option></select>
+      <label>Parameters (JSON)</label><textarea id="p-params" placeholder="{}"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Observability</legend>
+      <label>Mode</label>
+      <select id="o-mode"><option>full</option><option>selective</option><option>off</option></select>
+      <label>Export</label>
+      <div class="checks">
+        <label><input type="checkbox" value="jsonl" checked> jsonl</label>
+        <label><input type="checkbox" value="mlflow"> mlflow</label>
+        <label><input type="checkbox" value="otel"> otel</label>
+        <label><input type="checkbox" value="jaeger"> jaeger</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Evaluation ground truth (optional)</legend>
+      <label>Expected tools (comma-separated)</label><input id="e-expected">
+      <label>Forbidden tools (comma-separated)</label><input id="e-forbidden">
+      <label>Expected terminal state</label><input id="e-terminal">
+    </fieldset>
+
+    <button onclick="doValidate()">Validate</button>
+    <button onclick="doRun()">Run</button>
+    <button class="secondary" onclick="showYaml()">Preview config</button>
+
+    <div id="editor-result"></div>
+  </section>
+
+  <section id="viewer">
+    <h2>Trace Viewer</h2>
+    <div class="row">
+      <div style="flex:2"><label>Run</label><select id="v-run"></select></div>
+      <div style="flex:1; display:flex; align-items:flex-end;">
+        <button onclick="refreshRuns()" class="secondary" style="margin-top:0">Refresh</button>
+      </div>
+    </div>
+    <button onclick="loadTrace()">Load trace</button>
+    <button class="secondary" onclick="doEvaluate()">Evaluate</button>
+    <button class="secondary" onclick="loadEvaluation()">View evaluation</button>
+    <div id="viewer-result"></div>
+  </section>
+</main>
+
+<script>
+const API = "";
+
+async function getJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) { const t = await r.text(); throw new Error(t); }
+  return r.json();
+}
+
+function buildConfig() {
+  const cfg = {
+    experiment: {
+      name: document.getElementById("f-name").value,
+      seed: parseInt(document.getElementById("f-seed").value || "42", 10),
+      domain: document.getElementById("f-domain").value,
+      workflow: document.getElementById("f-workflow").value,
+      scenario: document.getElementById("f-scenario").value,
+    },
+  };
+  const aPlugin = document.getElementById("a-plugin").value;
+  if (aPlugin) {
+    cfg.attack = {
+      plugin: aPlugin,
+      control_point: document.getElementById("a-cp").value,
+      target: document.getElementById("a-target").value,
+      parameters: JSON.parse(document.getElementById("a-params").value || "{}"),
+    };
+  }
+  const pPlugin = document.getElementById("p-plugin").value;
+  if (pPlugin) {
+    cfg.policies = [{
+      plugin: pPlugin,
+      parameters: JSON.parse(document.getElementById("p-params").value || "{}"),
+    }];
+  }
+  const exportList = Array.from(document.querySelectorAll("#editor .checks input:checked")).map(c => c.value);
+  cfg.observability = { mode: document.getElementById("o-mode").value, export: exportList };
+
+  const expected = document.getElementById("e-expected").value.split(",").map(s => s.trim()).filter(Boolean);
+  const forbidden = document.getElementById("e-forbidden").value.split(",").map(s => s.trim()).filter(Boolean);
+  const terminal = document.getElementById("e-terminal").value.trim();
+  if (expected.length || forbidden.length || terminal) {
+    cfg.evaluation = { expected_tools: expected, forbidden_tools: forbidden, expected_terminal_state: terminal || null };
+  }
+  return cfg;
+}
+
+function renderResult(elId, data) {
+  const ok = data.returncode === 0;
+  document.getElementById(elId).innerHTML =
+    `<span class="status ${ok ? 'ok' : 'err'}">${ok ? 'OK exit 0' : 'FAILED exit ' + data.returncode}</span>` +
+    `<pre>${(data.stdout || '') + (data.stderr || '')}</pre>`;
+}
+
+async function doValidate() {
+  const r = await fetch("/api/validate", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({config: buildConfig()}) });
+  renderResult("editor-result", await r.json());
+}
+
+async function doRun() {
+  document.getElementById("editor-result").innerHTML = "<p class='muted'>Running… this calls the real mantis --run and can take a while against a live model.</p>";
+  const r = await fetch("/api/run", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({config: buildConfig()}) });
+  const data = await r.json();
+  renderResult("editor-result", data);
+  refreshRuns();
+}
+
+function showYaml() {
+  document.getElementById("editor-result").innerHTML = `<pre>${JSON.stringify(buildConfig(), null, 2)}</pre>`;
+}
+
+async function refreshRuns() {
+  const runs = await getJSON("/api/runs");
+  const sel = document.getElementById("v-run");
+  sel.innerHTML = runs.map(r => `<option value="${r.name}">${r.name}${r.has_evaluation ? ' ✓evaluated' : ''}</option>`).join("");
+}
+
+async function loadTrace() {
+  const name = document.getElementById("v-run").value;
+  if (!name) return;
+  try {
+    const events = await getJSON(`/api/runs/${encodeURIComponent(name)}/trace`);
+    let rows = events.map(e => {
+      const summary = e.tool_name || e.agent_id || e.plugin || e.outcome || "";
+      return `<tr><td>${e.event_type || ""}</td><td>${(e.timestamp || "").replace("T"," ").slice(0,19)}</td><td>${summary}</td></tr>`;
+    }).join("");
+    document.getElementById("viewer-result").innerHTML =
+      `<p class="muted">${events.length} events</p><table><thead><tr><th>Event</th><th>Time</th><th>Detail</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } catch (e) {
+    document.getElementById("viewer-result").innerHTML = `<pre>${e.message}</pre>`;
+  }
+}
+
+async function doEvaluate() {
+  const name = document.getElementById("v-run").value;
+  if (!name) return;
+  document.getElementById("viewer-result").innerHTML = "<p class='muted'>Evaluating…</p>";
+  const r = await fetch(`/api/runs/${encodeURIComponent(name)}/evaluate`, { method: "POST" });
+  renderResult("viewer-result", await r.json());
+  refreshRuns();
+}
+
+async function loadEvaluation() {
+  const name = document.getElementById("v-run").value;
+  if (!name) return;
+  try {
+    const data = await getJSON(`/api/runs/${encodeURIComponent(name)}/evaluation`);
+    document.getElementById("viewer-result").innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (e) {
+    document.getElementById("viewer-result").innerHTML = `<pre>${e.message}</pre>`;
+  }
+}
+
+async function init() {
+  const [registries, inventory] = await Promise.all([getJSON("/api/registries"), getJSON("/api/inventory")]);
+  document.getElementById("f-domain").innerHTML = registries.domains.map(d => `<option>${d}</option>`).join("");
+  document.getElementById("f-workflow").innerHTML = registries.workflows.map(w => `<option>${w}</option>`).join("");
+  document.getElementById("f-scenario").innerHTML = registries.scenarios.map(s => `<option>${s}</option>`).join("");
+  const pluginOpts = registries.plugins.map(p => `<option>${p}</option>`).join("");
+  document.getElementById("a-plugin").innerHTML += pluginOpts;
+  document.getElementById("p-plugin").innerHTML += pluginOpts;
+  await refreshRuns();
+}
+init();
+</script>
+</body>
+</html>
