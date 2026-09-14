@@ -280,31 +280,30 @@ Paper 1 and its own deck are unchanged -- this is additive, a second paper build
 s = add_slide()
 brand_lockup(s)
 kicker(s, "Where Paper 1 Left Off")
-h1(s, "Five extensions, named and deferred on purpose", top=Inches(1.22), size=24)
+h1(s, "Four extensions, named and deferred on purpose", top=Inches(1.22), size=24)
 lede(s, "Paper 1's own coding plan listed these explicitly — not gaps found later, but scope cut deliberately to ship on schedule.", top=Inches(1.78))
 items = [
     ("Additional exporters", "Jaeger, Grafana, Langfuse, Phoenix — beyond the OTel/MLflow/JSONL Paper 1 shipped."),
     ("Security mechanism plugins", "Guardrails, policy checks, rate limits — evaluated through the same framework as attacks."),
-    ("Zero Trust Backplane", "Consume the existing inventory and control-point metadata to generate or enforce protection."),
     ("Additional banking workloads", "More banking processes and workflow patterns beyond Paper 1's evaluation set."),
     ("Minimal UI", "A schema-driven editor and trace viewer over the existing CLI — no separate business logic."),
 ]
-cw = Inches(2.32)
+cw = Inches(2.85)
 for i, (t, b) in enumerate(items):
-    card(s, MARGIN + i * (cw + Inches(0.1)), Inches(2.5), cw, Inches(3.9), t, b, body_size=10)
+    card(s, MARGIN + i * (cw + Inches(0.15)), Inches(2.5), cw, Inches(3.9), t, b, body_size=10.5)
 footer(s, 2)
-set_notes(s, """All five items on this slide are quoted directly from Paper 1's own coding plan section 11, "Post-Paper Extensions" -- not a list we assembled after the fact.
+set_notes(s, """All four items on this slide are quoted directly from Paper 1's own coding plan section 11, "Post-Paper Extensions" -- not a list we assembled after the fact. A fifth item on that same list, a Zero Trust Backplane integration, was also explored to the same live-verified standard, but is being carried forward as a separate, dedicated effort with a real independent Zero Trust Backplane project rather than reported as part of this deck's own evidence.
 
-Walk the five briefly: more telemetry backends, defensive plugins through the same interface as attacks, a Zero Trust integration point, more banking processes, and a thin UI over the CLI.
+Walk the four briefly: more telemetry backends, defensive plugins through the same interface as attacks, more banking processes, and a thin UI over the CLI.
 
-Key point: each of the next five sections covers exactly one of these, in the same order, with live evidence for each.""")
+Key point: each of the next four sections covers exactly one of these, in the same order, with live evidence for each.""")
 
 # ---------------------------------------------------------------------------
 # 3. EXTENSION 1 — JAEGER EXPORTER
 # ---------------------------------------------------------------------------
 s = add_slide()
 brand_lockup(s)
-kicker(s, "Extension 1 of 5 — Additional Exporters")
+kicker(s, "Extension 1 of 4 — Additional Exporters")
 h1(s, "Four telemetry backends, one adapter pattern, config-only", top=Inches(1.22), size=22)
 card(s, MARGIN, Inches(1.85), Inches(5.85), Inches(2.3), "All four built",
      "Jaeger, Grafana (Tempo), and Phoenix are the same thin OTLP-over-gRPC wrapper around Paper 1's own TracerProvider, differing only in default endpoint and an optional cloud-auth header. Langfuse genuinely differs — its endpoint is HTTP-only and always requires Basic auth, even self-hosted — so it's built on the OTLP/HTTP exporter instead.",
@@ -329,7 +328,7 @@ Key point, and this is the one to land: we verified the failure path, not just t
 # ---------------------------------------------------------------------------
 s = add_slide()
 brand_lockup(s)
-kicker(s, "Extension 2 of 5 — Security Mechanism Plugins")
+kicker(s, "Extension 2 of 4 — Security Mechanism Plugins")
 h1(s, "A defense, through the same interface as an attack", top=Inches(1.22), size=23)
 headers = ["Step", "What happened (live, real model)"]
 rows = [
@@ -352,61 +351,11 @@ Key point on ordering: the guardrail is registered after the attack on the hook 
 One more detail worth mentioning if asked: we also had to teach the observability layer a new event type, POLICY_EVENT, distinct from ATTACK_INJECTED -- a guardrail denying a call is the system working as intended, not an attack, and the trace now says so explicitly.""")
 
 # ---------------------------------------------------------------------------
-# 5. EXTENSION 3 — ZERO TRUST (relationship + what it does)
+# 5. EXTENSION 3 — DISPUTE WORKLOAD
 # ---------------------------------------------------------------------------
 s = add_slide()
 brand_lockup(s)
-kicker(s, "Extension 3 of 5 — Zero Trust Backplane")
-h1(s, "A real, independent Zero Trust project — and where MANTIS plugs in", top=Inches(1.22), size=21)
-card(s, MARGIN, Inches(1.85), Inches(5.85), Inches(2.55), "The real project",
-     "A separate, substantially more complete Zero Trust Backplane already exists for this same banking testbed: source-code scanning, PEP placement, a signed PDP, and short-lived signed Permit Leases — already protecting real read and write operations.",
-     body_size=11)
-card(s, Inches(6.65), Inches(1.85), Inches(6.05), Inches(2.55), "MANTIS's role",
-     "That project discovers agents/tools by scanning source code into a canonical-ID manifest. MANTIS's inventory() already reports that same information live — a substitute data source for its scanner, not a competing implementation.",
-     body_size=11)
-card(s, MARGIN, Inches(4.55), Inches(12.1), Inches(1.75), "What we built here",
-     "A representative slice, kept entirely outside MANTIS's own code: a policy generator (default-deny by domain) and an enforcement plugin, registered into the same hook bus every attack plugin uses. It self-registers only when explicitly imported — MANTIS never depends on it existing.",
-     accent=True, body_size=11)
-footer(s, 5)
-set_notes(s, """Third extension, and this one has a genuinely interesting story: while building this, we discovered a separate team has already built a substantially more complete Zero Trust Backplane against this exact same banking testbed.
-
-Their project scans source code to discover agents and tools, mapping them onto canonical identities. MANTIS's own inventory already reports that same information live, since it's introspected from the running system -- so MANTIS's inventory is a natural substitute data source for their scanner, not a competing thing.
-
-What we built on the MANTIS side is a representative slice -- a policy generator and an enforcement plugin -- kept entirely outside MANTIS's own code, self-registering only when explicitly imported. MANTIS never depends on it existing, which was the whole design constraint Paper 1 set for this extension point.
-
-Next slide has the finding this work surfaced along the way.""")
-
-# ---------------------------------------------------------------------------
-# 6. EXTENSION 3 continued — the bug it surfaced + live proof
-# ---------------------------------------------------------------------------
-s = add_slide()
-brand_lockup(s)
-kicker(s, "Extension 3 of 5 — Zero Trust Backplane")
-h1(s, "Building the policy generator found a real gap in Paper 1's own inventory", top=Inches(1.22), size=20)
-card(s, MARGIN, Inches(1.85), Inches(5.85), Inches(2.55), "The problem",
-     "A default-deny-by-domain policy is meaningless if every domain reports being able to call every tool. That's exactly what inventory() did — every domain got the full merged tool list, not its own real subset.",
-     body_size=11)
-card(s, Inches(6.65), Inches(1.85), Inches(6.05), Inches(2.55), "The fix",
-     "Tools ARE domain-tagged — by which module a domain's agents actually import from. Fixed inventory() to report each domain's real tool subset; added regression tests confirming a back-office-only tool is unreachable from front/mid office.",
-     body_size=11)
-card(s, MARGIN, Inches(4.55), Inches(12.1), Inches(1.95), "Then we went deeper: exhaustive trials, and a second real bug",
-     "770/770 (agent, tool) pairs from the live policy correctly enforced (495 cross-domain denied, 275 in-domain allowed) — every combination the live system has, not a handful of examples. 5/5 live trials: zero false-positive denials on legitimate traffic. Building that harness found a second defect: this plugin's own denials were being silently recorded as ATTACK_INJECTED, not POLICY_EVENT — a defense misclassified as the attack it was stopping. Fixed, with a regression test through the real hook bus.",
-     accent=True, body_size=10.5)
-footer(s, 6)
-set_notes(s, """This is the finding: building a default-deny-by-domain policy only works if domains actually report different tools. Paper 1's own inventory interface didn't do that -- every domain reported the entire merged tool list, which would have made this whole extension meaningless.
-
-The fix was real and precise: tools are genuinely domain-tagged, through which source module a domain's agents import from. We corrected the inventory and added a regression test proving a back-office-only tool is unreachable from front or mid office's reported tools.
-
-We didn't stop at one clean run, though. Revisiting this extension specifically to replace a single-run anecdote with real statistics: we ran the real plugin against all 770 (agent, tool) pairs the live inventory implies -- every combination the system actually has -- and it enforced every single one correctly. Then five live trials against a real model, zero false-positive denials in any of them.
-
-Building that harness surfaced a second real bug, the same shape as one we'd already fixed for the guardrail extension: this plugin's own denials were being silently recorded as an attack, not a defense, in the trace. Fixed, with a test that exercises the real hook bus end to end so it can't come back silently.""")
-
-# ---------------------------------------------------------------------------
-# 7. EXTENSION 4 — DISPUTE WORKLOAD
-# ---------------------------------------------------------------------------
-s = add_slide()
-brand_lockup(s)
-kicker(s, "Extension 4 of 5 — Additional Banking Workloads")
+kicker(s, "Extension 3 of 4 — Additional Banking Workloads")
 h1(s, "A genuinely new process, not a new prompt", top=Inches(1.22), size=23)
 card(s, MARGIN, Inches(1.85), Inches(5.85), Inches(2.55), "What it is",
      "Dispute filing and status lookup — a third route under the front-office router, alongside the existing transaction-review and chatbot workflows. A new tool-backed agent and a real case record, not a new prompt into an existing workflow.",
@@ -417,21 +366,21 @@ card(s, Inches(6.65), Inches(1.85), Inches(6.05), Inches(2.55), "Distinct from t
 card(s, MARGIN, Inches(4.55), Inches(12.1), Inches(1.75), "What three live trials with zero tool calls taught us",
      "First attempt: real routing worked, but the agent called no tool at all, three times in a row. Cause: the scenario prompt never stated a customer id, unlike every other scenario in the codebase — and file_dispute needs one. Fixed the prompt, not the tool. Next run: real case filed, real ID returned, correct customer message.",
      accent=True, body_size=11)
-footer(s, 7)
-set_notes(s, """Fourth extension: a genuinely new banking process, not a new prompt into an existing workflow -- filing and tracking a transaction dispute, as a third route under the front-office router.
+footer(s, 5)
+set_notes(s, """Third extension: a genuinely new banking process, not a new prompt into an existing workflow -- filing and tracking a transaction dispute, as a third route under the front-office router.
 
 Worth distinguishing from something that already existed: the chatbot already answers "how do I dispute a transaction" as an FAQ. This is different -- it actually files a real case with a real generated ID, persisted in the same database the manual-review process already uses.
 
 The honest part of this story: the first version produced zero tool calls across three consecutive live trials, with correct routing every time. The cause wasn't a code defect -- it was that our scenario prompt never stated a customer id, which the tool needs, and which every other scenario in this codebase states explicitly. We fixed the prompt, not the tool, and the very next live run filed a real case correctly.
 
-Key point: this is the same lesson as the Zero Trust finding -- a clean exit and correct routing both looked fine; only checking the actual tool-call events revealed nothing had happened.""")
+Key point: a clean exit and correct routing both looked fine; only checking the actual tool-call events revealed nothing had happened.""")
 
 # ---------------------------------------------------------------------------
-# 8. EXTENSION 5 — MINIMAL UI
+# 6. EXTENSION 4 — MINIMAL UI
 # ---------------------------------------------------------------------------
 s = add_slide()
 brand_lockup(s)
-kicker(s, "Extension 5 of 5 — Minimal UI")
+kicker(s, "Extension 4 of 4 — Minimal UI")
 h1(s, "A thin layer over the real CLI, not a second implementation", top=Inches(1.22), size=22)
 card(s, MARGIN, Inches(1.85), Inches(5.85), Inches(2.55), "What it is",
      "A schema-driven experiment editor and trace viewer. Domain/workflow/scenario/plugin dropdowns are populated live from the same registries the CLI reads — not a hardcoded list that can drift.",
@@ -442,7 +391,7 @@ card(s, Inches(6.65), Inches(1.85), Inches(6.05), Inches(2.55), "\"No separate b
 card(s, MARGIN, Inches(4.55), Inches(12.1), Inches(1.75), "Confirmed as a real running server",
      "Launched via mantis --ui and queried over real HTTP, not just an in-process test client: correctly reported the live inventory (32 agents, 22 tools) and every existing run artifact (27 runs) at the time of this check.",
      accent=True, body_size=11.5)
-footer(s, 8)
+footer(s, 6)
 set_notes(s, """Final extension: the minimal UI Paper 1's coding plan named last -- a schema-driven editor and trace viewer, explicitly constrained to invoke the same CLI, not implement a second version of anything.
 
 The dropdowns for domain, workflow, scenario, and plugin are populated live from the same registries the CLI itself reads from -- not a hardcoded list baked into the page that could quietly drift from the real system.
@@ -452,49 +401,48 @@ Key point, and we verified this directly rather than assuming it from the code s
 We also confirmed it as a real running server, not just passing an internal test client -- launched it for real and queried it over HTTP, and it correctly reported the live system: 32 agents, 22 tools, 27 existing run artifacts, at the time we checked.""")
 
 # ---------------------------------------------------------------------------
-# 9. EVALUATION SUMMARY
+# 7. EVALUATION SUMMARY
 # ---------------------------------------------------------------------------
 s = add_slide()
 brand_lockup(s)
 kicker(s, "Evaluation Summary")
-h1(s, "147 tests, all against real data — every extension live-verified", top=Inches(1.22), size=22)
+h1(s, "139 tests, all against real data — every extension live-verified", top=Inches(1.22), size=22)
 headers = ["Extension", "Tests", "Live evidence"]
 rows = [
     ("Jaeger exporter", "4", "Real span processor attached; confirmed silent-safe with no collector listening."),
     ("Grafana / Phoenix / Langfuse", "9", "Same OTLP pattern for the first two; Langfuse reached the real hosted endpoint and got a genuine 401 with no credentials."),
     ("Guardrail plugin", "6", "Live $5,000 mutated transfer denied before reaching the backend; correctly classified as POLICY_EVENT."),
-    ("Zero Trust", "8", "770/770 (agent, tool) pairs correctly enforced; 5/5 live trials zero false-positive denials; two real defects surfaced and fixed."),
     ("Dispute workload", "7", "Real case filed and persisted, after correcting a scenario defect found only by reading the trace."),
     ("Minimal UI", "10", "Real invalid config rejected with the real CLI's own error; real server confirmed over live HTTP."),
 ]
-styled_table(s, MARGIN, Inches(1.8), Inches(12.1), Inches(3.75), headers, rows, col_widths=[2.3, 1.0, 8.0], font_size=9.5)
-stat_tile(s, MARGIN, Inches(5.65), Inches(3.9), Inches(1.15), "147", "offline tests passing, all exercised against real data")
-stat_tile(s, MARGIN + Inches(4.1), Inches(5.65), Inches(3.9), Inches(1.15), "0", "changes required to mantis.core, mantis.hooks, or the banking workflow modules")
-stat_tile(s, MARGIN + Inches(8.2), Inches(5.65), Inches(3.9), Inches(1.15), "3", "real defects found and fixed while building these extensions")
-footer(s, 9)
+styled_table(s, MARGIN, Inches(1.85), Inches(12.1), Inches(3.15), headers, rows, col_widths=[2.3, 1.0, 8.0], font_size=10.5)
+stat_tile(s, MARGIN, Inches(5.35), Inches(3.9), Inches(1.15), "139", "offline tests passing, all exercised against real data")
+stat_tile(s, MARGIN + Inches(4.1), Inches(5.35), Inches(3.9), Inches(1.15), "0", "changes required to mantis.core, mantis.hooks, or the banking workflow modules")
+stat_tile(s, MARGIN + Inches(8.2), Inches(5.35), Inches(3.9), Inches(1.15), "1", "real defect found and fixed while building these extensions")
+footer(s, 7)
 set_notes(s, """Summary slide -- every extension checked against real data or a real live run, the same standard Paper 1 set for itself.
 
-The offline suite stands at 147 tests -- covering all five extensions, including the three additional exporters and the deeper Zero Trust evidence added in a second pass -- all still running in under a minute with no live model key required.
+The offline suite stands at 139 tests -- covering all four extensions, including the three additional exporters added in this revision -- all still running in under a minute with no live model key required.
 
-The three numbers at the bottom are the ones worth pausing on: zero changes required to any of MANTIS's core interfaces to add any of these five extensions -- the plugin and inventory interfaces held up exactly as designed. And three real defects found and fixed along the way, none visible from a clean process exit -- a domain-scoping bug, a scenario-prompt gap, and an event-misclassification bug in the Zero Trust plugin found only when we went back to replace a single-run anecdote with real repeated-trial statistics.""")
+The three numbers at the bottom are the ones worth pausing on: zero changes required to any of MANTIS's core interfaces to add any of these four extensions -- the plugin and inventory interfaces held up exactly as designed. And one real defect found and fixed along the way, invisible from a clean process exit -- a scenario-prompt gap in the dispute workflow found only by checking the actual tool-call events.""")
 
 # ---------------------------------------------------------------------------
-# 10. CLOSING
+# 8. CLOSING
 # ---------------------------------------------------------------------------
 s = add_slide()
 brand_lockup(s)
 kicker(s, "Thank You")
-h1(s, "Five extensions, zero core changes, real evidence for each", top=Inches(3.05), size=26)
+h1(s, "Four extensions, zero core changes, real evidence for each", top=Inches(3.05), size=26)
 textbox(s, MARGIN, Inches(3.95), Inches(10), Inches(0.9),
         "Paper 1's interfaces held up exactly as designed. Happy to walk through any extension live,\n"
-        "or discuss where a production Zero Trust integration goes next.",
+        "or discuss the separate Zero Trust Backplane integration effort.",
         size=14, italic=True, color=ON_DARK_SOFT, font=F_SERIF, spacing=1.3)
 textbox(s, MARGIN, Inches(4.95), Inches(8), Inches(0.5), "github.com/smartsystemslab-uf/MANTIS",
         size=15, color=ON_DARK_SOFT, font=F_MONO)
-footer(s, 10, note="Leading the Charge, Charging Ahead")
+footer(s, 8, note="Leading the Charge, Charging Ahead")
 set_notes(s, """That's MANTIS Extended.
 
-Closing message: the headline result of this second paper isn't any single extension -- it's that Paper 1's plugin and inventory interfaces held up completely unmodified across all five, including a defensive plugin, four separate telemetry backends, an integration surface for someone else's independent Zero Trust project verified with real repeated-trial statistics, a new banking process, and a UI.
+Closing message: the headline result of this second paper isn't any single extension -- it's that Paper 1's plugin and inventory interfaces held up completely unmodified across all four, including a defensive plugin, four separate telemetry backends, a new banking process, and a UI. A fifth item, Zero Trust Backplane integration, was explored to the same standard and is being carried forward as its own dedicated effort with a real independent project, separate from this repository.
 
 Everything shown today is reproducible from the checked-in configs in the repository, same as Paper 1. Thank you, and happy to take questions or walk through any extension live.""")
 
