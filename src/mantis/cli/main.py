@@ -179,6 +179,31 @@ async def run_experiment(config_path: str):
                         from mantis.observability.jaeger_exporter import setup_jaeger_otel
                         setup_jaeger_otel(service_name=f"mantis-{config.experiment.name}", endpoint=obs_config.jaeger_endpoint)
 
+                    if "grafana" in obs_config.export:
+                        from mantis.observability.grafana_exporter import setup_grafana_otel
+                        setup_grafana_otel(
+                            service_name=f"mantis-{config.experiment.name}",
+                            endpoint=obs_config.grafana_endpoint,
+                            auth_header=obs_config.grafana_auth_header,
+                        )
+
+                    if "langfuse" in obs_config.export:
+                        from mantis.observability.langfuse_exporter import setup_langfuse_otel
+                        setup_langfuse_otel(
+                            service_name=f"mantis-{config.experiment.name}",
+                            endpoint=obs_config.langfuse_endpoint,
+                            public_key=obs_config.langfuse_public_key,
+                            secret_key=obs_config.langfuse_secret_key,
+                        )
+
+                    if "phoenix" in obs_config.export:
+                        from mantis.observability.phoenix_exporter import setup_phoenix_otel
+                        setup_phoenix_otel(
+                            service_name=f"mantis-{config.experiment.name}",
+                            endpoint=obs_config.phoenix_endpoint,
+                            api_key=obs_config.phoenix_api_key,
+                        )
+
                 handle = adapter.build(config, hooks)
                 
                 res = await handle.run_message(prompt)

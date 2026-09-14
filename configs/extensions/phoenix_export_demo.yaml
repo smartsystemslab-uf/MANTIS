@@ -1,0 +1,20 @@
+# Post-Paper Extension demo: an additional exporter (Arize Phoenix) enabled
+# purely through config, alongside the existing jsonl exporter -- no code
+# change to the banking workflow or the observability plugin required.
+# Requires: pip install -e ".[exporters]", and a Phoenix (or other
+# OTLP-compatible) collector reachable at phoenix_endpoint to actually see
+# spans; the run itself succeeds either way (see phoenix_exporter.py).
+#
+# phoenix_api_key is only needed for a managed Phoenix Cloud instance; a
+# local `phoenix serve` collector needs none, as configured below.
+experiment:
+  name: phoenix_export_demo
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+observability:
+  mode: full
+  export: [jsonl, phoenix]
+  phoenix_endpoint: http://localhost:4317

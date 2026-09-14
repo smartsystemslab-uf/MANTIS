@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-09-14T20:56:52.747429Z",
+  "config_hash": "da325df1637621d01a23e60b49645d18c6b2d6e8188652b3d5b5b16ea95e123c",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "grafana_export_demo",
+      "seed": 42,
+      "domain": "front_office",
+      "workflow": "front_office_monitoring",
+      "scenario": "front_office_monitoring"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl",
+        "grafana"
+      ],
+      "grafana_endpoint": "http://localhost:4317"
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "88f30d89bc4356f75273bd1bf895c73e07fb28db"
+  }
+}

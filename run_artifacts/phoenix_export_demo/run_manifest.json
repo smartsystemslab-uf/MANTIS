@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-09-14T20:57:07.173341Z",
+  "config_hash": "8ebc4e479f614cd6c2d0a96454e60ff545f040bebb0cdad56e6ab04cfebf1aad",
+  "seed": 42,
+  "config": {
+    "experiment": {
+      "name": "phoenix_export_demo",
+      "seed": 42,
+      "domain": "front_office",
+      "workflow": "front_office_monitoring",
+      "scenario": "front_office_monitoring"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl",
+        "phoenix"
+      ],
+      "phoenix_endpoint": "http://localhost:4317"
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "88f30d89bc4356f75273bd1bf895c73e07fb28db"
+  }
+}

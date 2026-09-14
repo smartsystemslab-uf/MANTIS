@@ -221,6 +221,97 @@
           "default": null,
           "description": "OTLP gRPC endpoint for the Jaeger exporter (only used when 'jaeger' is in export); defaults to http://localhost:4317",
           "title": "Jaeger Endpoint"
+        },
+        "grafana_endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "OTLP gRPC endpoint for the Grafana (Tempo) exporter (only used when 'grafana' is in export); defaults to http://localhost:4317",
+          "title": "Grafana Endpoint"
+        },
+        "grafana_auth_header": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full Authorization header value (e.g. 'Basic <base64>') for a Grafana Cloud managed OTLP endpoint; omit for an unauthenticated local Tempo collector",
+          "title": "Grafana Auth Header"
+        },
+        "langfuse_endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "OTLP/HTTP traces endpoint for the Langfuse exporter (only used when 'langfuse' is in export); defaults to Langfuse Cloud",
+          "title": "Langfuse Endpoint"
+        },
+        "langfuse_public_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Langfuse project public key (used with langfuse_secret_key to build the required Basic auth header)",
+          "title": "Langfuse Public Key"
+        },
+        "langfuse_secret_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Langfuse project secret key (used with langfuse_public_key to build the required Basic auth header)",
+          "title": "Langfuse Secret Key"
+        },
+        "phoenix_endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "OTLP gRPC endpoint for the Phoenix exporter (only used when 'phoenix' is in export); defaults to http://localhost:4317",
+          "title": "Phoenix Endpoint"
+        },
+        "phoenix_api_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "API key for a Phoenix Cloud instance; omit for an unauthenticated local 'phoenix serve' collector",
+          "title": "Phoenix Api Key"
         }
       },
       "title": "ObservabilityConfig",

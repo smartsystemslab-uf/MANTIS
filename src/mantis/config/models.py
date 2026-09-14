@@ -35,6 +35,13 @@ class ObservabilityConfig(BaseModel):
     mode: str = Field(default="full", description="Observability mode: off, selective, full")
     export: List[str] = Field(default_factory=lambda: ["jsonl"], description="Exporters to enable")
     jaeger_endpoint: Optional[str] = Field(default=None, description="OTLP gRPC endpoint for the Jaeger exporter (only used when 'jaeger' is in export); defaults to http://localhost:4317")
+    grafana_endpoint: Optional[str] = Field(default=None, description="OTLP gRPC endpoint for the Grafana (Tempo) exporter (only used when 'grafana' is in export); defaults to http://localhost:4317")
+    grafana_auth_header: Optional[str] = Field(default=None, description="Full Authorization header value (e.g. 'Basic <base64>') for a Grafana Cloud managed OTLP endpoint; omit for an unauthenticated local Tempo collector")
+    langfuse_endpoint: Optional[str] = Field(default=None, description="OTLP/HTTP traces endpoint for the Langfuse exporter (only used when 'langfuse' is in export); defaults to Langfuse Cloud")
+    langfuse_public_key: Optional[str] = Field(default=None, description="Langfuse project public key (used with langfuse_secret_key to build the required Basic auth header)")
+    langfuse_secret_key: Optional[str] = Field(default=None, description="Langfuse project secret key (used with langfuse_public_key to build the required Basic auth header)")
+    phoenix_endpoint: Optional[str] = Field(default=None, description="OTLP gRPC endpoint for the Phoenix exporter (only used when 'phoenix' is in export); defaults to http://localhost:4317")
+    phoenix_api_key: Optional[str] = Field(default=None, description="API key for a Phoenix Cloud instance; omit for an unauthenticated local 'phoenix serve' collector")
 
 class EvaluationConfig(BaseModel):
     expected_tools: List[str] = Field(default_factory=list, description="Tools that must be called")

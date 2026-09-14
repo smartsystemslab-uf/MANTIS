@@ -1,0 +1,20 @@
+# Post-Paper Extension demo: an additional exporter (Langfuse) enabled
+# purely through config, alongside the existing jsonl exporter -- no code
+# change to the banking workflow or the observability plugin required.
+# Requires: pip install -e ".[exporters]" (for the OTLP/HTTP exporter
+# specifically). Unlike Jaeger/Grafana/Phoenix, Langfuse's OTLP endpoint is
+# HTTP-only and always requires Basic auth, even self-hosted -- set
+# langfuse_public_key/langfuse_secret_key (e.g. via env-substituted config
+# loading) to a real project's keys to actually see spans; the run itself
+# succeeds either way (see langfuse_exporter.py).
+experiment:
+  name: langfuse_export_demo
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+observability:
+  mode: full
+  export: [jsonl, langfuse]
+  langfuse_endpoint: https://cloud.langfuse.com/api/public/otel/v1/traces

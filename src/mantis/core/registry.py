@@ -69,6 +69,9 @@ exporter_registry.register("jsonl", {"description": "Portable JSONL trace artifa
 exporter_registry.register("mlflow", {"description": "MLflow experiment tracking export", "module": "mantis.observability.mlflow_exporter:MLflowExporter"})
 exporter_registry.register("otel", {"description": "OpenTelemetry span export", "module": "mantis.observability.otel:setup_otel"})
 exporter_registry.register("jaeger", {"description": "Jaeger trace export over OTLP (Post-Paper Extension: additional exporters as adapters)", "module": "mantis.observability.jaeger_exporter:setup_jaeger_otel"})
+exporter_registry.register("grafana", {"description": "Grafana Tempo trace export over OTLP (Post-Paper Extension: additional exporters as adapters)", "module": "mantis.observability.grafana_exporter:setup_grafana_otel"})
+exporter_registry.register("langfuse", {"description": "Langfuse trace export over OTLP/HTTP (Post-Paper Extension: additional exporters as adapters)", "module": "mantis.observability.langfuse_exporter:setup_langfuse_otel"})
+exporter_registry.register("phoenix", {"description": "Arize Phoenix trace export over OTLP (Post-Paper Extension: additional exporters as adapters)", "module": "mantis.observability.phoenix_exporter:setup_phoenix_otel"})
 
 evaluator_registry.register("trace_completeness", {"description": "Checks mandatory workflow/agent events are present", "module": "mantis.evaluation.evaluators:TraceEvaluator.evaluate_completeness"})
 evaluator_registry.register("tool_use_correctness", {"description": "Checks expected/forbidden tool usage", "module": "mantis.evaluation.evaluators:TraceEvaluator.evaluate_tool_use"})

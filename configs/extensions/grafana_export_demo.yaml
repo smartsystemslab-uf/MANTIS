@@ -1,0 +1,21 @@
+# Post-Paper Extension demo: an additional exporter (Grafana Tempo) enabled
+# purely through config, alongside the existing jsonl exporter -- no code
+# change to the banking workflow or the observability plugin required.
+# Requires: pip install -e ".[exporters]", and a Tempo (or other
+# OTLP-compatible) collector reachable at grafana_endpoint to actually see
+# spans; the run itself succeeds either way (see grafana_exporter.py).
+#
+# grafana_auth_header is only needed for a managed Grafana Cloud OTLP
+# gateway (Basic auth with the instance ID/API token); a local Tempo
+# collector needs none, as configured below.
+experiment:
+  name: grafana_export_demo
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+observability:
+  mode: full
+  export: [jsonl, grafana]
+  grafana_endpoint: http://localhost:4317

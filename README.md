@@ -4,7 +4,7 @@ MANTIS is a modular, observable multi-agent security testbed for configuring age
 
 Currently, MANTIS focuses on banking multi-agent architectures (spanning Front, Mid, and Back-Office workflows) as the primary application domain for security evaluation. The goal is a **testbed to conduct mock attacks (e.g., prompt injections), capture outputs, and evaluate AI agent failures under adversarial conditions.**
 
-**At a glance:** 3 banking domains &middot; 32 agents &middot; 22 tools (21 banking-domain + 1 routing) &middot; 5 control points &middot; 4 attack plugins + 1 failure-control family + 1 security-mechanism guardrail &middot; 7 automated evaluator dimensions &middot; 4 observability export targets (jsonl, mlflow, otel, jaeger) &middot; 0 source edits needed to run an experiment. Numbers reflect Paper 1 plus its Post-Paper Extensions (see `extensions/`); Paper 1 itself (`paper/mantis_paper.tex`) is frozen and reports the system as it stood at that time.
+**At a glance:** 3 banking domains &middot; 32 agents &middot; 22 tools (21 banking-domain + 1 routing) &middot; 5 control points &middot; 4 attack plugins + 1 failure-control family + 1 security-mechanism guardrail &middot; 7 automated evaluator dimensions &middot; 7 observability export targets (jsonl, mlflow, otel, jaeger, grafana, langfuse, phoenix) &middot; 0 source edits needed to run an experiment. Numbers reflect Paper 1 plus its Post-Paper Extensions (see `extensions/`); Paper 1 itself (`paper/mantis_paper.tex`) is frozen and reports the system as it stood at that time.
 
 ---
 

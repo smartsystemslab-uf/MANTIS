@@ -31,7 +31,19 @@ Configured via `observability.export`:
 4. **Jaeger (`jaeger`)** -- *Post-Paper Extension, coding plan §11 "Additional exporters"*:
    - Attaches a real OTLP-over-gRPC span exporter (`mantis.observability.jaeger_exporter`) to the same `TracerProvider`, pointed at `observability.jaeger_endpoint` (default `http://localhost:4317`). Requires the optional `exporters` dependency group (`pip install -e ".[exporters]"`).
    - Enabling it is config-only: `observability.export: [jsonl, jaeger]` -- no code change to the banking workflow, the hook bus, or the observability plugin. See `configs/extensions/jaeger_export_demo.yaml`.
-   - If no collector is listening at the configured endpoint, export fails quietly in the background (retried and logged by the SDK's `BatchSpanProcessor`); a run's success never depends on telemetry actually being delivered. Grafana, Langfuse, and Phoenix are documented, not-yet-built extension points that would follow this exact same adapter pattern -- register a `setup_<backend>_otel`-shaped function in `exporter_registry`, and wiring into `observability.export` is unchanged.
+   - If no collector is listening at the configured endpoint, export fails quietly in the background (retried and logged by the SDK's `BatchSpanProcessor`); a run's success never depends on telemetry actually being delivered.
+
+5. **Grafana Tempo (`grafana`)** -- *Post-Paper Extension, coding plan §11 "Additional exporters"*:
+   - The same OTLP-over-gRPC adapter shape as Jaeger (`mantis.observability.grafana_exporter`), pointed at `observability.grafana_endpoint` (default `http://localhost:4317`). Optionally set `observability.grafana_auth_header` (e.g. `"Basic <base64>"`) for a managed Grafana Cloud OTLP gateway; a local Tempo collector needs no auth. See `configs/extensions/grafana_export_demo.yaml`.
+   - `observability.export: [jsonl, grafana]` -- config-only, same fail-silent-without-a-collector behavior as Jaeger.
+
+6. **Phoenix (`phoenix`)** -- *Post-Paper Extension, coding plan §11 "Additional exporters"*:
+   - The same OTLP-over-gRPC adapter shape as Jaeger (`mantis.observability.phoenix_exporter`), pointed at `observability.phoenix_endpoint` (default `http://localhost:4317`). Optionally set `observability.phoenix_api_key` for a managed Phoenix Cloud instance; a local `phoenix serve` collector needs no auth. See `configs/extensions/phoenix_export_demo.yaml`.
+   - `observability.export: [jsonl, phoenix]` -- config-only, same fail-silent-without-a-collector behavior as Jaeger.
+
+7. **Langfuse (`langfuse`)** -- *Post-Paper Extension, coding plan §11 "Additional exporters"*:
+   - Unlike the other three, Langfuse's OTLP ingestion endpoint is HTTP/protobuf only and always requires HTTP Basic auth (a Langfuse public/secret key pair), even self-hosted -- so `mantis.observability.langfuse_exporter` is built on the OTLP/HTTP exporter, not `.grpc`. Pointed at `observability.langfuse_endpoint` (default Langfuse Cloud); set `observability.langfuse_public_key`/`langfuse_secret_key` to a real project's keys. See `configs/extensions/langfuse_export_demo.yaml`.
+   - `observability.export: [jsonl, langfuse]` -- config-only; an unreachable endpoint or rejected credentials fail the same way an unreachable collector does elsewhere -- quietly, in the background, never failing the run.
 
 ---
 
