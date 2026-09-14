@@ -262,7 +262,16 @@ def _seed_transactions(db: Session) -> None:
         if not db.scalar(select(Transaction).where(Transaction.transaction_id == item.transaction_id)):
             db.add(item)
 
-def init_db(seed: bool = True) -> None:
+def init_db(seed: bool = True, reset: bool = False) -> None:
+    # Seeding is idempotent-additive by primary key, so it does not repair a
+    # database that has accumulated live transactions from repeated test/demo
+    # runs (e.g. many CHK-002 -> EXT-998 transfers from a fraud-monitoring
+    # scenario) -- those rows have their own generated transaction_id and
+    # never collide with SEED_TRANSACTIONS, so they just keep accumulating
+    # and can eventually skew agents that reason over transaction history.
+    # reset=True drops and recreates the schema first for a true clean slate.
+    if reset:
+        Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     if not seed:
         return
