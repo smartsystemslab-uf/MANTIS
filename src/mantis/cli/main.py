@@ -276,7 +276,7 @@ def validate_config(config_path: str) -> bool:
         if cfg.policies:
             for policy_cfg in cfg.policies:
                 if policy_cfg.plugin not in plugin_registry.all():
-                    print(f"❌ Unknown policy plugin '{policy_cfg.plugin}' in registry. If it's from an extension (e.g. Zero Trust), validate through that extension's entrypoint instead of `mantis` directly, so it's actually imported first.", file=sys.stderr)
+                    print(f"❌ Unknown policy plugin '{policy_cfg.plugin}' in registry. If it's from an external extension, validate through that extension's own entrypoint instead of `mantis` directly, so it's actually imported first.", file=sys.stderr)
                     return False
         print(f"✅ Configuration '{config_path}' is valid (Experiment: {cfg.experiment.name}, Scenario: {cfg.experiment.scenario}).")
         return True

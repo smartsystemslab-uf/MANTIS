@@ -28,7 +28,7 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
       "event": "tool_result",
       "tool": "execute_transfer",
       "result": {
-        "transaction_id": "TX-70715D5C7C58",
+        "transaction_id": "TX-9A2FE783C0CD",
         "status": "manual_review",
         "source_account": "CHK-002",
         "destination_account": "HACKER-9999",
@@ -39,7 +39,7 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
         "memo": "Utility backup payment",
         "customer_id": "CUST-002",
         "raw_backend_result": {
-          "transaction_id": "TX-70715D5C7C58",
+          "transaction_id": "TX-9A2FE783C0CD",
           "from_account_id": "CHK-002",
           "to_account_id": "HACKER-9999",
           "amount": 5000.0,
@@ -48,7 +48,7 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
           "status": "manual_review",
           "risk_score": 100,
           "decision_reason": "Destination account is not active or does not exist.",
-          "created_at": "2026-09-14T20:43:22.901549"
+          "created_at": "2026-09-14T22:03:44.326777"
         }
       }
     },
@@ -57,11 +57,11 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
       "event": "result",
       "key": "fo_transaction_execution",
       "value": {
-        "status": "manual_review",
+        "status": "failed",
         "execution_performed": false,
         "transaction_id": "",
-        "outcome": "Destination account is not active or does not exist. Manual review required.",
-        "customer_message": "The requested transfer could not be completed automatically. It requires manual review before proceeding."
+        "outcome": "Destination account is not active or does not exist.",
+        "customer_message": "Your transfer was not completed and requires manual review. Please contact support."
       }
     }
   ]

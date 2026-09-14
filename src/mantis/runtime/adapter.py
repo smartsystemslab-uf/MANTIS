@@ -125,8 +125,7 @@ class NativeBankingAdapter:
             domains[domain_name] = {"agents": domain_agents, "tools": []}
         # Real per-domain scoping (see _DOMAIN_TOOL_NAMES), not the full
         # merged tool list under every domain -- a domain-scoped consumer
-        # (e.g. the Zero Trust extension's default-deny-by-domain policy,
-        # extensions/zero_trust/policy_generator.py) needs to know which
+        # (e.g. a default-deny-by-domain policy plugin) needs to know which
         # tools a domain's agents can *actually* call, not that every tool
         # exists somewhere in the system.
         for domain_name in domains:

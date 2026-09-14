@@ -31,7 +31,12 @@ _FAILURE_PLUGIN_NAMES = {"reliability_failure"}
 # as an attack. Keyed by plugin name for the same reason as
 # _FAILURE_PLUGIN_NAMES above (PolicyPlugin, like ExperimentPlugin, has no
 # formal category field of its own).
-_POLICY_PLUGIN_NAMES = {"amount_limit_guardrail", "zero_trust_enforcement"}
+#
+# A policy plugin developed outside this repo can still get correct
+# POLICY_EVENT classification for its own DENY without a code change here:
+# add its name to this set at import time, e.g.
+# `from mantis.observability import plugin; plugin._POLICY_PLUGIN_NAMES.add("my_plugin")`.
+_POLICY_PLUGIN_NAMES = {"amount_limit_guardrail"}
 
 
 def _hash_payload(payload: Optional[dict]) -> Optional[str]:

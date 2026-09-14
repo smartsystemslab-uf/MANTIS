@@ -96,10 +96,10 @@ def test_inventory_domains_have_agents(adapter):
 def test_inventory_domains_have_distinctly_scoped_tools(adapter):
     """Regression guard: inventory() used to attach the same full merged
     tool list to every domain, which made any domain-scoped consumer of
-    this interface (e.g. extensions/zero_trust/policy_generator.py's
-    default-deny-by-domain policy) meaningless -- every domain would
-    report being able to call every tool in the system. Each domain's
-    tools must be a real, non-trivial subset, not the universal set."""
+    this interface (e.g. a default-deny-by-domain policy plugin)
+    meaningless -- every domain would report being able to call every
+    tool in the system. Each domain's tools must be a real, non-trivial
+    subset, not the universal set."""
     inv = adapter.inventory()
     all_tools = set(inv.tools)
     for domain, data in inv.domains.items():
