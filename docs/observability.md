@@ -23,10 +23,15 @@ Configured via `observability.export`:
    - Line-delimited JSON with ISO-8601 UTC timestamps, causal IDs, and typed event schemas.
 
 2. **OpenTelemetry (`otel`)**:
-   - Traces exported via OTLP gRPC/HTTP spans for Jaeger, Grafana, or OpenTelemetry Collector.
+   - Initializes the SDK `TracerProvider` for the run; attaches a console exporter when explicitly requested. On its own this makes spans creatable but doesn't ship them anywhere -- pair it with `jaeger` (below), or attach another OTLP-compatible processor, to actually export.
 
 3. **MLflow (`mlflow`)**:
    - Run parameters, seeds, SHA-256 configuration hashes, and artifact files logged automatically to local or remote MLflow tracking servers.
+
+4. **Jaeger (`jaeger`)** -- *Post-Paper Extension, coding plan §11 "Additional exporters"*:
+   - Attaches a real OTLP-over-gRPC span exporter (`mantis.observability.jaeger_exporter`) to the same `TracerProvider`, pointed at `observability.jaeger_endpoint` (default `http://localhost:4317`). Requires the optional `exporters` dependency group (`pip install -e ".[exporters]"`).
+   - Enabling it is config-only: `observability.export: [jsonl, jaeger]` -- no code change to the banking workflow, the hook bus, or the observability plugin. See `configs/extensions/jaeger_export_demo.yaml`.
+   - If no collector is listening at the configured endpoint, export fails quietly in the background (retried and logged by the SDK's `BatchSpanProcessor`); a run's success never depends on telemetry actually being delivered. Grafana, Langfuse, and Phoenix are documented, not-yet-built extension points that would follow this exact same adapter pattern -- register a `setup_<backend>_otel`-shaped function in `exporter_registry`, and wiring into `observability.export` is unchanged.
 
 ---
 

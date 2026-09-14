@@ -208,6 +208,19 @@
           },
           "title": "Export",
           "type": "array"
+        },
+        "jaeger_endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "OTLP gRPC endpoint for the Jaeger exporter (only used when 'jaeger' is in export); defaults to http://localhost:4317",
+          "title": "Jaeger Endpoint"
         }
       },
       "title": "ObservabilityConfig",

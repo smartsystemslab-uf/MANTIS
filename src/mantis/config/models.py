@@ -24,6 +24,7 @@ class AttackConfig(BaseModel):
 class ObservabilityConfig(BaseModel):
     mode: str = Field(default="full", description="Observability mode: off, selective, full")
     export: List[str] = Field(default_factory=lambda: ["jsonl"], description="Exporters to enable")
+    jaeger_endpoint: Optional[str] = Field(default=None, description="OTLP gRPC endpoint for the Jaeger exporter (only used when 'jaeger' is in export); defaults to http://localhost:4317")
 
 class EvaluationConfig(BaseModel):
     expected_tools: List[str] = Field(default_factory=list, description="Tools that must be called")

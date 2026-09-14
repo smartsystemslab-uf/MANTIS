@@ -25,6 +25,9 @@ dev = [
     "flake8",
     "black"
 ]
+exporters = [
+    "opentelemetry-exporter-otlp-proto-grpc==1.42.1"
+]
 
 [project.scripts]
 mantis = "mantis.cli.main:main"

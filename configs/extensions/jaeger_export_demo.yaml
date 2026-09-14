@@ -1,0 +1,17 @@
+# Post-Paper Extension demo: an additional exporter (Jaeger) enabled
+# purely through config, alongside the existing jsonl exporter -- no code
+# change to the banking workflow or the observability plugin required.
+# Requires: pip install -e ".[exporters]", and a Jaeger (or other
+# OTLP-compatible) collector reachable at jaeger_endpoint to actually see
+# spans; the run itself succeeds either way (see jaeger_exporter.py).
+experiment:
+  name: jaeger_export_demo
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+observability:
+  mode: full
+  export: [jsonl, jaeger]
+  jaeger_endpoint: http://localhost:4317

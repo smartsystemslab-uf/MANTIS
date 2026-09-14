@@ -130,6 +130,10 @@ async def run_experiment(config_path: str):
                     if "otel" in obs_config.export:
                         setup_otel(service_name=f"mantis-{config.experiment.name}")
 
+                    if "jaeger" in obs_config.export:
+                        from mantis.observability.jaeger_exporter import setup_jaeger_otel
+                        setup_jaeger_otel(service_name=f"mantis-{config.experiment.name}", endpoint=obs_config.jaeger_endpoint)
+
                 handle = adapter.build(config, hooks)
                 
                 res = await handle.run_message(prompt)

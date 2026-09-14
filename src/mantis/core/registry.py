@@ -66,6 +66,7 @@ for _workflow_id, _domain_name in WORKFLOW_DOMAINS.items():
 exporter_registry.register("jsonl", {"description": "Portable JSONL trace artifacts", "module": "mantis.observability.artifacts:TraceArtifactWriter"})
 exporter_registry.register("mlflow", {"description": "MLflow experiment tracking export", "module": "mantis.observability.mlflow_exporter:MLflowExporter"})
 exporter_registry.register("otel", {"description": "OpenTelemetry span export", "module": "mantis.observability.otel:setup_otel"})
+exporter_registry.register("jaeger", {"description": "Jaeger trace export over OTLP (Post-Paper Extension: additional exporters as adapters)", "module": "mantis.observability.jaeger_exporter:setup_jaeger_otel"})
 
 evaluator_registry.register("trace_completeness", {"description": "Checks mandatory workflow/agent events are present", "module": "mantis.evaluation.evaluators:TraceEvaluator.evaluate_completeness"})
 evaluator_registry.register("tool_use_correctness", {"description": "Checks expected/forbidden tool usage", "module": "mantis.evaluation.evaluators:TraceEvaluator.evaluate_tool_use"})
