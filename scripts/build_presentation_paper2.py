@@ -305,22 +305,24 @@ Key point: each of the next five sections covers exactly one of these, in the sa
 s = add_slide()
 brand_lockup(s)
 kicker(s, "Extension 1 of 5 — Additional Exporters")
-h1(s, "One more telemetry backend, config-only", top=Inches(1.22), size=24)
-card(s, MARGIN, Inches(1.85), Inches(5.85), Inches(2.3), "What it is",
-     "A real OTLP-over-gRPC span exporter, attached to the same TracerProvider Paper 1's OpenTelemetry setup already creates. Registered in exporter_registry as \"jaeger\" alongside jsonl/mlflow/otel.",
-     body_size=11)
+h1(s, "Four telemetry backends, one adapter pattern, config-only", top=Inches(1.22), size=22)
+card(s, MARGIN, Inches(1.85), Inches(5.85), Inches(2.3), "All four built",
+     "Jaeger, Grafana (Tempo), and Phoenix are the same thin OTLP-over-gRPC wrapper around Paper 1's own TracerProvider, differing only in default endpoint and an optional cloud-auth header. Langfuse genuinely differs — its endpoint is HTTP-only and always requires Basic auth, even self-hosted — so it's built on the OTLP/HTTP exporter instead.",
+     body_size=10.5)
 card(s, Inches(6.65), Inches(1.85), Inches(6.05), Inches(2.3), "How you use it",
-     "observability:\n  export: [jsonl, jaeger]\n  jaeger_endpoint: http://localhost:4317\n\nNo code change to the banking workflow, hook bus, or observability plugin.",
+     "observability:\n  export: [jsonl, jaeger]   # or grafana / phoenix / langfuse\n  jaeger_endpoint: http://localhost:4317\n\nNo code change to the banking workflow, hook bus, or observability plugin — same one-line pattern for all four.",
      body_size=11)
-card(s, MARGIN, Inches(4.35), Inches(12.1), Inches(1.95), "Verified: fails silently, never fails the run",
-     "With no collector listening at the configured endpoint, the SDK's own BatchSpanProcessor retries and logs a warning rather than raising — confirmed by a direct test asserting no exception propagates, and by the expected StatusCode.UNAVAILABLE warnings appearing during every offline test run in an environment with no Jaeger collector running. Exporting telemetry must never be able to fail an experiment.",
-     accent=True, body_size=11.5)
+card(s, MARGIN, Inches(4.35), Inches(12.1), Inches(1.95), "Verified: fails silently, and one got a real response back",
+     "With no collector listening, the SDK's own BatchSpanProcessor retries and logs a warning rather than raising — confirmed for all four. Langfuse got a stronger check: run with no credentials against its real hosted endpoint, it reached cloud.langfuse.com over the network and got back a genuine HTTP 401 — proof the transport and endpoint wiring are correct against the real service, not just an absent local collector.",
+     accent=True, body_size=11)
 footer(s, 3)
-set_notes(s, """First extension: additional observability exporters. Jaeger specifically, because it accepts OpenTelemetry's own OTLP protocol natively -- this extends the SDK setup Paper 1 already had, rather than integrating a new protocol from scratch.
+set_notes(s, """First extension: additional observability exporters. All four of the coding plan's named backends are now built, not just Jaeger.
 
-Enabling it is one line in the observability.export list plus an endpoint -- no code change anywhere in the banking workflow or the hook bus.
+Jaeger, Grafana Tempo, and Phoenix all accept OTLP natively over gRPC, so they're the same adapter shape -- a thin wrapper around the TracerProvider Paper 1's OpenTelemetry setup already creates, differing only in endpoint and an optional auth header for their managed cloud offerings. Langfuse is the one that's genuinely different: its ingestion endpoint is HTTP-only and always requires Basic auth, even self-hosted, so that adapter is built on a different OTLP transport package entirely.
 
-Key point, and this is the one to land: we verified the failure path, not just the happy path. If no Jaeger collector is running, export fails quietly in the background and logs a warning -- it does not fail the experiment. That's confirmed both by a direct unit test and by literally observing those warnings during our own offline test runs, since no collector was running in this development environment.""")
+Enabling any of them is still one line in the observability.export list plus an endpoint -- no code change anywhere in the banking workflow or the hook bus.
+
+Key point, and this is the one to land: we verified the failure path, not just the happy path, for all four. And Langfuse got a stronger check than a local no-collector test can offer -- run it with no credentials against the real hosted Langfuse endpoint, and it came back with a genuine 401 Unauthorized over the real network, which confirms the wiring is correct end to end against the actual service.""")
 
 # ---------------------------------------------------------------------------
 # 4. EXTENSION 2 — SECURITY MECHANISM PLUGIN
@@ -387,15 +389,17 @@ card(s, MARGIN, Inches(1.85), Inches(5.85), Inches(2.55), "The problem",
 card(s, Inches(6.65), Inches(1.85), Inches(6.05), Inches(2.55), "The fix",
      "Tools ARE domain-tagged — by which module a domain's agents actually import from. Fixed inventory() to report each domain's real tool subset; added regression tests confirming a back-office-only tool is unreachable from front/mid office.",
      body_size=11)
-card(s, MARGIN, Inches(4.55), Inches(12.1), Inches(1.75), "Verified live: transparent to legitimate operation",
-     "Ran the enforcement plugin against an ordinary, unattacked front-office scenario: zero policy denials, identical tool-use-correctness and workflow-outcome scores to the undefended baseline. A default-deny policy that also blocks legitimate traffic isn't usable — this confirms it doesn't.",
-     accent=True, body_size=11.5)
+card(s, MARGIN, Inches(4.55), Inches(12.1), Inches(1.95), "Then we went deeper: exhaustive trials, and a second real bug",
+     "770/770 (agent, tool) pairs from the live policy correctly enforced (495 cross-domain denied, 275 in-domain allowed) — every combination the live system has, not a handful of examples. 5/5 live trials: zero false-positive denials on legitimate traffic. Building that harness found a second defect: this plugin's own denials were being silently recorded as ATTACK_INJECTED, not POLICY_EVENT — a defense misclassified as the attack it was stopping. Fixed, with a regression test through the real hook bus.",
+     accent=True, body_size=10.5)
 footer(s, 6)
 set_notes(s, """This is the finding: building a default-deny-by-domain policy only works if domains actually report different tools. Paper 1's own inventory interface didn't do that -- every domain reported the entire merged tool list, which would have made this whole extension meaningless.
 
 The fix was real and precise: tools are genuinely domain-tagged, through which source module a domain's agents import from. We corrected the inventory and added a regression test proving a back-office-only tool is unreachable from front or mid office's reported tools.
 
-Key point to close on: after the fix, we ran the enforcement plugin against a completely ordinary, unattacked scenario and got zero denials, with identical evaluation scores to the undefended baseline. Transparency to legitimate operation is the property that actually matters for something meant to run continuously.""")
+We didn't stop at one clean run, though. Revisiting this extension specifically to replace a single-run anecdote with real statistics: we ran the real plugin against all 770 (agent, tool) pairs the live inventory implies -- every combination the system actually has -- and it enforced every single one correctly. Then five live trials against a real model, zero false-positive denials in any of them.
+
+Building that harness surfaced a second real bug, the same shape as one we'd already fixed for the guardrail extension: this plugin's own denials were being silently recorded as an attack, not a defense, in the trace. Fixed, with a test that exercises the real hook bus end to end so it can't come back silently.""")
 
 # ---------------------------------------------------------------------------
 # 7. EXTENSION 4 — DISPUTE WORKLOAD
@@ -453,25 +457,26 @@ We also confirmed it as a real running server, not just passing an internal test
 s = add_slide()
 brand_lockup(s)
 kicker(s, "Evaluation Summary")
-h1(s, "36 new tests, all against real data — 179 total", top=Inches(1.22), size=24)
+h1(s, "147 tests, all against real data — every extension live-verified", top=Inches(1.22), size=22)
 headers = ["Extension", "Tests", "Live evidence"]
 rows = [
     ("Jaeger exporter", "4", "Real span processor attached; confirmed silent-safe with no collector listening."),
+    ("Grafana / Phoenix / Langfuse", "9", "Same OTLP pattern for the first two; Langfuse reached the real hosted endpoint and got a genuine 401 with no credentials."),
     ("Guardrail plugin", "6", "Live $5,000 mutated transfer denied before reaching the backend; correctly classified as POLICY_EVENT."),
-    ("Zero Trust", "7 + 2", "Zero spurious denials on a real unattacked run; cross-domain denial confirmed; surfaced a real inventory defect."),
+    ("Zero Trust", "8", "770/770 (agent, tool) pairs correctly enforced; 5/5 live trials zero false-positive denials; two real defects surfaced and fixed."),
     ("Dispute workload", "7", "Real case filed and persisted, after correcting a scenario defect found only by reading the trace."),
     ("Minimal UI", "10", "Real invalid config rejected with the real CLI's own error; real server confirmed over live HTTP."),
 ]
-styled_table(s, MARGIN, Inches(1.85), Inches(12.1), Inches(3.55), headers, rows, col_widths=[2.3, 1.0, 8.0], font_size=10.8)
-stat_tile(s, MARGIN, Inches(5.6), Inches(3.9), Inches(1.15), "179", "offline tests passing, up from 143 before this work")
-stat_tile(s, MARGIN + Inches(4.1), Inches(5.6), Inches(3.9), Inches(1.15), "0", "changes required to mantis.core, mantis.hooks, or the banking workflow modules")
-stat_tile(s, MARGIN + Inches(8.2), Inches(5.6), Inches(3.9), Inches(1.15), "2", "real defects found and fixed while building these extensions, both invisible from a clean exit code")
+styled_table(s, MARGIN, Inches(1.8), Inches(12.1), Inches(3.75), headers, rows, col_widths=[2.3, 1.0, 8.0], font_size=9.5)
+stat_tile(s, MARGIN, Inches(5.65), Inches(3.9), Inches(1.15), "147", "offline tests passing, all exercised against real data")
+stat_tile(s, MARGIN + Inches(4.1), Inches(5.65), Inches(3.9), Inches(1.15), "0", "changes required to mantis.core, mantis.hooks, or the banking workflow modules")
+stat_tile(s, MARGIN + Inches(8.2), Inches(5.65), Inches(3.9), Inches(1.15), "3", "real defects found and fixed while building these extensions")
 footer(s, 9)
 set_notes(s, """Summary slide -- every extension checked against real data or a real live run, the same standard Paper 1 set for itself.
 
-36 new tests across the five extensions bring the offline suite from 143 to 179 tests, all still running in under a minute with no live model key required.
+The offline suite stands at 147 tests -- covering all five extensions, including the three additional exporters and the deeper Zero Trust evidence added in a second pass -- all still running in under a minute with no live model key required.
 
-The three numbers at the bottom are the ones worth pausing on: zero changes required to any of MANTIS's core interfaces to add any of these five extensions -- the plugin and inventory interfaces held up exactly as designed. And two real defects found and fixed along the way, both invisible from a clean process exit -- found only because each extension's own verification pass insisted on checking the actual trace.""")
+The three numbers at the bottom are the ones worth pausing on: zero changes required to any of MANTIS's core interfaces to add any of these five extensions -- the plugin and inventory interfaces held up exactly as designed. And three real defects found and fixed along the way, none visible from a clean process exit -- a domain-scoping bug, a scenario-prompt gap, and an event-misclassification bug in the Zero Trust plugin found only when we went back to replace a single-run anecdote with real repeated-trial statistics.""")
 
 # ---------------------------------------------------------------------------
 # 10. CLOSING
@@ -489,7 +494,7 @@ textbox(s, MARGIN, Inches(4.95), Inches(8), Inches(0.5), "github.com/smartsystem
 footer(s, 10, note="Leading the Charge, Charging Ahead")
 set_notes(s, """That's MANTIS Extended.
 
-Closing message: the headline result of this second paper isn't any single extension -- it's that Paper 1's plugin and inventory interfaces held up completely unmodified across all five, including a defensive plugin, an entirely separate telemetry backend, an integration surface for someone else's independent Zero Trust project, a new banking process, and a UI.
+Closing message: the headline result of this second paper isn't any single extension -- it's that Paper 1's plugin and inventory interfaces held up completely unmodified across all five, including a defensive plugin, four separate telemetry backends, an integration surface for someone else's independent Zero Trust project verified with real repeated-trial statistics, a new banking process, and a UI.
 
 Everything shown today is reproducible from the checked-in configs in the repository, same as Paper 1. Thank you, and happy to take questions or walk through any extension live.""")
 
