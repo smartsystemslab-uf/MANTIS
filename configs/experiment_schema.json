@@ -225,6 +225,27 @@
       },
       "title": "ObservabilityConfig",
       "type": "object"
+    },
+    "PolicyConfig": {
+      "description": "A defense plugin to register alongside (and, in the hook dispatch\norder, after) any configured attack -- Post-Paper Extension, coding\nplan \u00a711 \"Security mechanism plugins\". Same shape as AttackConfig\nminus control_point/target: a PolicyPlugin (plugins/policies/__init__.py)\ndecides for itself, from ctx, whether a given dispatch is in scope,\nthe same way every attack plugin already does.",
+      "properties": {
+        "plugin": {
+          "description": "Policy/guardrail plugin to load",
+          "title": "Plugin",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "description": "Plugin specific parameters",
+          "title": "Parameters",
+          "type": "object"
+        }
+      },
+      "required": [
+        "plugin"
+      ],
+      "title": "PolicyConfig",
+      "type": "object"
     }
   },
   "description": "Root configuration model for MANTIS experiments.",
@@ -253,6 +274,21 @@
         }
       ],
       "default": null
+    },
+    "policies": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/PolicyConfig"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Policies"
     },
     "observability": {
       "anyOf": [

@@ -45,5 +45,5 @@ Configured via `observability.export`:
 - `TOOL_CALL` / `TOOL_RESULT` / `TOOL_ERROR`: Tool invocations, parameters, and side-effects.
 - `ATTACK_INJECTED`: Adversarial security event with injection stage, plugin, target, and observed effect.
 - `ANOMALY`: Operational security event for a reliability/failure plugin (delay, timeout, malformed result) -- kept distinct from `ATTACK_INJECTED` so an evaluator can separate a security-caused anomaly from a routine fault.
-- `POLICY_EVENT`: Reserved for a future policy/guardrail plugin (Zero Trust extension point); declared in the event model but not currently emitted by any shipped plugin.
+- `POLICY_EVENT`: A defensive/policy plugin's action (e.g. `amount_limit_guardrail` -- Post-Paper Extension, coding plan §11 "Security mechanism plugins") -- kept distinct from `ATTACK_INJECTED` for the same reason `ANOMALY` is kept distinct from it: a guardrail denying a call is the system working as intended, not an attack. See `docs/add_plugin.md` and `extensions/zero_trust/README.md`.
 - `EVALUATION_RESULT`: Post-run metric results (one per evaluator, all 7 dimensions -- see `docs/reproducibility.md`) appended to traces automatically by `mantis --evaluate`, sharing the run's own `run_id`.

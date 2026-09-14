@@ -33,12 +33,14 @@ from mantis.plugins.attacks.message_spoofing import MessageSpoofingPlugin
 from mantis.plugins.attacks.route_confusion import RouteConfusionPlugin
 from mantis.plugins.attacks.tool_mutation import ToolParameterMutationPlugin
 from mantis.plugins.failures.reliability import ReliabilityFailurePlugin
+from mantis.plugins.policies.amount_limit_guardrail import AmountLimitGuardrailPlugin
 
 plugin_registry.register("mock_attack", MockAttackPlugin)
 plugin_registry.register("prompt_injection", PromptInjectionPlugin)
 plugin_registry.register("message_spoofing", MessageSpoofingPlugin)
 plugin_registry.register("route_confusion", RouteConfusionPlugin)
 plugin_registry.register("tool_mutation", ToolParameterMutationPlugin)
+plugin_registry.register("amount_limit_guardrail", AmountLimitGuardrailPlugin)
 plugin_registry.register("reliability_failure", ReliabilityFailurePlugin)
 
 # Banking-specific data (which agents belong to which domain, scenario

@@ -1,6 +1,6 @@
-# Authoring Attack and Failure Plugins
+# Authoring Attack, Failure, and Policy Plugins
 
-MANTIS provides a clean plugin contract for authoring adversarial threat injections and reliability failure controls.
+MANTIS provides a clean plugin contract for authoring adversarial threat injections, reliability failure controls, and (Post-Paper Extension, coding plan §11 "Security mechanism plugins") defensive guardrails -- all three register into the exact same `HookBus` through the identical `apply(ctx) -> HookResult` contract.
 
 ---
 
@@ -68,3 +68,20 @@ attack:
     target_tool: get_customer_context
     delay_seconds: 2.5
 ```
+
+---
+
+## 5. Policy / Guardrail Plugins
+
+A defense follows the identical `apply(ctx) -> HookResult` contract as an attack -- see `AmountLimitGuardrailPlugin` (`src/mantis/plugins/policies/amount_limit_guardrail.py`), registered in `plugin_registry` the same way. It's enabled via a `policies:` list in the experiment config instead of `attack:`, and (per `cli/main.py`) registered onto the `HookBus` *after* any configured attack plugin, so it evaluates a call that an attack has already mutated -- the mechanism behind `configs/extensions/guardrail_blocks_tool_mutation.yaml`, where a guardrail with `max_amount: 2000.0` denies a transfer an attack has just inflated to `5000.0`:
+
+```yaml
+policies:
+  - plugin: amount_limit_guardrail
+    parameters:
+      target_tool: execute_transfer
+      amount_field: amount
+      max_amount: 2000.0
+```
+
+A guardrail's `DENY` is recorded as a `POLICY_EVENT` (not `ATTACK_INJECTED`) in the trace -- see `docs/observability.md` -- so an evaluator can tell "a defense worked as intended" apart from "an attack happened," even though both are the same `HookAction.DENY` at the hook-bus level.

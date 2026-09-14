@@ -23,6 +23,16 @@ import time
 # no formal attack-vs-failure category field.
 _FAILURE_PLUGIN_NAMES = {"reliability_failure"}
 
+# Security-mechanism/policy plugins (Post-Paper Extension, coding plan §11:
+# "guardrails, policy checks, isolation, rate limits, and response filters
+# evaluated through the same experiment framework") are defensive, not
+# adversarial -- a guardrail DENYing a tool call is the system working as
+# intended, and reporting it as ATTACK_INJECTED would misclassify a defense
+# as an attack. Keyed by plugin name for the same reason as
+# _FAILURE_PLUGIN_NAMES above (PolicyPlugin, like ExperimentPlugin, has no
+# formal category field of its own).
+_POLICY_PLUGIN_NAMES = {"amount_limit_guardrail"}
+
 
 def _hash_payload(payload: Optional[dict]) -> Optional[str]:
     if not payload:
@@ -90,6 +100,7 @@ class ObservabilityPlugin:
             plugin_name = action_info.get("plugin", "unknown")
             event_type = (
                 EventType.ANOMALY if plugin_name in _FAILURE_PLUGIN_NAMES
+                else EventType.POLICY_EVENT if plugin_name in _POLICY_PLUGIN_NAMES
                 else EventType.ATTACK_INJECTED
             )
             self.trace_writer.write_event(SecurityEvent(

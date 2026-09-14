@@ -101,6 +101,23 @@ async def run_experiment(config_path: str):
                         print(f"❌ Failed to load plugin {config.attack.plugin}: {e}", file=sys.stderr)
                         sys.exit(1)
 
+                # Policy/guardrail plugins register after the attack plugin
+                # (so a guardrail evaluates a call *after* any attack has
+                # already mutated it -- the point of e.g. an amount-limit
+                # guardrail catching a tool_mutation-inflated transfer) and
+                # before observability, for the same reason attack plugins
+                # do: ObservabilityPlugin must be dispatched last to see
+                # every earlier plugin's effect for that call.
+                if config.policies:
+                    for policy_cfg in config.policies:
+                        try:
+                            policy_cls = plugin_registry.get(policy_cfg.plugin)
+                            policy_instance = policy_cls(**policy_cfg.parameters)
+                            hooks.register(policy_instance)
+                        except Exception as e:
+                            print(f"❌ Failed to load policy plugin {policy_cfg.plugin}: {e}", file=sys.stderr)
+                            sys.exit(1)
+
                 if obs_config.mode != "off":
                     trace_writer = TraceArtifactWriter(str(output_dir))
                     obs_plugin = ObservabilityPlugin(trace_writer, mode=obs_config.mode)

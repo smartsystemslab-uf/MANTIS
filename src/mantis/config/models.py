@@ -21,6 +21,16 @@ class AttackConfig(BaseModel):
     target: str = Field(description="Target component ID")
     parameters: Dict[str, Any] = Field(default_factory=dict, description="Plugin specific parameters")
 
+class PolicyConfig(BaseModel):
+    """A defense plugin to register alongside (and, in the hook dispatch
+    order, after) any configured attack -- Post-Paper Extension, coding
+    plan §11 "Security mechanism plugins". Same shape as AttackConfig
+    minus control_point/target: a PolicyPlugin (plugins/policies/__init__.py)
+    decides for itself, from ctx, whether a given dispatch is in scope,
+    the same way every attack plugin already does."""
+    plugin: str = Field(description="Policy/guardrail plugin to load")
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Plugin specific parameters")
+
 class ObservabilityConfig(BaseModel):
     mode: str = Field(default="full", description="Observability mode: off, selective, full")
     export: List[str] = Field(default_factory=lambda: ["jsonl"], description="Exporters to enable")
@@ -43,6 +53,7 @@ class ExperimentConfig(BaseModel):
     experiment: ExperimentMetadata
     modifications: Optional[ModificationsConfig] = None
     attack: Optional[AttackConfig] = None
+    policies: Optional[List[PolicyConfig]] = None
     observability: Optional[ObservabilityConfig] = None
     evaluation: Optional[EvaluationConfig] = None
     benchmark: Optional[BenchmarkConfig] = None
