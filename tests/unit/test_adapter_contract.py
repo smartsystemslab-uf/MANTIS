@@ -93,6 +93,32 @@ def test_inventory_domains_have_agents(adapter):
     for domain, data in inv.domains.items():
         assert len(data.get("agents", [])) > 0, f"Domain '{domain}' has no agents"
 
+def test_inventory_domains_have_distinctly_scoped_tools(adapter):
+    """Regression guard: inventory() used to attach the same full merged
+    tool list to every domain, which made any domain-scoped consumer of
+    this interface (e.g. extensions/zero_trust/policy_generator.py's
+    default-deny-by-domain policy) meaningless -- every domain would
+    report being able to call every tool in the system. Each domain's
+    tools must be a real, non-trivial subset, not the universal set."""
+    inv = adapter.inventory()
+    all_tools = set(inv.tools)
+    for domain, data in inv.domains.items():
+        domain_tools = set(data.get("tools", []))
+        assert domain_tools, f"Domain '{domain}' has no tools"
+        assert domain_tools != all_tools, (
+            f"Domain '{domain}' reports the entire tool set ({len(all_tools)} tools) "
+            "as its own -- tools are not being scoped per domain"
+        )
+
+def test_inventory_back_office_tools_are_not_reachable_from_other_domains(adapter):
+    """A concrete cross-domain check, not just 'not identical to the
+    universal set': a back-office-only tool (apply_ledger_updates) must
+    not appear in front_office's or mid_office's tool list."""
+    inv = adapter.inventory()
+    assert "apply_ledger_updates" in inv.domains["back_office"]["tools"]
+    assert "apply_ledger_updates" not in inv.domains["front_office"]["tools"]
+    assert "apply_ledger_updates" not in inv.domains["mid_office"]["tools"]
+
 def test_inventory_agents_are_strings(adapter):
     for agent in adapter.inventory().agents:
         assert isinstance(agent, str)
