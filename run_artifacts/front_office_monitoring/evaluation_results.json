@@ -1,29 +1,31 @@
 {
   "trace_completeness": {
-    "score": 0.0,
+    "score": 1.0,
     "has_workflow_start": true,
-    "has_workflow_end": false,
+    "has_workflow_end": true,
     "has_agent_start": true,
-    "total_events": 6,
+    "total_events": 13,
     "business_domain": "front_office",
     "workflow_id": "front_office_monitoring"
   },
   "tool_use_correctness": {
     "score": 1.0,
-    "actual_tools": [],
+    "actual_tools": [
+      "transfer_to_agent"
+    ],
     "missing_expected": [],
     "used_forbidden": []
   },
   "workflow_outcome": {
     "score": 1.0,
     "expected_outcome": null,
-    "actual_outcome": null
+    "actual_outcome": "completed"
   },
   "artifact_integrity": {
     "score": 1.0,
     "trace_file": "run_artifacts/front_office_monitoring/traces.jsonl",
-    "trace_sha256": "a21c247dcdfacddc90c729818246a35a2304cc24217bea8fc8728699894846c8",
-    "trace_size_bytes": 1547,
+    "trace_sha256": "ad6abaa66601a95c1dd7d78fac95094af422798e1dec7dfd482b955a587630c2",
+    "trace_size_bytes": 4214,
     "non_empty": true,
     "manifest_config_hash": "1385aac9066be9737002e902a3a788796a47929304e12f0465bb562f8a9eb5dc",
     "manifest_run_id_matches_trace": true
@@ -39,5 +41,47 @@
     ],
     "total_known_domains": 3,
     "domains_covered": 1
+  },
+  "hook_coverage": {
+    "score": 1.0,
+    "stages_hit": [
+      "after_agent",
+      "after_input",
+      "after_message",
+      "after_output",
+      "after_tool",
+      "before_agent",
+      "before_input",
+      "before_message",
+      "before_output",
+      "before_tool"
+    ],
+    "stages_missing": [],
+    "hits": {
+      "before_input": 1,
+      "after_input": 1,
+      "before_agent": 1,
+      "after_agent": 1,
+      "before_message": 2,
+      "after_message": 2,
+      "before_tool": 1,
+      "after_tool": 1,
+      "before_output": 1,
+      "after_output": 1
+    }
+  },
+  "attack_ground_truth": {
+    "score": null,
+    "applicable": false,
+    "reason": "no attack configured for this run"
+  },
+  "instrumentation_overhead": {
+    "total_run_duration_ms": 2178.709,
+    "plugin_timing_ms": {
+      "observability_plugin": 3.415991086512804
+    },
+    "observability_plugin_ms": 3.415991086512804,
+    "observability_overhead_pct": 0.15678968997295206,
+    "total_instrumentation_overhead_pct": 0.15678968997295206
   }
 }

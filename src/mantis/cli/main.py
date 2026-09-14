@@ -1,10 +1,29 @@
 import argparse
 import asyncio
+import io
 import json
 import os
 import sys
 from pathlib import Path
 import yaml
+
+
+class _Tee:
+    """Duplicates writes to multiple streams -- used so a run's console
+    output is also captured to run_artifacts/<name>/run.log (WP7
+    acceptance criterion: run directories carry logs, not only traces/
+    evaluation) without changing what actually appears on the terminal."""
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, data):
+        for s in self.streams:
+            s.write(data)
+        return len(data)
+
+    def flush(self):
+        for s in self.streams:
+            s.flush()
 
 # --------------------------------------------------------------------------
 # Lightweight imports only. Heavy dependencies (google.adk, mcp, mlflow,
@@ -53,6 +72,15 @@ async def run_experiment(config_path: str):
     output_dir = Path("run_artifacts") / config.experiment.name
     manifest_path = create_run_manifest(config, output_dir)
     print(f"Run manifest saved to {manifest_path}", file=sys.stderr)
+
+    # Captured to run_artifacts/<name>/run.log below (WP7) without changing
+    # what actually prints to the real terminal -- reassigned directly
+    # rather than via redirect_stdout/redirect_stderr context managers so
+    # the rest of this already-long function doesn't need re-indenting.
+    log_buffer = io.StringIO()
+    real_stdout, real_stderr = sys.stdout, sys.stderr
+    sys.stdout = _Tee(real_stdout, log_buffer)
+    sys.stderr = _Tee(real_stderr, log_buffer)
 
     server_path = Path.cwd() / "citi_banking_mcp_server" / "mcp_server.py"
     if not server_path.exists():
@@ -179,6 +207,15 @@ async def run_experiment(config_path: str):
             traceback.print_exc()
         print(f"❌ Run failed: {e} (set MANTIS_DEBUG=1 for a full traceback)", file=sys.stderr)
         sys.exit(1)
+    finally:
+        # Runs on success, on the sys.exit(1) above, and on an uncaught
+        # exception -- a failed run leaving no log at all is exactly the
+        # "no evidence to diagnose" gap this closes.
+        sys.stdout, sys.stderr = real_stdout, real_stderr
+        try:
+            (output_dir / "run.log").write_text(log_buffer.getvalue())
+        except Exception:
+            pass
 
 def validate_config(config_path: str) -> bool:
     path = Path(config_path)

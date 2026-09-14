@@ -30,7 +30,7 @@
     }
   },
   "plugin_timing_ms": {
-    "observability_plugin": 3.1002149626147,
-    "prompt_injection": 0.05343000520952046
+    "observability_plugin": 2.9844309901818633,
+    "prompt_injection": 0.04517100751399994
   }
 }

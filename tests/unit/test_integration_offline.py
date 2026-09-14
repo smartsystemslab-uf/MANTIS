@@ -150,6 +150,12 @@ def test_run_produces_trace_and_manifest(tmp_path):
         f"No WORKFLOW_START in trace; found: {event_types}"
     )
 
+    # WP7 acceptance criterion: run directories carry logs, not only
+    # traces/evaluation -- a real captured console log, not an empty file.
+    log_file = run_artifacts_dir / "run.log"
+    assert log_file.exists(), "run.log not found after --run"
+    assert len(log_file.read_text()) > 0, "run.log is empty"
+
 
 # ---------------------------------------------------------------------------
 # WP8 -- pytest-level end-to-end test for an ATTACKED workflow (not just
