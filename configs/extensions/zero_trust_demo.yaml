@@ -1,0 +1,28 @@
+# Post-Paper Extension demo: Zero Trust enforcement (coding plan §11)
+# enabled on an ordinary, unattacked front-office scenario -- the point is
+# transparency: a policy generated from the live inventory should allow
+# every legitimate in-domain tool call a normal run already makes, with
+# zero DENYs, proving enforcement doesn't require touching the banking
+# workflow to coexist with it.
+#
+# Run via the Zero Trust wrapper, not `mantis` directly -- this is what
+# actually makes "zero_trust_enforcement" resolvable as a policy plugin:
+#   python -m extensions.zero_trust.run_with_zero_trust --run configs/extensions/zero_trust_demo.yaml
+experiment:
+  name: zero_trust_demo
+  seed: 42
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+policies:
+  - plugin: zero_trust_enforcement
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - search_policies
+  expected_terminal_state: manual_review

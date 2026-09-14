@@ -211,6 +211,11 @@ def validate_config(config_path: str) -> bool:
             if cfg.attack.target not in valid_targets:
                 print(f"❌ Unknown attack target '{cfg.attack.target}'. Must be a known agent or tool.", file=sys.stderr)
                 return False
+        if cfg.policies:
+            for policy_cfg in cfg.policies:
+                if policy_cfg.plugin not in plugin_registry.all():
+                    print(f"❌ Unknown policy plugin '{policy_cfg.plugin}' in registry. If it's from an extension (e.g. Zero Trust), validate through that extension's entrypoint instead of `mantis` directly, so it's actually imported first.", file=sys.stderr)
+                    return False
         print(f"✅ Configuration '{config_path}' is valid (Experiment: {cfg.experiment.name}, Scenario: {cfg.experiment.scenario}).")
         return True
     except Exception as e:
