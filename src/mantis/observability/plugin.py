@@ -31,7 +31,7 @@ _FAILURE_PLUGIN_NAMES = {"reliability_failure"}
 # as an attack. Keyed by plugin name for the same reason as
 # _FAILURE_PLUGIN_NAMES above (PolicyPlugin, like ExperimentPlugin, has no
 # formal category field of its own).
-_POLICY_PLUGIN_NAMES = {"amount_limit_guardrail"}
+_POLICY_PLUGIN_NAMES = {"amount_limit_guardrail", "zero_trust_enforcement"}
 
 
 def _hash_payload(payload: Optional[dict]) -> Optional[str]:

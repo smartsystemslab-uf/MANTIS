@@ -95,6 +95,22 @@ Backplane project linked above.
   entirely outside `src/mantis` and self-registers into the shared
   `plugin_registry` on import (see `run_with_zero_trust.py`) — MANTIS's own
   code never imports it.
+- `run_enforcement_trials.py`: repeated-trial evidence beyond the single
+  transparency run `zero_trust_demo.yaml` gives on its own. Two parts: (1)
+  an exhaustive check of the real plugin's `apply()` against every
+  (agent, tool) pair implied by the live inventory-derived policy —
+  770 pairs as of this writing, 100% correctly enforced (495 genuine
+  cross-domain pairs denied, 275 genuine in-domain pairs allowed) — the
+  lateral-movement threat model the policy generator's own docstring
+  names, exercised exhaustively rather than by a handful of hand-picked
+  examples; and (2) `zero_trust_demo.yaml` run N times against a real
+  model through the enforcement wrapper, confirming legitimate traffic
+  produces zero DENYs in every trial, not just the one already recorded.
+  Building this surfaced a real taxonomy bug now fixed alongside it:
+  `mantis.observability.plugin._POLICY_PLUGIN_NAMES` never listed
+  `zero_trust_enforcement`, so its DENY was being recorded as
+  `ATTACK_INJECTED` instead of `POLICY_EVENT` — a defensive control
+  misclassified as the attack it was stopping.
 - Permit leases, revocation, and signed decisions are *not* reimplemented
   here — that state lives entirely in a real Zero Trust Backplane's own
   service (see the linked project's Task 4/5); this slice's own enforcement

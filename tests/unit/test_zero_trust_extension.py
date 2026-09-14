@@ -7,8 +7,12 @@ and verify both the policy generated from a real live inventory and the
 enforcement plugin's actual DENY/CONTINUE behavior -- not just that
 importing it doesn't raise.
 """
-from mantis.hooks import HookContext, HookAction
+import json
+
+from mantis.hooks import HookBus, HookContext, HookAction
 from mantis.runtime.adapter import NativeBankingAdapter
+from mantis.observability.artifacts import TraceArtifactWriter
+from mantis.observability.plugin import ObservabilityPlugin
 from extensions.zero_trust.policy_generator import (
     generate_default_deny_policy,
     to_zt_manifest_subjects,
@@ -95,3 +99,42 @@ def test_enforcement_plugin_denies_unrecognized_agent():
     res = plugin.apply(ctx)
     assert res.action == HookAction.DENY
     assert "not recognized" in res.payload["error"]
+
+
+def test_zero_trust_deny_is_recorded_as_policy_event_not_attack_injected(tmp_path):
+    """Regression coverage for a real taxonomy bug found while building
+    deeper Zero Trust evidence: ObservabilityPlugin classifies a security
+    plugin's DENY by a hardcoded plugin-name set
+    (mantis.observability.plugin._POLICY_PLUGIN_NAMES) that only listed
+    "amount_limit_guardrail" -- so zero_trust_enforcement's own DENY fell
+    into the default branch and was recorded as ATTACK_INJECTED, making a
+    legitimate defensive control look like an attack in the trace. Verify
+    through the real HookBus + ObservabilityPlugin pipeline (the same
+    dispatch shape cli/main.py uses: policy plugin, then observability),
+    not just the plugin's own apply() return value."""
+    hooks = HookBus()
+    zt = ZeroTrustEnforcementPlugin()
+    mid_office_agent = zt.policy["domains"]["mid_office"]["agents"][0]
+    back_office_only_tool = next(iter(
+        set(zt.policy["domains"]["back_office"]["allowed_tools"])
+        - set(zt.policy["domains"]["mid_office"]["allowed_tools"])
+        - set(zt.policy["domains"]["front_office"]["allowed_tools"])
+    ))
+
+    trace_writer = TraceArtifactWriter(str(tmp_path))
+    hooks.register(zt)
+    hooks.register(ObservabilityPlugin(trace_writer, mode="full"))
+
+    ctx = HookContext(
+        run_id="test", trace_id="test", workflow_id="test",
+        stage="tool", target=back_office_only_tool, source=mid_office_agent, payload={},
+    )
+    result = hooks.dispatch("before_tool", ctx)
+    assert result.action == HookAction.DENY
+
+    events = [json.loads(ln) for ln in (tmp_path / "traces.jsonl").read_text().splitlines() if ln.strip()]
+    security_events = [e for e in events if e.get("plugin") == "zero_trust_enforcement"]
+    assert len(security_events) == 1
+    assert security_events[0]["event_type"] == "POLICY_EVENT"
+    assert security_events[0]["observed_impact"] == "deny"
+    assert not any(e.get("event_type") == "ATTACK_INJECTED" for e in events)

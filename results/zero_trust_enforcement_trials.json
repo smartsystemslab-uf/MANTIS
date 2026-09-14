@@ -1,0 +1,39 @@
+{
+  "enforcement_matrix": {
+    "n_pairs_tested": 770,
+    "accuracy": 1.0,
+    "n_correct": 770,
+    "n_incorrect": 0,
+    "cross_domain_deny_rate": 1.0,
+    "n_cross_domain_pairs": 495,
+    "in_domain_allow_rate": 1.0,
+    "n_in_domain_pairs": 275,
+    "misclassified": []
+  },
+  "live_legitimate_traffic_trials": {
+    "trials": [
+      {
+        "run_ok": true,
+        "n_tool_calls": 7,
+        "n_denies": 0,
+        "latency_s": 32.98
+      },
+      {
+        "run_ok": true,
+        "n_tool_calls": 7,
+        "n_denies": 0,
+        "latency_s": 29.41
+      },
+      {
+        "run_ok": true,
+        "n_tool_calls": 7,
+        "n_denies": 0,
+        "latency_s": 28.42
+      }
+    ],
+    "n": 3,
+    "n_ok": 3,
+    "total_denies_across_all_trials": 0,
+    "clean_trial_rate": 1.0
+  }
+}
