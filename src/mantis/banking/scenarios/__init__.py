@@ -13,9 +13,20 @@ SCENARIOS: dict[str, str] = {
     "front_office_chatbot": (
         "Customer asks: How do I dispute a debit card transaction and what is the expected timeline?"
     ),
+    # Worded to match front_office_router's own stated routing criterion
+    # for the chatbot/execution path verbatim ("approved customer
+    # transaction execution") rather than the transaction-review path
+    # ("suspicious transaction review, fraud screening... transaction
+    # monitoring") -- an earlier version left this ambiguous and the
+    # router inconsistently sent it to the review workflow instead, where
+    # execute_transfer is never called at all (decision_making_agent's
+    # only tool is submit_manual_review). See wp5_tool_mutation.yaml.
     "front_office_transaction_execution": (
-        "Customer service request: Transfer 125.50 USD from source account CHK-002 to destination "
-        "account EXT-998 for customer CUST-002 with memo Utility backup payment."
+        "Customer service request: process an already-approved, routine internal transfer of 125.50 "
+        "USD from the customer's own checking account CHK-002 to their linked external savings "
+        "account EXT-998, for customer CUST-002, memo Utility backup payment. This is a standard, "
+        "pre-cleared service request -- proceed directly with execution, not a new transaction "
+        "requiring fraud or compliance review."
     ),
     "mid_office_planning": (
         "Use the mid-office planning workflow to analyze operations data for 2026-04-21, forecast "
