@@ -4,7 +4,7 @@ MANTIS is a modular, observable multi-agent security testbed for configuring age
 
 Currently, MANTIS focuses on banking multi-agent architectures (spanning Front, Mid, and Back-Office workflows) as the primary application domain for security evaluation. The goal is a **testbed to conduct mock attacks (e.g., prompt injections), capture outputs, and evaluate AI agent failures under adversarial conditions.**
 
-**At a glance:** 3 banking domains &middot; 32 agents &middot; 22 tools (21 banking-domain + 1 routing) &middot; 5 control points &middot; 4 attack plugins + 1 failure-control family + 1 security-mechanism guardrail &middot; 7 automated evaluator dimensions &middot; 7 observability export targets (jsonl, mlflow, otel, jaeger, grafana, langfuse, phoenix) &middot; 0 source edits needed to run an experiment. Numbers reflect Paper 1 plus its Post-Paper Extensions (see `extensions/`); Paper 1 itself (`paper/mantis_paper.tex`) is frozen and reports the system as it stood at that time.
+**At a glance:** 3 banking domains &middot; 32 agents &middot; 22 tools (21 banking-domain + 1 routing) &middot; 5 control points &middot; 4 attack plugins + 1 failure-control family + 1 security-mechanism guardrail &middot; 7 automated evaluator dimensions &middot; 7 observability export targets (jsonl, mlflow, otel, jaeger, grafana, langfuse, phoenix) &middot; 0 source edits needed to run an experiment. Numbers reflect Paper 1 plus its Post-Paper Extensions; Paper 1 itself (`paper/mantis_paper.tex`) is frozen and reports the system as it stood at that time. See `CHANGELOG.md` for what's changed since, including a Zero Trust Backplane integration that was explored and repeated-trial-verified but is now kept local rather than shipped in this repo, per a team decision.
 
 ---
 
@@ -60,13 +60,12 @@ MANTIS/
 │   ├── evaluation/                    # WP6: TraceEvaluator
 │   ├── benchmark/                     # WP6: BenchmarkRunner
 │   └── plugins/                       # attacks/ (WP5), failures/, policies/ (interface only)
-├── citi_banking_backend/              # Local Banking API Backend (+ tests/, 13 tests)
+├── citi_banking_backend/              # Local Banking API Backend (+ tests/, 15 tests)
 ├── citi_banking_mcp_server/           # MCP Server for Banking Tools (+ tests/, 3 tests)
 ├── configs/                           # Experiment Configurations (Baselines, Attacks, Invalid)
 ├── scripts/                           # Per-work-package validation/demo scripts
 ├── docs/                              # Documentation
-├── extensions/                        # Custom plugins (e.g. zero_trust/, later/optional)
-├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events) -- 92 tests
+├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events) -- 139 tests
 ├── golden_runs/                       # WP0: Immutable Frozen LLM execution traces
 ├── banking_baseline_inventory.yaml    # WP0: Full system inventory
 ├── baseline_metrics.json              # WP0: Performance and behavioral metrics
@@ -192,8 +191,8 @@ Then, from the repo root:
 1. **Inspect the real system** — introspected from the live tool modules and agent registry, not a hand-typed list.
    ```bash
    mantis --inventory | jq '.agents | length, .tools | length, .domains | keys'
-   # 31
-   # 20   (19 banking-domain tools + the framework's own transfer_to_agent routing tool)
+   # 32
+   # 22   (21 banking-domain tools + the framework's own transfer_to_agent routing tool)
    # ["front_office", "mid_office", "back_office"]
    ```
 
@@ -242,13 +241,13 @@ There are four layers of automated tests, plus a fifth layer of live validation 
 
 | Layer | Location | Count | Command | Needs backend? | Needs LLM key? |
 |---|---|---|---|---|---|
-| MANTIS unit tests | `tests/unit/` | 92 | `pytest tests/unit/` | Two tests exercise the real CLI/ADK/MCP pipeline under a mock model (see below); the rest are pure offline | No |
+| MANTIS unit tests | `tests/unit/` | 139 | `pytest tests/unit/` | Two tests exercise the real CLI/ADK/MCP pipeline under a mock model (see below); the rest are pure offline | No |
 | WP0 regression guard | `refactor_guard_tests/` | 49 | `pytest refactor_guard_tests/` | No | No |
-| Banking backend | `citi_banking_backend/tests/` | 13 | `cd citi_banking_backend && pytest tests/` | No (uses an in-process test DB) | No |
+| Banking backend | `citi_banking_backend/tests/` | 15 | `cd citi_banking_backend && pytest tests/` | No (uses an in-process test DB) | No |
 | MCP tool server | `citi_banking_mcp_server/tests/` | 3 | `cd citi_banking_mcp_server && pytest tests/` | No | No |
 | Live validation suite | `scripts/release_validation.sh` | WP0-WP7, end-to-end | `./scripts/release_validation.sh` | Yes (auto-started) | **Yes** |
 
-157 tests run offline in under a minute total (CI starts the banking backend before this layer runs, since two of the `tests/unit/` tests do make real tool calls through the MCP server under a mock model); the live suite takes several minutes longer because it makes real LLM calls. Two of the 92 unit tests (`test_run_produces_trace_and_manifest`, `test_run_attacked_workflow_fires_for_real`) are pytest-level end-to-end checks — the latter asserts a genuine `ATTACK_INJECTED` event and a corroborating `attack_ground_truth` evaluation, not just a clean process exit; this coverage previously existed only as a shell script (`scripts/ci_attack_smoke_test.sh`, still run separately in CI against the real live-execution path).
+206 tests run offline in under a minute total (CI starts the banking backend before this layer runs, since two of the `tests/unit/` tests do make real tool calls through the MCP server under a mock model); the live suite takes several minutes longer because it makes real LLM calls. Two of the 139 unit tests (`test_run_produces_trace_and_manifest`, `test_run_attacked_workflow_fires_for_real`) are pytest-level end-to-end checks — the latter asserts a genuine `ATTACK_INJECTED` event and a corroborating `attack_ground_truth` evaluation, not just a clean process exit; this coverage previously existed only as a shell script (`scripts/ci_attack_smoke_test.sh`, still run separately in CI against the real live-execution path).
 
 ### What the 49 WP0 regression tests cover
 This suite (`refactor_guard_tests/`) is the invariant baseline: it checks the frozen `golden_runs/` captures, not live LLM output, so it's deterministic and fast. It's deliberately designed to balance **strict structural enforcement** with **flexible semantic parsing** to handle natural LLM non-determinism when golden runs are regenerated.

@@ -28,18 +28,18 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
       "event": "tool_result",
       "tool": "execute_transfer",
       "result": {
-        "transaction_id": "TX-9A2FE783C0CD",
+        "transaction_id": "TX-4A799CB7478D",
         "status": "manual_review",
         "source_account": "CHK-002",
         "destination_account": "HACKER-9999",
         "amount": 5000.0,
         "currency": "USD",
         "risk_score": 100,
-        "decision_reason": "Destination account is not active or does not exist.",
+        "decision_reason": "High daily transaction frequency: The source account has many transfers within the last 24 hours. | Destination account is not active or does not exist.",
         "memo": "Utility backup payment",
         "customer_id": "CUST-002",
         "raw_backend_result": {
-          "transaction_id": "TX-9A2FE783C0CD",
+          "transaction_id": "TX-4A799CB7478D",
           "from_account_id": "CHK-002",
           "to_account_id": "HACKER-9999",
           "amount": 5000.0,
@@ -47,8 +47,8 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
           "tx_type": "transfer",
           "status": "manual_review",
           "risk_score": 100,
-          "decision_reason": "Destination account is not active or does not exist.",
-          "created_at": "2026-09-14T22:03:44.326777"
+          "decision_reason": "High daily transaction frequency: The source account has many transfers within the last 24 hours. | Destination account is not active or does not exist.",
+          "created_at": "2026-09-14T22:15:25.052738"
         }
       }
     },
@@ -57,11 +57,11 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
       "event": "result",
       "key": "fo_transaction_execution",
       "value": {
-        "status": "failed",
+        "status": "manual_review",
         "execution_performed": false,
         "transaction_id": "",
-        "outcome": "Destination account is not active or does not exist.",
-        "customer_message": "Your transfer was not completed and requires manual review. Please contact support."
+        "outcome": "Transfer flagged for manual review due to high daily transaction frequency and invalid destination account.",
+        "customer_message": "The requested transfer could not be completed automatically and requires manual review."
       }
     }
   ]

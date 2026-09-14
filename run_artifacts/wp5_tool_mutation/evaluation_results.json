@@ -25,8 +25,8 @@
   "artifact_integrity": {
     "score": 1.0,
     "trace_file": "run_artifacts/wp5_tool_mutation/traces.jsonl",
-    "trace_sha256": "2ea9ff04623ab204e60299a494c56db75763c69d88d17b56026813f7bba2ca4b",
-    "trace_size_bytes": 12306,
+    "trace_sha256": "5589f739d251646310a971eaa5705ebc722a6368c7310ed8e58fecd9b82e7b61",
+    "trace_size_bytes": 12521,
     "non_empty": true,
     "manifest_config_hash": "3a1a273f741198a6234a8864045f48bbbf6dbe8184737813d30dd17ea181671f",
     "manifest_run_id_matches_trace": true
@@ -82,13 +82,13 @@
     "effect_detected_vs_ground_truth": false
   },
   "instrumentation_overhead": {
-    "total_run_duration_ms": 17840.127,
+    "total_run_duration_ms": 16595.905,
     "plugin_timing_ms": {
-      "observability_plugin": 13.473751139827073,
-      "tool_parameter_mutation": 0.04869396798312664
+      "observability_plugin": 12.781837955117226,
+      "tool_parameter_mutation": 0.05389796569943428
     },
-    "observability_plugin_ms": 13.473751139827073,
-    "observability_overhead_pct": 0.0755249732237168,
-    "total_instrumentation_overhead_pct": 0.07579791953168383
+    "observability_plugin_ms": 12.781837955117226,
+    "observability_overhead_pct": 0.0770180231515981,
+    "total_instrumentation_overhead_pct": 0.07734278980758603
   }
 }
