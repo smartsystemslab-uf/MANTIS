@@ -630,14 +630,20 @@ The ADK system is the orchestration layer. It decides which agent should act and
 
 ## 13. Reset the Database
 
-Because transfer execution changes balances and creates transaction records, you may want to reset the database during testing.
+Because transfer execution changes balances and creates transaction records, you may want to reset the database during testing. Repeated live testing can otherwise silently accumulate transactions between the same accounts (e.g. from repeatedly running the same attack config) and skew a fraud-monitoring agent's decision on a later, unrelated run -- a real issue this project hit and fixed.
 
-Stop the backend server, then run:
+Stop the backend server, then run `init_db.py --reset` (added specifically to fix that class of issue): it drops and recreates the schema before reseeding, so it's a true reset rather than the additive-by-primary-key behavior of a plain reseed.
 
 ```powershell
 cd D:\Lab\Citi-Bank-P3\citi_banking_backend
 .\.venv\Scripts\Activate.ps1
 
+python scripts\init_db.py --reset
+```
+
+The manual file-delete approach still works too, if you'd rather not rely on the flag:
+
+```powershell
 Remove-Item .\data\citi_banking.db -ErrorAction SilentlyContinue
 python scripts\init_db.py
 ```

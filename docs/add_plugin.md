@@ -18,15 +18,16 @@ class CustomDelayPlugin:
     name = "custom_delay"
     supported_stages = {"tool"}
 
-    def __init__(self, target_tool: str, delay_seconds: float = 1.0, **kwargs):
+    def __init__(self, target_tool: str, delay_ms: float = 1000.0, **kwargs):
         self.target_tool = target_tool
-        self.delay_seconds = delay_seconds
+        self.delay_ms = delay_ms
 
     def apply(self, ctx: HookContext) -> HookResult:
         if ctx.target == self.target_tool:
-            import time
-            time.sleep(self.delay_seconds)
-            return HookResult(action=HookAction.CONTINUE)
+            # Declarative: the plugin reports how long to wait; the hook
+            # bus itself performs the wait (see the DELAY row below) --
+            # the plugin never calls time.sleep() itself.
+            return HookResult(action=HookAction.DELAY, delay_ms=self.delay_ms)
         return HookResult(action=HookAction.CONTINUE)
 ```
 
@@ -67,7 +68,7 @@ attack:
   target: get_customer_context
   parameters:
     target_tool: get_customer_context
-    delay_seconds: 2.5
+    delay_ms: 2500
 ```
 
 ---
