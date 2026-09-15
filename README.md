@@ -79,8 +79,12 @@ MANTIS/
 # 1. Install prerequisites (Python 3.12+ required)
 python -m venv .venv
 source .venv/bin/activate
-pip install -e .
+pip install -e ".[exporters]"  # the extra is needed for `pytest tests/unit/` to
+                                # collect cleanly -- omit it for a plain `pip install -e .`
+                                # only if you don't intend to run the full test suite
 pip install -r citi_banking_backend/requirements.txt
+pip install -r citi_banking_mcp_server/requirements.txt  # needed for `cd citi_banking_mcp_server
+                                                          # && pytest tests/` below (pytest-asyncio)
 
 # 2. Configure model access (only needed for `mantis --run`, not for tests
 #    or --validate/--inventory/--generate-schemas/--evaluate)

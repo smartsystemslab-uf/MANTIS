@@ -7,7 +7,17 @@ Verifies each adapter against the real OpenTelemetry SDK, not just "no
 exception was raised" -- confirms a real span processor gets attached to
 the global TracerProvider, and that exporting is safe with no collector
 listening (a run must never fail because telemetry couldn't be delivered).
+
+Requires the optional `exporters` dependency group (`pip install -e
+".[exporters]"`) -- skipped, not failed, when it isn't installed, since
+the base install this project documents for the offline test suite does
+not include it.
 """
+import pytest
+
+pytest.importorskip("opentelemetry.exporter.otlp.proto.grpc.trace_exporter")
+pytest.importorskip("opentelemetry.exporter.otlp.proto.http.trace_exporter")
+
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 

@@ -23,7 +23,11 @@ python -m venv .venv
 source .venv/bin/activate
 
 # Install in editable mode with development dependencies
-pip install -e ".[dev]"
+pip install -e ".[dev,exporters]"
+
+# Install the banking backend's and MCP server's own dependencies
+pip install -r citi_banking_backend/requirements.txt
+pip install -r citi_banking_mcp_server/requirements.txt
 ```
 
 Verify the CLI is installed:

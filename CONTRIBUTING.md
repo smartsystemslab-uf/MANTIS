@@ -14,13 +14,17 @@ Thank you for your interest in contributing to MANTIS (Modular Agent Network Tes
    ```bash
    python -m venv .venv
    source .venv/bin/activate
-   pip install -e ".[dev]"
+   pip install -e ".[dev,exporters]"
+   pip install -r citi_banking_backend/requirements.txt
+   pip install -r citi_banking_mcp_server/requirements.txt
    ```
 
-3. Run the unit and regression test suites:
+3. Run the test suites:
    ```bash
    pytest tests/unit/
    pytest refactor_guard_tests/
+   (cd citi_banking_backend && pytest tests/)
+   (cd citi_banking_mcp_server && pytest tests/)
    ```
 
 ## Contribution Workflow

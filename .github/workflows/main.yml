@@ -20,8 +20,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .
+        pip install -e ".[exporters]"
         pip install -r citi_banking_backend/requirements.txt
+        pip install -r citi_banking_mcp_server/requirements.txt
         pip install pytest flake8
         
     - name: Lint with flake8
@@ -47,7 +48,15 @@ jobs:
     - name: Baseline Refactor Guard Tests (WP0 Invariants)
       run: |
         pytest refactor_guard_tests/ -v
-        
+
+    - name: Banking Backend Tests
+      run: |
+        (cd citi_banking_backend && pytest tests/ -v)
+
+    - name: MCP Server Tests
+      run: |
+        (cd citi_banking_mcp_server && pytest tests/ -v)
+
     - name: Artifact & Schema Validation
       run: |
         mantis --generate-schemas
