@@ -1,9 +1,9 @@
-"""Builds presentations/MANTIS_Presentation_<DATE>.pptx, its read-aloud script
-(.md and .pdf), from the recorded results in results/.
+"""Builds presentations/MANTIS_Presentation_<DATE>.pptx (speaker notes embedded,
+written for a reader) from the recorded results in results/.
 
     python presentations/_build/build_mantis_presentation.py
 
-Numbers on the results slides and in the script are computed from
+Numbers on the results slides and in the notes are computed from
 results/extended_*.json, never typed by hand. Requires python-pptx and Pillow.
 """
 import glob
@@ -93,9 +93,9 @@ def slide(bg=PAPER, title_text="", notes="", minutes=1.0):
 
 # =============================================================== 1. Title
 s = slide(NAVY, "MANTIS", (
-    "Thanks for having us. This is MANTIS: a testbed where you attack a bank of AI agents on purpose, and know exactly what happened. "
-    "In the next few minutes: what it is, how it's built, the attacks and results, how a new person gets started, and a short live demo. "
-    "Everything runs on a realistic banking system with synthetic data."), 0.5)
+    "MANTIS is a testbed for attacking a bank of AI agents on purpose and knowing exactly what happened. "
+    "This deck covers what it is, how it is built, the attacks and results, how a newcomer gets started and extends it, and a short walkthrough of a run. "
+    "Everything runs on a realistic banking system with synthetic data only."), 0.5)
 text(s, 0.8, 1.6, 8.8, 1.6, "MANTIS", size=88, bold=True, color=WHITE)
 text(s, 0.8, 3.25, 9.0, 0.5, "Modular Agent Network Testbed for Instrumentation and Security", size=20, color=MIST)
 text(s, 0.8, 4.15, 9.0, 1.4, "Attack a bank of AI agents on purpose — and know exactly what happened.", size=30, bold=True, color=WHITE)
@@ -107,9 +107,9 @@ for i, lab in enumerate(["input", "agent", "interaction", "tool", "output"]):
 # =============================================================== 2. What it is
 s = slide(PAPER, "What MANTIS is", (
     "Banks are splitting work across specialist AI agents, so every hand-off between agents is a new place for an attack or a failure. "
-    "MANTIS tests that on purpose. One: the system under test is a real banking multi-agent system, and we never modify it. "
-    "Two: an experiment is just a YAML file. Three: every run leaves evidence and an automatic verdict. "
-    "To be clear, it's a testbed. It measures what an attack did. It is not a detector or a defense product."), 0.75)
+    "MANTIS tests that on purpose. The system under test is a real banking multi-agent system that is never modified. "
+    "An experiment is a YAML file, and every run leaves evidence plus an automatic verdict. "
+    "MANTIS is a testbed: it measures what an attack or fault did. It is not a detector or a defense product."), 0.75)
 title(s, "What MANTIS is")
 cols = [("A real system under test", "An unmodified banking multi-agent system: 3 domains, 34 agents, 27 tools, a real backend."),
         ("Experiments are configuration", "Attacks, faults and defenses are plugins declared in YAML. No banking code changes."),
@@ -128,10 +128,10 @@ text(s, 0.95, 5.3, 11.5, 1.0,
 
 # =============================================================== 3. Architecture
 s = slide(PAPER, "Architecture", (
-    "The architecture is simple. Everything an agent does passes one of five checkpoints: request in, agent start, model call, tool action, result out. "
-    "They sit on a hook bus, and any plugin can watch or change what passes. Attacks inject a fault, failures simulate ordinary faults, "
-    "defenses deny or redact, and observability records everything, always last. "
-    "At each checkpoint a plugin can continue, mutate, deny, error, skip or delay. The key point: no banking code changes to run an experiment."), 1.0)
+    "Everything an agent does passes one of five checkpoints: request in, agent start, model call, tool action, result out. "
+    "The checkpoints sit on a hook bus, and any plugin can watch or change what passes. "
+    "Attacks inject a fault, failures simulate ordinary faults, defenses deny or redact, and observability records everything, always last. "
+    "At each checkpoint a plugin can continue, mutate, deny, error, skip or delay. No banking code changes are needed to run an experiment."), 1.0)
 title(s, "Architecture: five control points, one hook bus")
 labels = [("INPUT", "request arrives"), ("AGENT", "an agent starts"), ("INTERACTION", "agent ↔ model"), ("TOOL", "an action executes"), ("OUTPUT", "final result")]
 x0 = 0.915
@@ -163,10 +163,10 @@ for i, (a, b) in enumerate([("Continue", "observe only"), ("Mutate", "change dat
 
 # =============================================================== 4. What has been built
 s = slide(PAPER, "What has been built", (
-    "Here is what's been built from the start. The foundation was nine work packages: a frozen baseline of the original system with 49 regression tests, "
-    "a modular runtime, YAML configuration, the hook bus, an observability pipeline, the first attack and fault plugins, scoring and benchmarks, a command-line workflow, and tests, docs and an open-source release. "
+    "The foundation was nine work packages: a frozen baseline of the original system with 49 regression tests, a modular runtime, YAML configuration, the hook bus, "
+    "an observability pipeline, the first attack and fault plugins, scoring and benchmarks, a command-line workflow, and tests, docs and an open-source release. "
     "Since then: more exporters, three new banking workloads, a second institution, six defenses, a browser UI, and an extended scenario library. "
-    "Seven hundred seventy offline tests back it."), 1.0)
+    f"{TESTS} offline tests back it."), 1.0)
 title(s, "What has been built")
 card(s, 0.6, 1.45, 6.0, 5.3, fill=TINT)
 text(s, 0.85, 1.55, 5.5, 0.35, "FOUNDATION  ·  WP0–WP8", size=12, bold=True, color=SLATE)
@@ -193,9 +193,10 @@ text(s, 8.85, 5.95, 3.7, 0.4, "offline tests passing", size=13, color=MIST)
 
 # =============================================================== 5. System under test
 s = slide(PAPER, "The system under test", (
-    "This is what we test against. A root agent routes each request to a front, mid or back office. "
-    "Front office is customer-facing: transaction monitoring, chatbot, disputes. Mid office is operations planning, representative assist and loan pre-approval. "
-    "Back office is end-of-day reconciliation and SAR escalation. That's 34 agents and 27 tools on a real banking service, so when a transfer runs, real state changes. Data is synthetic."), 0.75)
+    "A root agent routes each request to a front, mid or back office. "
+    "Front office is customer-facing: transaction monitoring, a chatbot, and disputes. Mid office covers operations planning, representative assist and loan pre-approval. "
+    "Back office covers end-of-day reconciliation and SAR escalation. "
+    "In total there are 34 agents and 27 tools on a real banking service, so when a transfer runs, real state changes. All data is synthetic."), 0.75)
 title(s, "The system under test: a synthetic bank")
 rect(s, 4.9, 1.4, 3.53, 0.62, fill=NAVY, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.3)
 text(s, 4.9, 1.4, 3.53, 0.62, "Root entry agent", size=16, bold=True, color=WHITE, align="c", anchor="m")
@@ -215,9 +216,9 @@ for i, (n, l) in enumerate([("34", "agents"), ("27", "tools"), ("3", "domains"),
 
 # =============================================================== 6. YAML
 s = slide(PAPER, "An experiment is a YAML file", (
-    "A complete experiment: the scenario, the attack plugin, where it attaches, and what a correct run looks like. "
-    "This one hijacks a routing decision, so a suspicious transaction is quietly sent to the ordinary customer-service path. "
-    "Four commands drive everything: validate, run, evaluate, and campaign to sweep a folder."), 0.75)
+    "A complete experiment names the scenario, the attack plugin, where it attaches, and what a correct run looks like. "
+    "This example hijacks a routing decision, so a suspicious transaction is quietly sent down the ordinary customer-service path. "
+    "Four commands drive everything: validate checks every name against the live system, run executes the experiment, evaluate scores it against the baseline, and campaign sweeps a folder of configs into one report."), 0.75)
 title(s, "An experiment is a YAML file")
 rect(s, 0.6, 1.5, 6.55, 4.75, fill=NAVY, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.03)
 code = ["experiment:", "  name: wp5_route_confusion", "  domain: front_office", "  scenario: front_office_monitoring", "",
@@ -237,9 +238,9 @@ for i, (h, cmd, desc) in enumerate([("Validate", "mantis --validate cfg.yaml", "
 
 # =============================================================== 7. Evidence
 s = slide(PAPER, "What every run produces", (
-    "Every run leaves a folder of evidence: a manifest that fingerprints the config and the model, a full trace, hook coverage, and a seven-dimension scorecard. "
-    "The idea to take away: fired is not the same as succeeded. Here an attack rewrote a small transfer into five thousand dollars. It fired. "
-    "The bank's own validation rejected it, so no money moved. We report those as two separate answers."), 0.75)
+    "Every run leaves a folder of evidence: a manifest that fingerprints the configuration and the model, a full trace, hook coverage, and a seven-dimension scorecard. "
+    "The key idea is that fired is not the same as succeeded. In the example, an attack rewrote a small transfer into five thousand dollars and fired, "
+    "but the bank's own validation rejected it, so no money moved. The two answers are reported separately, and three event types keep attacks, defenses and ordinary faults from being confused."), 0.75)
 title(s, "What every run produces")
 arts = [("run_manifest.json", "Config hash, seed, environment and the model used."),
         ("traces.jsonl", "Every agent, message, tool call and plugin action."),
@@ -264,8 +265,8 @@ text(s, 0.9, 5.1, 11.5, 1.5, [
 # =============================================================== 8. Catalog
 s = slide(PAPER, "The attack and fault catalog", (
     "Five families. Prompt injection adds an instruction to an agent's model request. Message spoofing forges a message from a trusted colleague agent. "
-    "Route confusion hijacks a hand-off. Tool mutation rewrites a real action's arguments just before it runs. And reliability faults simulate delays, timeouts and corrupted results. "
-    f"We kept faults separate from attacks on purpose. The extended library adds {n_att} variants across all three domains."), 0.75)
+    "Route confusion hijacks a hand-off. Tool mutation rewrites a real action's arguments just before it runs. Reliability faults simulate delays, timeouts and corrupted results. "
+    f"Faults are kept separate from attacks on purpose. The extended library adds {n_att} variants across all three domains."), 0.75)
 title(s, "The attack and fault catalog")
 table(s, 0.6, 1.5, [2.7, 1.6, 4.4], [
     ["Prompt injection", "Interaction", "Adds an instruction to an agent’s request to the model"],
@@ -284,8 +285,8 @@ for i, (n, l) in enumerate([(str(n_att), "attack and fault variants"), ("8", "in
 s = slide(PAPER, "Results: the original five families", (
     "Each family was run five times against the live system. Prompt injection and message spoofing reached the model every time, and it resisted. "
     "The transfer mutation fired every time and the bank's own validation stopped it. "
-    "Two results stand out: route confusion diverted a suspicious transaction away from compliance review every time, and the ledger attack posted to the wrong batch unnoticed. "
-    f"Faults were handled safely and logged as anomalies. All on {MODEL_LINE}."), 0.75)
+    "Two results stand out: route confusion diverted a suspicious transaction away from compliance review every time, and the ledger attack posted to the wrong batch without being caught downstream. "
+    f"Faults were handled safely and logged as anomalies. All results use {MODEL_LINE}."), 0.75)
 title(s, "Results: the original five families, 5 live trials each")
 table(s, 0.6, 1.5, [3.4, 3.0, 5.73], [
     ["Prompt injection", "Interaction · front office", "Fired 5/5 — model resisted 5/5"],
@@ -300,9 +301,9 @@ text(s, 0.6, 6.4, 12.1, 0.5, f"Live model: {MODEL_LINE}; real backend; synthetic
 
 # =============================================================== 10. Defenses
 s = slide(PAPER, "Six defenses on the same framework", (
-    "Defenses use the same mechanism as attacks, so you can compare them equally. We built six, covering all five categories of security mechanism in the plan. "
-    "The rule is to re-check backend truth rather than trust the model. An amount limit, a routing guard that can redirect back to the compliant path, a batch integrity guard, response redaction, a rate limit, and action isolation. "
-    "All six were verified live. This covers the gaps we measured; it is not a comprehensive defense suite."), 1.0)
+    "Defenses use the same mechanism as attacks, so they can be compared on equal terms. Six were built, covering all five categories of security mechanism in the plan. "
+    "The design rule is to re-check backend truth rather than trust the model's decision: an amount limit, a routing guard that can redirect back to the compliant path, a batch integrity guard, "
+    "response redaction, a rate limit, and action isolation. All six were verified live. They cover the gaps that were measured and are not a comprehensive defense suite."), 1.0)
 title(s, "Six defenses on the same framework", sub="Design rule: re-check backend truth — never trust what the LLM decided.")
 defs = [("Amount-limit guardrail", "Guardrail", "Denied a mutated $5,000 transfer before the backend."),
         ("Risk-aware routing guard", "Policy check", "5/5 deny and redirect; ends in manual review."),
@@ -320,11 +321,11 @@ for i, (n, cat, res) in enumerate(defs):
 
 # =============================================================== 11. Extended library
 s = slide(PAPER, "The extended scenario library", (
-    f"To widen coverage we built a library on the same architecture: {n_base} measured baselines and {n_att} attack variants, {tot_trials} scored live trials, each starting from a fresh database and recording what changed. "
-    f"Four things stood out. Where an attack lands matters: the same payload changed the outcome in {e_mon} of {n_mon} trials at the monitor, but bypassed manual review in {e_dec} of {n_dec} at the decision agent. "
-    f"Silence can be the outcome: the SAR agent filed nothing {sup_pi} of {n_pi} times. "
-    f"Data-level effects are invisible to tool-use scoring: in {data_hits} of {data_n} trials the database changed while it flagged {data_flagged}, which is why we record the database. "
-    "And faults propagate through workflows. Read these as what happened in this sample, five trials per configuration, one model."), 1.5)
+    f"The extended library was built on the same architecture: {n_base} measured baselines and {n_att} attack variants, {tot_trials} scored live trials, each starting from a fresh database and recording what changed. "
+    f"Four findings stand out. Where an attack lands matters: the same payload changed the outcome in {e_mon} of {n_mon} trials at the monitor, but bypassed manual review in {e_dec} of {n_dec} at the decision agent. "
+    f"Silence can be the outcome: the injected SAR agent filed nothing {sup_pi} of {n_pi} times. "
+    f"Data-level effects are invisible to tool-use scoring: in {data_hits} of {data_n} trials the database changed while it flagged {data_flagged}, which is why every trial records the database. "
+    "Faults also propagate through workflows. These are counts from this sample: five trials per configuration and one model."), 1.5)
 title(s, f"Extended library: {n_base} baselines, {n_att} attack variants")
 for i, (n, l) in enumerate([(str(n_base), "measured baselines"), (str(n_att), "attack and fault variants"), (str(tot_trials), "scored live trials")]):
     x = 0.6 + i * 4.115
@@ -346,9 +347,9 @@ text(s, 0.6, 6.7, 12.1, 0.4, f"Counts from this sample: 5 trials per configurati
 
 # =============================================================== 12. Getting started
 s = slide(PAPER, "Getting started", (
-    "Getting started is five steps. Clone and pip install. Add a model key to the environment file, or skip it: mock mode runs the whole pipeline with no key. "
-    "Start the backend. Run inventory to confirm the install. Then run your first experiment with one command. "
-    "The guide folder in the repository has every command written out."), 0.75)
+    "Getting started takes five steps: clone and pip install; add a model key to the environment file, or skip it and use mock mode, which runs the whole pipeline with no key; "
+    "start the backend; run inventory to confirm the install; and run a first experiment with one command. "
+    "Four starter campaigns in configs/campaigns/ give a quick tour, and the GUIDE folder in the repository has every command written out."), 0.75)
 title(s, "Getting started: five steps")
 gs = [("Clone and install", "git clone …/MANTIS.git\npip install -e \".[exporters]\""),
       ("Add a model key", "cp .env.example .env\n(or use mock mode)"),
@@ -372,9 +373,9 @@ text(s, 7.1, 5.2, 5.4, 1.3, [{"text": "Four starter campaigns", "size": 16, "bol
 
 # =============================================================== 13. Add your own attack
 s = slide(PAPER, "Adding your own attack", (
-    "Adding an attack has two paths. Config only takes about two minutes: copy a config, change the target and parameters, then validate, run, evaluate. "
-    "A brand-new plugin is about fifteen lines: a name, a control point, and one apply function. Register it with two lines, point a YAML at it, and run. "
-    "I tried this from scratch: validated, run and scored in about ten seconds in mock mode with no key. You never touch the banking agents."), 1.0)
+    "There are two paths. Config only takes about two minutes: copy a config, change the target and parameters, then validate, run and evaluate. "
+    "A brand-new plugin is about fifteen lines: a name, a control point, and one apply function, registered with two lines and pointed at by a YAML file. "
+    "Tried from scratch, this was validated, run and scored in about ten seconds in mock mode with no key. The banking agents are never touched."), 1.0)
 title(s, "Adding your own attack", sub="Two paths: configuration only, or a new plugin of about fifteen lines.")
 card(s, 0.6, 1.85, 4.55, 4.5, fill=TINT)
 chip(s, 0.85, 2.05, 2.5, 0.36, "Path A · config only · ~2 min", fill=TEAL, size=11)
@@ -407,10 +408,10 @@ text(s, 0.6, 6.55, 12.1, 0.5, "Tried from scratch: about ten seconds in mock mod
 
 # =============================================================== 14. Demo
 s = slide(PAPER, "See it run", (
-    "Now a short live demo of one built-in attack. Step one, open the project. Step two, inventory: it lists the agents, tools and domains MANTIS sees. "
-    "Step three, run the route-confusion attack against the real system. Step four, evaluate: did it fire, did the outcome change. "
-    "Step five, open the trace viewer in the browser. Pick the run, load the trace, and you can see the attack event, the scorecard, and which checkpoints fired. "
-    "The attack fired and the workflow ended completed where manual review was expected. If the model is slow, I have this run recorded and ready."), 1.0)
+    "A walkthrough of one built-in attack in five steps. Open the project; run inventory to list the agents, tools and domains MANTIS sees; "
+    "run the route-confusion attack against the real system; evaluate to see whether it fired and whether the outcome changed; "
+    "then open the trace viewer in the browser, pick the run, and load its trace, scorecard and hook coverage. "
+    "In this run the attack fired and the workflow ended completed where manual review was expected, so the scorecard flags the diverted outcome."), 1.0)
 title(s, "See it run: one attack, five steps")
 dsteps = [("cd MANTIS && source .venv/bin/activate", "Open the project."),
           ("mantis --inventory", "The agents, tools and domains MANTIS sees."),
@@ -427,17 +428,17 @@ text(s, 8.85, 2.15, 3.7, 2.6, [
     {"runs": [("Trace  ", {"bold": True, "color": AMBER}), ("an ATTACK_INJECTED event where routing was hijacked", {})], "space_after": 10},
     {"runs": [("Scorecard  ", {"bold": True, "color": AMBER}), ("attack fired; outcome diverged from baseline", {})], "space_after": 10},
     {"runs": [("Hook coverage  ", {"bold": True, "color": AMBER}), ("which checkpoints were reached", {})]}], size=14, color=WHITE)
-text(s, 8.85, 4.9, 3.7, 0.35, "BEFORE THE CALL", size=12, bold=True, color=AMBER)
+text(s, 8.85, 4.9, 3.7, 0.35, "BEFORE YOU RUN", size=12, bold=True, color=AMBER)
 text(s, 8.85, 5.3, 3.7, 1.4, [
-    {"text": "Backend up on port 8000; key in .env.", "space_after": 6},
-    {"text": "Fallback: open a recorded run in the UI.", "color": MIST}], size=12.5, color=WHITE)
+    {"text": "Backend up on port 8000; key in .env (or mock mode).", "space_after": 6},
+    {"text": "No key? Open a recorded run in the UI.", "color": MIST}], size=12.5, color=WHITE)
 
 # =============================================================== 15. Scope, next, questions
 s = slide(PAPER, "Scope, next steps, and questions", (
-    "Scope today: ground truth is a declared baseline plus each plugin's own report, so this is a measurement instrument, not a detector. "
+    "Scope today: ground truth is a declared baseline plus each plugin's own report, so MANTIS is a measurement instrument, not a detector. "
     f"Results are five trials per configuration on one model, {MODEL_LINE}, with synthetic data. "
-    "Next: the main direction is more scenarios, new workflows, attack variants and baselines, added as configs over the same architecture. Then larger campaigns, more models, more institutions, and evaluating other teams' guardrails through the same framework. "
-    "To sum up: a real system, five control points, plugins in YAML, automatic scoring, and a new person can run an experiment in minutes. Happy to take questions."), 1.25)
+    "Next: more scenarios (new workflows, attack variants and baselines added as configs over the same architecture), then larger campaigns, more models, more institutions, and evaluating other guardrails on the same framework. "
+    "In short: a real system, five control points, plugins declared in YAML, automatic scoring, and a new person can run an experiment in minutes. The code and step-by-step guide are in the repository."), 1.25)
 title(s, "Scope, next steps, and questions")
 card(s, 0.6, 1.5, 5.95, 3.9, fill=TINT)
 text(s, 0.85, 1.65, 5.4, 0.4, "SCOPE TODAY", size=12, bold=True, color=SLATE)
@@ -459,21 +460,5 @@ text(s, 6.78, 5.95, 5.95, 0.8, "Code and step-by-step guide: the repository (GUI
 # ---------------------------------------------------------------- save deck + script
 OUT_DIR.mkdir(exist_ok=True)
 d.save(OUT_DIR / f"{NAME}.pptx")
-SCRIPT = [(t, n, len(n.split()) / 140) for t, n, _ in SCRIPT]  # spoken pace ~140 wpm
-total_min = sum(m for _, _, m in SCRIPT)
-lines = [f"# MANTIS presentation — read-aloud script", "",
-         f"Deck: `{NAME}.pptx` · {len(SCRIPT)} slides · about {round(total_min)} minutes at a relaxed pace (shortened version).", "",
-         "Read each block as written; it is in spoken language. The same text is in the speaker notes of each slide. "
-         "If you are short on time, skip slides 7 and 12 and go straight to the demo.", ""]
-for i, (t, n, m) in enumerate(SCRIPT, 1):
-    lines += [f"## Slide {i} — {t}", f"*About {max(round(m * 60 / 15) * 15, 15)} seconds*", "", n, ""]
-(OUT_DIR / f"{NAME}_Script.md").write_text("\n".join(lines))
-try:
-    subprocess.run(["pandoc", str(OUT_DIR / f"{NAME}_Script.md"), "-o", str(OUT_DIR / f"{NAME}_Script.pdf"),
-                    "--pdf-engine=tectonic", "-V", "geometry:margin=1in", "-V", "fontsize=12pt"],
-                   check=True, capture_output=True)
-    pdf = " + .pdf"
-except Exception as e:  # pandoc/tectonic optional
-    pdf = f" (script PDF skipped: {e.__class__.__name__})"
-print(f"saved {NAME}.pptx ({d.n} slides), script .md{pdf}, ~{round(total_min)} min")
+print(f"saved {NAME}.pptx ({d.n} slides), notes embedded in the deck")
 print("\n".join(WARNINGS) if WARNINGS else "no text-fit warnings")
