@@ -546,6 +546,35 @@ mantis --evaluate run_artifacts/pressure_demo
 
 The scorecard reports `attack_fired: true` and the trace holds one `ATTACK_INJECTED` event. Open it with `mantis --ui`. Tried from scratch, this flow takes about ten seconds in mock mode.
 
+## 9.2 Where everything goes
+
+| What you add | Where it lives |
+|---|---|
+| Experiment config (YAML) | `configs/`, in a folder of your choice (`mantis --run` accepts any path). Keep shipped folders for shipped configs; use `configs/my_experiments/` for yours. |
+| Its results | `run_artifacts/<experiment.name>/`: manifest, `traces.jsonl`, `evaluation_results.json`, `hook_coverage.json`. Named after `experiment.name` inside the YAML, not the file name. |
+| Attack payload text | `attacks/*.txt`, referenced by `payload_file` (path relative to the repo root). A missing file logs a warning and falls back to a generic string. |
+| New attack or failure plugin | `src/mantis/plugins/attacks/` (or `plugins/failures/`) plus two registration lines in `src/mantis/core/registry.py`. |
+| New defense plugin | `src/mantis/plugins/policies/`, registered the same way, and its name added to `_POLICY_PLUGIN_NAMES` in `src/mantis/observability/plugin.py` so its actions are logged as `POLICY_EVENT`. |
+| New scenario (prompt) | `src/mantis/banking/scenarios/__init__.py`. The prompt must name the identifiers its tools need. |
+| Scored trials | Whatever you pass to `--output` (for example `results/my_campaign.json`). The default file is the one Paper 1 cites, so always pass your own. |
+| Campaign sweeps | Runs in `run_artifacts/`, report in `run_artifacts/campaign_run_<timestamp>/report.md`. |
+| Configs made in the UI | `configs/ui_generated/` (scratch, git-ignored). |
+
+## 9.3 Novice checklist for adding an experiment
+
+1. **Name it uniquely.** `experiment.name` decides the run folder. Reusing a shipped name overwrites that run, and the shipped `wp5_*`, `wp6_*` and baseline runs are recorded paper evidence.
+2. **Validate first.** `mantis --validate <config>` checks every name against the live system. It costs nothing and needs no key.
+3. **Try it in mock mode.** `MANTIS_MOCK_LLM=1 mantis --run <config>` needs no key. The mock model only reaches the root agent (`user_proxy_agent`), so use it to check that your plugin loads and fires; use a live model for real behavior.
+4. **Set expectations in the config.** Fill `evaluation.expected_tools` and `expected_terminal_state` with the scenario's recorded behavior, so the scorecard measures a real effect. Check them against an unattacked baseline run; a typo here turns a check into a permanent, meaningless score.
+5. **Read the result.** `mantis --evaluate run_artifacts/<name>`, then `mantis --ui` and open the run. Look for `ATTACK_INJECTED`, `POLICY_EVENT` or `ANOMALY` in the trace and `attack_ground_truth` in the scorecard. "Fired" and "succeeded" are separate questions; for effects on data, check the database, not only tool use (section 5.4).
+6. **Test what you add.**
+   - A new plugin gets a unit test under `tests/unit/` (copy the shape of `test_rate_limit_guardrail.py`), including one that runs it through the real hook bus.
+   - Configs in `configs/attacks`, `baselines`, `extensions`, `scenarios`, `extended` and `campaigns` are validated automatically by `tests/unit/test_config_library.py` (unique names, existing payload files, known tools). If you keep configs in a new folder, add it to `CONFIG_DIRS` there.
+   - Run `pytest tests/unit`.
+7. **Keep paper evidence frozen.** The test suite and `scripts/release_validation.sh` rewrite some tracked run folders (`ci_mock_prompt_injection`, `front_office_monitoring`, `wp5_*`, `wp6_*`). Before committing, run `git status` and `git checkout --` any of those that show as modified.
+8. **Never commit a key.** `.env` is git-ignored. Do not paste a key into a config, a doc or a script.
+9. **Document it.** One line in `CHANGELOG.md`, and a mention in the README or this guide if it is a new feature.
+
 # 10. Testing and Release Validation
 
 ```bash
