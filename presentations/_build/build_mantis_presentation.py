@@ -510,29 +510,35 @@ text(s, 0.6, 6.55, 12.1, 0.6, "Tried from scratch: plugin, registration, config,
 
 # =============================================================== 16. Demo
 s = slide(PAPER, "See it run", (
-    "Now a short live demo of the attacks that are already built in, and how you see what they did. "
-    "First, inventory: it introspects the live system and lists agents, tools, and domains. "
-    "Second, I run three of the current attacks with one command each: route confusion, funds-transfer mutation, and prompt injection. Each one fires against the real banking system and a live model. "
-    "Third, this is how you see the result. Every run leaves a scorecard: did the attack fire, did the outcome change, and which checkpoints were reached. I can open it as a table in the trace viewer, or read it straight from the evaluation file. "
-    "Fourth, I run the same route-confusion attack with the routing guard switched on, and we compare the two runs side by side. "
-    "The checklist on the right is what I have in place. If the model is slow, I have recorded runs ready to open, so the demo does not depend on a live call."), 1.0)
-title(s, "See it run: the current attacks, and how to see the result")
-dsteps = [("mantis --inventory", "Live list of agents, tools and domains."),
-          ("mantis --run <attack>.yaml   ×3", "Route confusion, funds-transfer mutation, prompt injection — real agents, real backend."),
-          ("mantis --evaluate run_artifacts/<run>   ·   mantis --ui", "See it: fired, effect vs baseline, hook coverage — as a scorecard and in the trace viewer."),
-          ("mantis --run <attack + routing guard>.yaml", "Same attack with the guard on: it redirects, and the run ends in manual review.")]
-for i, ((cmd, desc), y) in enumerate(zip(dsteps, [1.5, 2.65, 3.8, 5.2])):
+    "Now a short live demo: how to run one of the built-in attacks and see what it did. It is five steps. "
+    "Step one, open the project and activate the environment. "
+    "Step two, run inventory. It introspects the live system and lists the agents, tools, and domains, so we know MANTIS sees the bank. "
+    "Step three, run the route-confusion attack. This starts the real banking agents against the real backend and a live model, and injects the attack. "
+    "Step four, evaluate the run. This scores the trace against the recorded baseline: did the attack fire, and did the outcome change. "
+    "Step five, open the trace viewer in the browser. Every run appears in the list. I open this one and you can see the attack event in the trace, the scorecard, and which checkpoints were reached. "
+    "In this run the attack fired and the workflow ended completed where manual review was expected, so the scorecard flags the diverted outcome. "
+    "If the model is slow, I have this run recorded and ready to open, so the demo does not depend on a live call."), 1.0)
+title(s, "See it run: one attack, five steps")
+dsteps = [("cd MANTIS && source .venv/bin/activate", "Open the project and activate the environment."),
+          ("mantis --inventory", "Live list of the agents, tools and domains MANTIS sees."),
+          ("mantis --run configs/attacks/wp5_route_confusion.yaml", "Run the attack: real agents, real backend, live model."),
+          ("mantis --evaluate run_artifacts/<run>", "Score the run: did it fire, did the outcome change."),
+          ("mantis --ui   →   http://127.0.0.1:8765", "Open the trace viewer in the browser: trace, scorecard and hook coverage.")]
+for i, ((cmd, desc), y) in enumerate(zip(dsteps, [1.5, 2.6, 3.7, 4.8, 5.9])):
     badge(s, 0.6, y + 0.05, 0.55, str(i + 1), fill=TEAL, size=16)
-    text(s, 1.35, y, 6.7, 0.32, cmd, size=11, font="Courier New", color=TEAL)
-    text(s, 1.35, y + 0.42, 6.7, 0.7, desc, size=13, color=INK)
-card(s, 8.4, 1.5, 4.33, 5.05, fill=NAVY)
-text(s, 8.7, 1.7, 3.8, 0.4, "BEFORE THE CALL", size=12, bold=True, color=AMBER)
-text(s, 8.7, 2.15, 3.85, 4.3, [
-    {"text": "Activate the virtual environment.", "space_after": 10},
-    {"text": "Start the banking backend on port 8000.", "space_after": 10},
-    {"text": "UF Navigator key in .env; confirm the endpoint is reachable from the network you present on.", "space_after": 10},
-    {"text": "Fallback: open the checked-in run_artifacts folders in the UI — no live model call needed.", "space_after": 10},
-    {"text": "Demo data is synthetic; nothing touches a production system.", "color": MIST}], size=14, color=WHITE)
+    text(s, 1.35, y, 6.9, 0.32, cmd, size=11.5, font="Courier New", color=TEAL)
+    text(s, 1.35, y + 0.4, 6.9, 0.55, desc, size=13, color=INK)
+card(s, 8.6, 1.5, 4.13, 5.3, fill=NAVY)
+text(s, 8.85, 1.7, 3.7, 0.4, "WHAT YOU WILL SEE", size=12, bold=True, color=AMBER)
+text(s, 8.85, 2.15, 3.7, 2.4, [
+    {"runs": [("Trace  ", {"bold": True, "color": AMBER}), ("an ATTACK_INJECTED event where the routing was hijacked", {})], "space_after": 10},
+    {"runs": [("Scorecard  ", {"bold": True, "color": AMBER}), ("attack fired; outcome diverged from the baseline", {})], "space_after": 10},
+    {"runs": [("Hook coverage  ", {"bold": True, "color": AMBER}), ("which checkpoints were reached", {})]}], size=13, color=WHITE)
+text(s, 8.85, 4.75, 3.7, 0.35, "BEFORE THE CALL", size=12, bold=True, color=AMBER)
+text(s, 8.85, 5.15, 3.7, 1.55, [
+    {"text": "Backend running on port 8000; key in .env.", "space_after": 6},
+    {"text": "Fallback: open the recorded run in the UI.", "space_after": 6},
+    {"text": "Synthetic data only.", "color": MIST}], size=12, color=WHITE)
 
 # =============================================================== 17. Scope and next
 s = slide(PAPER, "Scope today, and where it goes next", (
