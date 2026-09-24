@@ -604,21 +604,6 @@ lines = [f"# MANTIS presentation — read-aloud script", "",
          "If you are short on time, skip slides 8, 16 and 17 and shorten slides 4–5 to one sentence each.", ""]
 for i, (t, n, m) in enumerate(SCRIPT, 1):
     lines += [f"## Slide {i} — {t}", f"*About {m:g} min*", "", n, ""]
-lines += ["## Appendix: demo commands (copy and paste)", "",
-          "Paste this whole block into one terminal. It starts the backend if it is not already running, "
-          "runs the route-confusion attack under a `demo_` name (so recorded paper evidence is never overwritten), "
-          "scores it, and opens the trace viewer.", "", "```bash",
-          "cd ~/Desktop/MANTIS && source .venv/bin/activate",
-          "curl -s http://127.0.0.1:8000/health > /dev/null || (nohup python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > /tmp/mantis_backend.log 2>&1 &)",
-          "sleep 5 && curl -s http://127.0.0.1:8000/health",
-          "mantis --inventory",
-          "sed 's/name: wp5_route_confusion/name: demo_route_confusion/' configs/attacks/wp5_route_confusion.yaml > /tmp/demo_route_confusion.yaml",
-          "mantis --run /tmp/demo_route_confusion.yaml",
-          "mantis --evaluate run_artifacts/demo_route_confusion",
-          "(open http://127.0.0.1:8765 &) ; mantis --ui", "```", "",
-          "In the browser: pick `demo_route_confusion` in the Run dropdown, then **Load trace** (look for the `ATTACK_INJECTED` row), "
-          "**View evaluation** (`attack_ground_truth`, `workflow_outcome`) and **View hook coverage**. Stop the viewer with Ctrl+C.", "",
-          "If the model is slow or the network is blocked, skip the run and pick an existing run such as `wp5_route_confusion` in the dropdown.", ""]
 (OUT_DIR / f"{NAME}_Script.md").write_text("\n".join(lines))
 try:
     subprocess.run(["pandoc", str(OUT_DIR / f"{NAME}_Script.md"), "-o", str(OUT_DIR / f"{NAME}_Script.pdf"),

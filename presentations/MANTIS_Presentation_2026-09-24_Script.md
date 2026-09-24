@@ -93,22 +93,3 @@ To close the technical part, here is the scope today and where it goes next. Tod
 *About 1 min*
 
 To summarize. MANTIS gives you a real banking multi-agent system to test against. It gives you five control points where anything can be observed or changed. Attacks, faults, and defenses are all plugins, declared in YAML. Automatic scoring separates whether something fired from whether it succeeded, and every run leaves evidence you can reproduce. A new person can be running an experiment within minutes and adding an attack of their own within an afternoon, and no banking code changes. The code and the step-by-step guide are in the repository. I would be glad to take your questions.
-
-## Appendix: demo commands (copy and paste)
-
-Paste this whole block into one terminal. It starts the backend if it is not already running, runs the route-confusion attack under a `demo_` name (so recorded paper evidence is never overwritten), scores it, and opens the trace viewer.
-
-```bash
-cd ~/Desktop/MANTIS && source .venv/bin/activate
-curl -s http://127.0.0.1:8000/health > /dev/null || (nohup python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > /tmp/mantis_backend.log 2>&1 &)
-sleep 5 && curl -s http://127.0.0.1:8000/health
-mantis --inventory
-sed 's/name: wp5_route_confusion/name: demo_route_confusion/' configs/attacks/wp5_route_confusion.yaml > /tmp/demo_route_confusion.yaml
-mantis --run /tmp/demo_route_confusion.yaml
-mantis --evaluate run_artifacts/demo_route_confusion
-(open http://127.0.0.1:8765 &) ; mantis --ui
-```
-
-In the browser: pick `demo_route_confusion` in the Run dropdown, then **Load trace** (look for the `ATTACK_INJECTED` row), **View evaluation** (`attack_ground_truth`, `workflow_outcome`) and **View hook coverage**. Stop the viewer with Ctrl+C.
-
-If the model is slow or the network is blocked, skip the run and pick an existing run such as `wp5_route_confusion` in the dropdown.
