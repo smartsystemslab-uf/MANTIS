@@ -580,6 +580,14 @@ text(s, 8.2, 3.7, 4.5, 1.6, [{"text": "Code: github.com/smartsystemslab-uf/MANTI
                               {"text": "Guide: the GUIDE/ folder in the repository"}], size=14, color=MIST)
 text(s, 0.6, 6.75, 12, 0.4, "Synthetic data only", size=13, color=MIST)
 
+# ---------------------------------------------------------------- reorder: architecture up front (after slide 2)
+_ids = d.prs.slides._sldIdLst
+_el = list(_ids)
+_arch = _el[5]
+_ids.remove(_arch)
+_ids.insert(2, _arch)
+SCRIPT.insert(2, SCRIPT.pop(5))
+
 # ---------------------------------------------------------------- save deck + script
 OUT_DIR.mkdir(exist_ok=True)
 d.save(OUT_DIR / f"{NAME}.pptx")
@@ -587,7 +595,7 @@ total_min = sum(m for _, _, m in SCRIPT)
 lines = [f"# MANTIS presentation — read-aloud script", "",
          f"Deck: `{NAME}.pptx` · {len(SCRIPT)} slides · about {round(total_min)} minutes at a relaxed pace.", "",
          "Read each block as written; it is in spoken language. The same text is in the speaker notes of each slide. "
-         "If you are short on time, skip slides 8, 16 and 17 and shorten slides 3–4 to one sentence each.", ""]
+         "If you are short on time, skip slides 8, 16 and 17 and shorten slides 4–5 to one sentence each.", ""]
 for i, (t, n, m) in enumerate(SCRIPT, 1):
     lines += [f"## Slide {i} — {t}", f"*About {m:g} min*", "", n, ""]
 (OUT_DIR / f"{NAME}_Script.md").write_text("\n".join(lines))

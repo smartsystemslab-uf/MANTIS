@@ -2,7 +2,7 @@
 
 Deck: `MANTIS_Presentation_2026-09-24.pptx` · 18 slides · about 21 minutes at a relaxed pace.
 
-Read each block as written; it is in spoken language. The same text is in the speaker notes of each slide. If you are short on time, skip slides 8, 16 and 17 and shorten slides 3–4 to one sentence each.
+Read each block as written; it is in spoken language. The same text is in the speaker notes of each slide. If you are short on time, skip slides 8, 16 and 17 and shorten slides 4–5 to one sentence each.
 
 ## Slide 1 — MANTIS — features, architecture, attacks, and results
 *About 1 min*
@@ -14,25 +14,25 @@ Good morning, everyone, and thank you for having us. Today I'm going to walk you
 
 So what is MANTIS? It is a testbed for multi-agent AI systems in banking. Banks are starting to split work across specialist AI agents: one watches transactions, one screens for fraud, one checks policy, one makes the decision. That is powerful, and it also means every hand-off between agents, every message, and every tool call is a new place where something can be attacked, or can simply fail. MANTIS gives you a way to test that on purpose, and to measure the result. There are three ideas behind it. One: the system under test is a real banking multi-agent system, and it is never modified. Two: an experiment is just a configuration file. You declare an attack, a fault, or a defense in YAML and it plugs in. Three: every run produces evidence and an automatic verdict, with enough recorded to reproduce it. And the boundary, stated plainly: MANTIS is a testbed. It measures what an attack or a fault did. It is not a detector, and it is not a defense product.
 
-## Slide 3 — What has been built: the foundation
+## Slide 3 — Architecture: five control points, one hook bus
+*About 1.25 min*
+
+The architecture is deliberately simple. Everything an agent does passes one of five checkpoints: when a request arrives, when an agent starts, when an agent talks to the model, when a tool is about to act, and when the final result leaves. Those checkpoints sit on what we call the hook bus. Any plugin can register on the bus and see, and optionally change, what is passing through. There are four kinds of plugin. Attacks inject a fault. Failures simulate ordinary faults such as a delay or a timeout. Defenses are guardrails that deny, redirect, or redact. And the observability plugin, which records everything and always runs last, so it sees what every earlier plugin did. At a checkpoint a plugin can do one of six things: continue, mutate, deny, error, skip, or delay. The consequence that matters is that we never modify the banking code to run an experiment.
+
+## Slide 4 — What has been built: the foundation
 *About 1.5 min*
 
 Here is what has been built, starting from the beginning. The foundation was delivered as nine work packages. We started by freezing and characterizing the original banking system: forty-nine regression tests against recorded golden runs, so the system under test stays the same. Next we modularized it behind a runtime adapter that reports the live inventory of agents and tools. Then configuration: experiments are YAML, checked against a schema and against the live system, and every configuration is hashed. The hook bus and the five control points came next; that is the heart of the architecture. On top of it, the observability pipeline: JSONL traces, OpenTelemetry, MLflow, and a manifest for every run. Then the first attack and fault plugins: prompt injection, message spoofing, route confusion, tool mutation, and reliability faults. Then evaluation and benchmarking: seven scored dimensions, and a measured instrumentation overhead of about point-two percent. Then the command-line workflow, including campaigns that sweep a whole folder. And finally the tests, documentation, and an open-source release.
 
-## Slide 4 — What has been built since: the extensions
+## Slide 5 — What has been built since: the extensions
 *About 1.5 min*
 
 Since the foundation, we've extended the testbed in six directions, all on the same plugin interface. First, exporters: traces can go to Jaeger, Grafana Tempo, Langfuse, and Phoenix, in addition to OpenTelemetry and MLflow, each turned on with one configuration line. Second, more banking workloads: dispute filing, suspicious-activity escalation, and loan pre-approval, each backed by real persisted records; the loan decision is a deterministic rule, not an opinion. Third, a second institution: a regional credit union that runs the same agents against its own data and a stricter threshold, so the same request gets a genuinely different decision. Fourth, six defenses that cover every category of security mechanism in the plan: guardrails, policy checks, response filters, rate limits, and isolation. Fifth, a small user interface: a config editor, a trace viewer, and campaign reports. And sixth, an extended scenario library: nineteen measured baselines and twenty-six attack variants, each run with database-level evidence. Every run now also records which model served it.
 
-## Slide 5 — The system under test
+## Slide 6 — The system under test
 *About 1 min*
 
 This is what we test against. Every request enters through a root agent, which routes it to a front-office, mid-office, or back-office router. The front office is customer-facing: transaction monitoring with fraud and compliance review, a customer-service chatbot, and dispute filing. The mid office is internal: operations planning and staffing, representative assist, and loan pre-approval. The back office is end-of-day reconciliation and reporting, and suspicious-activity escalation. In total that is thirty-four agents and twenty-seven tools, with two institution profiles. It sits on a real banking service and database, so when a transfer executes or a report is filed, real state changes. That is what makes the results meaningful. And all of the data is synthetic.
-
-## Slide 6 — Architecture: five control points, one hook bus
-*About 1.25 min*
-
-The architecture is deliberately simple. Everything an agent does passes one of five checkpoints: when a request arrives, when an agent starts, when an agent talks to the model, when a tool is about to act, and when the final result leaves. Those checkpoints sit on what we call the hook bus. Any plugin can register on the bus and see, and optionally change, what is passing through. There are four kinds of plugin. Attacks inject a fault. Failures simulate ordinary faults such as a delay or a timeout. Defenses are guardrails that deny, redirect, or redact. And the observability plugin, which records everything and always runs last, so it sees what every earlier plugin did. At a checkpoint a plugin can do one of six things: continue, mutate, deny, error, skip, or delay. The consequence that matters is that we never modify the banking code to run an experiment.
 
 ## Slide 7 — An experiment is a YAML file
 *About 1 min*
