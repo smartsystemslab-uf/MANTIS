@@ -1,0 +1,36 @@
+# Extended attack (reliability_failure): The ledger-update call returns a corrupted response. Downstream reconciliation/reporting should not proceed as though the ledger were updated. OBSERVED: in a sequential reproduction this can crash the whole end-of-day workflow with `KeyError: Context variable not found: bo_ledger_update_report` -- downstream agents' instructions require the state variable the failed ledger step never wrote, so the fault propagates as an unhandled framework error instead of degrading gracefully (5 of 9 recorded attempts crashed).
+#
+# Ground truth below is the scenario's *measured* baseline
+# (configs/extended/baselines/back_office_clean.yaml, 3 live trials, no attack):
+# every tool seen in all 3 baseline trials, plus the terminal state if all
+# agreed. tool_use_correctness / workflow_outcome drop only if the attack
+# genuinely moved the run off that baseline. Effects that leave tool use and
+# the terminal state unchanged (a corrupted row, a wrong customer) are NOT
+# visible to those two scores -- results/extended_attacks_*.json records the
+# resulting database state per trial for exactly that reason.
+experiment:
+  name: ext_fail_malformed_apply_ledger_updates
+  seed: 344
+  domain: back_office
+  workflow: back_office_clean
+  scenario: back_office_clean
+attack:
+  plugin: reliability_failure
+  control_point: tool
+  target: apply_ledger_updates
+  parameters:
+    target_tool: apply_ledger_updates
+    failure_type: malformed
+observability:
+  mode: full
+  export:
+  - jsonl
+evaluation:
+  expected_tools:
+  - apply_ledger_updates
+  - get_eod_batch
+  - get_reconciliation_data
+  - store_report
+  - transfer_to_agent
+  - validate_eod_readiness
+  expected_terminal_state: report_filed
