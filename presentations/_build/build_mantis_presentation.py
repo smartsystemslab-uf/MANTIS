@@ -510,21 +510,21 @@ text(s, 0.6, 6.55, 12.1, 0.6, "Tried from scratch: plugin, registration, config,
 
 # =============================================================== 16. Demo
 s = slide(PAPER, "See it run", (
-    "If we have time, here is a five-minute live demo with four commands. "
+    "Now a short live demo of the attacks that are already built in, and how you see what they did. "
     "First, inventory: it introspects the live system and lists agents, tools, and domains. "
-    "Second, run the route-confusion attack and evaluate it. The attack fires, and the scorecard flags that the outcome diverged from the recorded baseline. "
-    "Third, run the same attack with the routing guard switched on. The attack still fires, the guard restores the compliant route, and the run ends in manual review, like the baseline. "
-    "Fourth, open the trace viewer on both runs and compare them side by side. "
-    "The checklist on the right is what I have in place before we start. If the model is slow, I have the recorded runs ready to open in the UI, so the demo does not depend on a live call."), 1.0)
-title(s, "See it run: five minutes, four commands")
-dsteps = [("mantis --inventory", "Live list of agents, tools and domains — introspected, not hand-maintained."),
-          ("mantis --run configs/attacks/wp5_route_confusion.yaml\nmantis --evaluate run_artifacts/wp5_route_confusion", "The attack fires; the scorecard flags the diverted outcome."),
-          ("mantis --run configs/extensions/guardrail_recovers_route_confusion.yaml", "Same attack, guard on: it redirects, and the run ends in manual review."),
-          ("mantis --ui", "Open the trace viewer on both runs and compare.")]
-for i, ((cmd, desc), y) in enumerate(zip(dsteps, [1.5, 2.65, 4.2, 5.35])):
+    "Second, I run three of the current attacks with one command each: route confusion, funds-transfer mutation, and prompt injection. Each one fires against the real banking system and a live model. "
+    "Third, this is how you see the result. Every run leaves a scorecard: did the attack fire, did the outcome change, and which checkpoints were reached. I can open it as a table in the trace viewer, or read it straight from the evaluation file. "
+    "Fourth, I run the same route-confusion attack with the routing guard switched on, and we compare the two runs side by side. "
+    "The checklist on the right is what I have in place. If the model is slow, I have recorded runs ready to open, so the demo does not depend on a live call."), 1.0)
+title(s, "See it run: the current attacks, and how to see the result")
+dsteps = [("mantis --inventory", "Live list of agents, tools and domains."),
+          ("mantis --run <attack>.yaml   ×3", "Route confusion, funds-transfer mutation, prompt injection — real agents, real backend."),
+          ("mantis --evaluate run_artifacts/<run>   ·   mantis --ui", "See it: fired, effect vs baseline, hook coverage — as a scorecard and in the trace viewer."),
+          ("mantis --run <attack + routing guard>.yaml", "Same attack with the guard on: it redirects, and the run ends in manual review.")]
+for i, ((cmd, desc), y) in enumerate(zip(dsteps, [1.5, 2.65, 3.8, 5.2])):
     badge(s, 0.6, y + 0.05, 0.55, str(i + 1), fill=TEAL, size=16)
-    text(s, 1.35, y, 6.7, 0.32 if "\n" not in cmd else 0.58, cmd, size=11, font="Courier New", color=TEAL, line_spacing=1.1)
-    text(s, 1.35, y + (0.62 if "\n" in cmd else 0.4), 6.7, 0.5, desc, size=13, color=INK)
+    text(s, 1.35, y, 6.7, 0.32, cmd, size=11, font="Courier New", color=TEAL)
+    text(s, 1.35, y + 0.42, 6.7, 0.7, desc, size=13, color=INK)
 card(s, 8.4, 1.5, 4.33, 5.05, fill=NAVY)
 text(s, 8.7, 1.7, 3.8, 0.4, "BEFORE THE CALL", size=12, bold=True, color=AMBER)
 text(s, 8.7, 2.15, 3.85, 4.3, [
