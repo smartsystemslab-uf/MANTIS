@@ -57,6 +57,16 @@ async def run_experiment(config_path: str):
 
     load_dotenv()
 
+    # A live run with no key otherwise fails deep inside the agent runtime with
+    # an opaque "unhandled errors in a TaskGroup". Say what is wrong up front.
+    # (A custom endpoint via UF_NAVIGATOR_BASE_URL may legitimately need no key.)
+    if (os.getenv("MANTIS_MOCK_LLM", "").lower() not in {"1", "true", "yes"}
+            and not os.getenv("UF_NAVIGATOR_API_KEY")
+            and "api.ai.it.ufl.edu" in os.getenv("UF_NAVIGATOR_BASE_URL", "https://api.ai.it.ufl.edu")):
+        print("❌ No model key: set UF_NAVIGATOR_API_KEY in .env (copy .env.example) for a live run, "
+              "or use MANTIS_MOCK_LLM=1 for a keyless mock run.", file=sys.stderr)
+        sys.exit(1)
+
     with open(config_path, "r") as f:
         config_data = yaml.safe_load(f)
     

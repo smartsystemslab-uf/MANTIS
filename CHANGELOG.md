@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `presentations/` (dated decks with read-aloud scripts and an index) and a README refresh covering the extensions, campaigns, UI and where new experiments live.
 
 ### Fixed
+- A live `mantis --run` with no `UF_NAVIGATOR_API_KEY` failed with an opaque "unhandled errors in a TaskGroup"; it now stops up front with a clear message pointing at `.env` or `MANTIS_MOCK_LLM=1` (a custom `UF_NAVIGATOR_BASE_URL` is not blocked). Found by running a fresh clone with no key.
 - `mantis --validate` rejected the shipped `ci_mock_prompt_injection.yaml` (target `user_proxy_agent`, the real root agent) although `--run` accepts it; the root agent is now a valid attack target.
 - Every prompt-injection config pointed at `attacks/prompt_01.txt`, which was never committed, so the plugin silently injected its built-in fallback. The file now exists with identical text (Paper 1's evidence stays reproducible) and a missing payload file logs a warning.
 - `file_dispute` persisted a real case with `unknown` for customer, transaction, and reason; it now validates its arguments. `file_sar_report` requires an existing exception case.
@@ -29,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Output-stage `MUTATE` now reaches the caller (`runner.run_message` dispatches a second `after_output` with the real result), with a guard so it is not misread as a second workflow end.
 
 ### Tests
-- 768 offline tests passing, 165 skipped by design (was 139), including parametrized consistency suites over every shipped config and scenario.
+- 770 offline tests passing, 165 skipped by design (was 139), including parametrized consistency suites over every shipped config and scenario.
 
 ## [Unreleased] - 2026-09-14
 

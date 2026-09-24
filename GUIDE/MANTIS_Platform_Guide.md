@@ -579,7 +579,7 @@ The scorecard reports `attack_fired: true` and the trace holds one `ATTACK_INJEC
 # 10. Testing and Release Validation
 
 ```bash
-pytest tests/unit                 # 768 passing offline tests (165 skip by design)
+pytest tests/unit                 # 770 passing offline tests (165 skip by design)
 pytest refactor_guard_tests       # 49 regression guards against frozen golden runs
 ./scripts/release_validation.sh   # live end-to-end check of WP0-WP7
 ```
