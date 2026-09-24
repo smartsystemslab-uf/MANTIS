@@ -502,7 +502,8 @@ class PressurePrefixPlugin:
         self.target_agent, self.message = target_agent, message
 
     def apply(self, ctx):
-        if ctx.metadata.get("specific_hook") == "before_message" and ctx.source == self.target_agent:
+        hook = ctx.metadata.get("specific_hook")
+        if hook == "before_message" and ctx.source == self.target_agent:
             last = ctx.payload["messages"][-1]
             for part in getattr(last, "parts", None) or []:
                 if getattr(part, "text", None) is not None:
