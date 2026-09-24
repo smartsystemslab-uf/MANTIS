@@ -539,7 +539,7 @@ s = slide(PAPER, "Scope today, and where it goes next", (
     "To close the technical part, here is the scope today and where it goes next. Today, ground truth is a declared baseline plus each plugin's own report, so MANTIS is a measurement instrument rather than an independent detector. "
     f"Results use five trials per configuration and one model, {MODEL_LINE}. The data and backend are synthetic and sandboxed. Scoring covers actions and outcomes, with database snapshots for data-level effects. "
     "And the defenses cover the gaps we measured. "
-    "Where it goes next follows naturally from that. Larger campaigns along the same axes to tighten the numbers. More models, so results can be compared across model families. "
+    "Where it goes next follows naturally from that. The main direction is more scenarios: we already grew the library to nineteen baselines and twenty-six attack variants without changing the architecture, and the same recipe, a new prompt or config over the existing agents, tools and seeded data, adds more workflows, more attack variants, and more measured baselines. Then larger campaigns along the same axes to tighten the numbers. More models, so results can be compared across model families. "
     "More institution profiles and workflow patterns. And a place to evaluate other people's guardrails through the same framework, against the same attacks."), 1.0)
 title(s, "Scope today, and where it goes next")
 card(s, 0.6, 1.5, 5.95, 4.95, fill=TINT)
@@ -553,6 +553,7 @@ text(s, 0.85, 2.1, 5.45, 4.3, [
 card(s, 6.78, 1.5, 5.95, 4.95, fill=NAVY)
 text(s, 7.03, 1.65, 5.4, 0.4, "WHERE IT GOES NEXT", size=12, bold=True, color=AMBER)
 text(s, 7.03, 2.1, 5.45, 4.3, [
+    {"text": "More scenarios: new banking workflows, more attack variants and more measured baselines, each added as a config over the same architecture.", "space_after": 9},
     {"text": "Larger campaigns along the same axes, to tighten the numbers.", "space_after": 9},
     {"text": "More models, so results compare across model families.", "space_after": 9},
     {"text": "More institution profiles and banking workflow patterns.", "space_after": 9},
