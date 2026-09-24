@@ -252,6 +252,17 @@ For repeated trials, parallel workers, and database evidence, use the trial
 runner (Section 5.5). Paper 1's evidence and this week's larger campaign were
 both produced with it.
 
+## 4.2a Starter campaigns
+
+Four small, themed campaigns ship in `configs/campaigns/`, meant for a first look at what the testbed offers: `1_attack_tour` (one attack from each family), `2_defenses` (the six defenses), `3_workloads` (dispute, SAR, loan, a second institution) and `4_new_attack_surfaces` (extended-library attacks on the newer workflows). Each is one command, a few minutes on a live model:
+
+```bash
+mantis --campaign configs/campaigns/1_attack_tour
+mantis --ui        # open http://127.0.0.1:8765 and pick a camp_* run
+```
+
+Runs land in `run_artifacts/camp_*` and the report in `run_artifacts/campaign_run_<timestamp>/report.md`. They are copies of shipped configs under new names, so they never overwrite recorded paper evidence. See `configs/campaigns/README.md`.
+
 ## 4.3 The minimal UI
 
 ```bash

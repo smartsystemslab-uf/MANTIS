@@ -1,0 +1,23 @@
+# Starter campaign 3_workloads: The banking workflows added after the original paper, with no attack: dispute, SAR, loan, and a second institution.
+# Copy of configs/extensions/back_office_sar_escalation.yaml under a camp_ name, so a campaign never overwrites recorded paper evidence.
+# Post-Paper Extension demo: an additional banking workload (coding plan
+# §11 "Additional banking workloads and deployment variants") -- a
+# genuinely new back-office business process (reviewing an existing
+# reconciliation exception and escalating it to a formal Suspicious
+# Activity Report), not a new prompt into the existing EOD workflow. See
+# sar_escalation_agent in src/mantis/banking/back_office/__init__.py.
+experiment:
+  name: camp_3_sar_escalation
+  seed: 106
+  domain: back_office
+  workflow: back_office_sar_escalation
+  scenario: back_office_sar_escalation
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - get_exception_case
+    - file_sar_report

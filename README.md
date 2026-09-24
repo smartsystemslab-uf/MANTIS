@@ -168,6 +168,8 @@ The `scripts/` directory has one verification script per work package, each wrap
    mantis --report run_artifacts/campaign_run_<timestamp>
    ```
 
+   New to MANTIS? Start with the four small campaigns in [`configs/campaigns/`](configs/campaigns/README.md), for example `mantis --campaign configs/campaigns/1_attack_tour`.
+
 8. **WP8: Full Release Validation**
    Runs everything above in sequence, end to end:
 

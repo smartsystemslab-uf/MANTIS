@@ -22,3 +22,4 @@ configs/ui_generated/
 # Per-trial scratch dirs of the extended scenario campaign; the recorded evidence is
 # results/extended_*.json (each trial carries its own tools, outcome, and database snapshot).
 run_artifacts/ext_*/
+run_artifacts/camp_*/

@@ -1,0 +1,36 @@
+# Starter campaign 1_attack_tour: One attack from each family, so you see the whole catalog in one sweep.
+# Copy of configs/attacks/wp5_failure_delay.yaml under a camp_ name, so a campaign never overwrites recorded paper evidence.
+experiment:
+  name: camp_1_delay_fault
+  seed: 107
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+# Reliability failure control (WP5), not a security attack: simulates a
+# slow (but not broken) upstream dependency for search_policies -- the
+# real HookAction.DELAY (hooks/__init__.py), added as a first-class bus
+# action rather than the plugin calling time.sleep() itself. Distinct from
+# failure_type: timeout below: the call still succeeds afterward, it's
+# only slow.
+attack:
+  plugin: reliability_failure
+  control_point: tool
+  target: search_policies
+  parameters:
+    target_tool: search_policies
+    failure_type: delay
+    delay_ms: 1500
+
+observability:
+  mode: full
+  export: [jsonl]
+
+# The delay must not change the workflow's actual outcome -- a slow
+# dependency should degrade latency, not correctness. Same ground truth
+# as the undisturbed baseline (baseline_metrics.json): search_policies is
+# still genuinely called and the case still reaches manual review.
+evaluation:
+  expected_tools:
+    - search_policies
+  expected_terminal_state: manual_review

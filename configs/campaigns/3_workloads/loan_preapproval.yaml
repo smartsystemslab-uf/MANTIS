@@ -1,0 +1,25 @@
+# Starter campaign 3_workloads: The banking workflows added after the original paper, with no attack: dispute, SAR, loan, and a second institution.
+# Copy of configs/extensions/mid_office_loan_preapproval.yaml under a camp_ name, so a campaign never overwrites recorded paper evidence.
+# Post-Paper Extension demo: an additional banking workload (coding plan
+# §11 "Additional banking workloads and deployment variants") -- a
+# genuinely new mid-office business process (a real, computed loan
+# pre-approval decision persisted to loan_applications), not a reworded
+# prompt into the existing informational loan_agent. See
+# loan_preapproval_agent in src/mantis/banking/mid_office/__init__.py and
+# BankingRepository.create_loan_application for the real decision rule
+# (approve if requested amount <= 25% of the customer's total account
+# balance, else refer to manual underwriting).
+experiment:
+  name: camp_3_loan_preapproval
+  seed: 106
+  domain: mid_office
+  workflow: mid_office_loan_preapproval
+  scenario: mid_office_loan_preapproval
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - submit_loan_application

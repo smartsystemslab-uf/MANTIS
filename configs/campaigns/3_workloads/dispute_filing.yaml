@@ -1,0 +1,21 @@
+# Starter campaign 3_workloads: The banking workflows added after the original paper, with no attack: dispute, SAR, loan, and a second institution.
+# Copy of configs/extensions/front_office_card_dispute.yaml under a camp_ name, so a campaign never overwrites recorded paper evidence.
+# Post-Paper Extension demo: an additional banking workload (coding plan
+# §11 "Additional banking workloads and deployment variants") -- a
+# genuinely new front-office business process (filing and tracking a
+# transaction dispute), not a new prompt into an existing workflow. See
+# dispute_resolution_agent in src/mantis/banking/front_office/__init__.py.
+experiment:
+  name: camp_3_dispute_filing
+  seed: 42
+  domain: front_office
+  workflow: front_office_card_dispute
+  scenario: front_office_card_dispute
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - file_dispute

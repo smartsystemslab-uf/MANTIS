@@ -21,7 +21,7 @@ from mantis.core.registry import plugin_registry, workflow_registry
 from mantis.runtime.adapter import NativeBankingAdapter
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CONFIG_DIRS = ["attacks", "baselines", "extensions", "scenarios", "extended"]
+CONFIG_DIRS = ["attacks", "baselines", "extensions", "scenarios", "extended", "campaigns"]
 
 
 def _shipped_configs():
