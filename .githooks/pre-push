@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Opt-in guard (enable once with:  git config core.hooksPath .githooks).
+# Rebuilds the platform guide before every push and stops the push if the
+# committed PDF was out of date, so a stale guide can never be pushed.
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+./scripts/build_guide.sh >/dev/null
+if ! git diff --quiet -- GUIDE/MANTIS_Platform_Guide.pdf; then
+  echo "GUIDE/MANTIS_Platform_Guide.pdf was out of date and has been rebuilt."
+  echo "Commit it (git add GUIDE && git commit -m 'docs: refresh platform guide') and push again."
+  exit 1
+fi
