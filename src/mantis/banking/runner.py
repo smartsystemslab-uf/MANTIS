@@ -5,6 +5,7 @@ from typing import Any
 
 from google.adk.runners import InMemoryRunner
 from mantis.banking.app import create_app
+from mantis.hooks import HookAction
 
 
 IMPORTANT_RESULT_KEYS = {
@@ -153,7 +154,30 @@ async def run_message(
     try:
         with redirect_stdout(buf_out), redirect_stderr(buf_err):
             events = await runner.run_debug(message)
-        return compact_debug_trace(events) if compact else events
+        result = compact_debug_trace(events) if compact else events
+        # Give an "output" control point plugin (e.g. a response-redaction
+        # filter) a real chance to see and mutate the actual final result --
+        # MantisHookPlugin.after_run_callback already dispatches
+        # before_output/after_output for the workflow's *terminal-state*
+        # event (WORKFLOW_END), but that dispatch only ever carries a
+        # {"status": outcome} string, never the real customer-facing
+        # content, because after_run_callback fires inside ADK's own
+        # lifecycle before compact_debug_trace(events) -- the step that
+        # actually extracts customer-facing text from each event's
+        # state_delta -- has even run. Dispatching a second time here, with
+        # the real compacted result, and applying any MUTATE back to what
+        # this function returns, is what makes an output-stage policy
+        # plugin's redaction genuinely reach the caller instead of being
+        # recorded in the trace while silently changing nothing -- the same
+        # class of "the mechanism doesn't actually apply" defect already
+        # found and fixed for the tool control point earlier in this
+        # project (see the hook bus's own dispatch-aggregation history).
+        if compact and mantis_plugin is not None:
+            ctx = mantis_plugin._create_ctx("output", source="run", target="final_result", payload={"events": result})
+            res = mantis_plugin.hook_bus.dispatch("after_output", ctx)
+            if res.action == HookAction.MUTATE and res.payload is not None and "events" in res.payload:
+                result = res.payload["events"]
+        return result
     finally:
         close = getattr(runner, "close", None)
         if callable(close):

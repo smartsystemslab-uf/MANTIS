@@ -1,0 +1,48 @@
+# Post-Paper Extension demo: a security-mechanism plugin (coding plan
+# §11: "guardrails, policy checks, isolation, rate limits, and response
+# filters evaluated through the same experiment framework") -- a
+# response filter, the one category of the plan's list not yet
+# represented anywhere in the repo before this extension.
+#
+# No attack is paired here: response_redaction isn't a defense against a
+# specific attack plugin, it's a standing output-stage control that
+# applies to any run's final result. front_office_transaction_execution
+# is used because its own scenario prompt names real account ids
+# (CHK-002, EXT-998) that execute_transfer's result -- and therefore the
+# customer-facing final text -- naturally repeats back, giving this
+# demo something real to redact rather than a synthetic account number
+# added just for the test.
+#
+# Observed live (real runs, not assumed): this scenario prompt's own
+# routing is genuinely variable at the top-level router -- the same
+# prompt sometimes lands on the intended execute_transfer path and
+# sometimes gets classified as a mid-office staffing/planning question
+# instead (a pre-existing property of this prompt shared with
+# guardrail_blocks_tool_mutation.yaml, unrelated to this plugin or
+# policy). Only transfer_to_agent is claimed as expected for that
+# reason. What's been verified reliably (4/4 real runs across both
+# routing outcomes, after fixing a real Unicode-hyphen gap in the
+# plugin's regex -- see response_redaction.py) is that whichever
+# account-id-bearing text the run ends up producing, the plugin's
+# after_output MUTATE reaches it and no unmasked CHK-/EXT-/CUST-shaped
+# id survives in the final trace.
+#
+# Requires a live LLM and the banking backend running on 127.0.0.1:8000
+# (needed when the run does take the execute_transfer path).
+experiment:
+  name: response_redaction_demo
+  seed: 105
+  domain: front_office
+  workflow: front_office_transaction_execution
+  scenario: front_office_transaction_execution
+
+policies:
+  - plugin: response_redaction
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - transfer_to_agent

@@ -1,0 +1,45 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "front_office_transaction_execution": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "mid_office_router"
+    },
+    {
+      "agent": "mid_office_router",
+      "event": "transfer",
+      "to": "representative_assistant_workflow"
+    },
+    {
+      "agent": "financial_data_agent",
+      "event": "tool_call",
+      "tool": "get_customer_financial_profile",
+      "args": {
+        "customer_id": "CUST-002"
+      }
+    },
+    {
+      "agent": "risk_compliance_agent",
+      "event": "tool_call",
+      "tool": "search_policies",
+      "args": {
+        "query": "internal transfer authorized existing customer internal transfer amount policy 125.50 USD compliance refrush"
+      }
+    },
+    {
+      "agent": "recommender_agent",
+      "event": "tool_call",
+      "tool": "search_product_catalog",
+      "args": {
+        "query": "high interest savings account\"  \"cash back credit card\" \"money market account\""
+      }
+    },
+    {
+      "agent": "representative_merge_agent",
+      "event": "result",
+      "key": "mid_office_representative_result",
+      "value": "**Customer Details**  \n| Field | Value |\n|-------|-------|\n| **Customer ID** | CUST‑002 |\n| **Full Name** | Daniel Chen |\n| **Email** | daniel.chen.demo@example.com |\n| **Phone** | 352‑555‑0102 |\n| **Address** | Gainesville, FL |\n| **KYC Status** | Verified |\n| **Risk Level** | Low |\n| **Checking Account** | CHK‑002 – balance **$9,494.63 USD** (active) |\n\n**Recent Transaction Summary**\n\n* A transfer of **$125.50 USD** from CHK‑002 to EXT‑998 was completed on **2026‑09‑21** (memo: “Utility backup payment”).  \n* No further action is required on this transfer – it is already posted and settled.\n\n**Product Recommendation**\n\n| Suggested Product | Why It Fits | Next Best Action |\n|-------------------|-------------|-----------------|\n| **High Yield Savings Plus** | The customer is already moving funds into a savings‑type account; a high‑yield product will boost returns on idle balances without adding risk. | Offer to transfer the balancing amount into the new savings product or activate the account automatically. |\n\n**Loan/Transfer Flow**\n\n* **flow**: `transfer_execution`  \n* **required_documents**: none  \n* **constraints**: none  \n* **recommended_next_step**: *No new transfer is needed – confirm the completed transaction to the customer.  If the customer wishes, proceed with enrolling them in the “High Yield Savings Plus” product.*\n\n**Policy & Risk Checks**\n\n| Item | Result |\n|------|--------|\n| **Policy Risk** | Low |\n| **Compliance Notes** | No policy restrictions for a $125.50 internal transfer.  Transfer within available balance and below any single‑transaction limits.  All regulatory checks satisfied. |\n| **Blocked Actions** | None |\n| **Approved Guidance Scope** | Proceed with confirmation only. |\n\n---\n\n### CSR‑Actionable Summary\n\n1. **Confirm Completion** – Notify Daniel Chen that the transfer of $125.50 USD to EXT‑998 has been successfully processed and finalized.  \n2. **Offer Product** – Suggest enrolling in “High Yield Savings Plus” to increase returns on idle balances.  \n3. **Close Ticket** – No further action is required on the transfer; proceed only if the customer expresses interest in the recommended product.  \n\n*If the customer accepts, execute the enrollment in the High Yield Savings Plus product and provide a confirmation notice.*"
+    }
+  ]
+}

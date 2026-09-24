@@ -4,6 +4,7 @@ from mantis.banking.callbacks import sanitize_tool_call_names
 from ..tools.csr_tools import get_customer_financial_profile, search_loan_playbooks, search_product_catalog
 from ..tools.ops_tools import get_operations_snapshot, get_support_playbooks, persist_validated_schedule
 from ..tools.knowledge_tools import search_policies
+from ..tools.loan_tools import submit_loan_application, get_loan_application_status
 from mantis.banking.agents.workflow_agents import build_mid_office_planning_workflow, build_representative_assist_workflow
 
 
@@ -73,8 +74,21 @@ def build_mid_office_router() -> LlmAgent:
         risk_compliance_agent=risk_compliance_agent,
         merger_agent=representative_merge_agent,
     )
+    # Post-Paper Extension (coding plan §11: "Additional banking workloads
+    # and deployment variants") -- a genuinely new mid-office process (a
+    # real, computed loan/credit-line pre-approval decision, persisted to
+    # loan_applications), not a reworded prompt into loan_agent above,
+    # which only ever returns informational process guidance
+    # (required_documents, likely_constraints) and never makes or persists
+    # an actual decision. See BankingRepository.create_loan_application.
+    loan_preapproval_agent = LlmAgent(
+        after_model_callback=sanitize_tool_call_names,
+        name="loan_preapproval_agent", model=build_model("loan_preapproval_agent"),
+        description="Submits a real loan/credit-line pre-approval application for a customer and reports the computed decision.",
+        instruction="You are the loan pre-approval agent. Call submit_loan_application with the customer id, requested amount, and stated purpose to get a real, computed pre-approval decision. If asked about an existing application, call get_loan_application_status with the application id. Return a compact JSON string with keys application_id, decision, decision_reason, and customer_message summarizing the outcome in plain language. When calling a tool, use the exact tool name only. Never include commentary, channel markers, or prefixes such as to=functions.",
+        tools=[submit_loan_application, get_loan_application_status], output_key="mo_loan_preapproval_result")
     return LlmAgent(
         after_model_callback=sanitize_tool_call_names,
-        name="mid_office_router", model=build_model("mid_office_router"), description="Routes internal operational work into planning/support or representative-assist workflows.",
-        instruction="Route internal work to the right mid-office workflow. Use mid_office_planning_workflow for operations planning, forecasting, staffing, validation, and support guidance. Use representative_assistant_workflow for internal customer-service representative assistance.",
-        sub_agents=[planning_workflow_agent, representative_assistant_workflow], output_key="mid_office_router_result")
+        name="mid_office_router", model=build_model("mid_office_router"), description="Routes internal operational work into planning/support, representative-assist, or loan pre-approval workflows.",
+        instruction="Route internal work to the right mid-office workflow. Use mid_office_planning_workflow for operations planning, forecasting, staffing, validation, and support guidance. Use representative_assistant_workflow for internal customer-service representative assistance. Use loan_preapproval_agent when the request is to submit a real loan or credit-line application and get an actual pre-approval decision (not just informational loan guidance).",
+        sub_agents=[planning_workflow_agent, representative_assistant_workflow, loan_preapproval_agent], output_key="mid_office_router_result")

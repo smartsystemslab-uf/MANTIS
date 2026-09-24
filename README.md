@@ -4,7 +4,7 @@ MANTIS is a modular, observable multi-agent security testbed for configuring age
 
 Currently, MANTIS focuses on banking multi-agent architectures (spanning Front, Mid, and Back-Office workflows) as the primary application domain for security evaluation. The goal is a **testbed to conduct mock attacks (e.g., prompt injections), capture outputs, and evaluate AI agent failures under adversarial conditions.**
 
-**At a glance:** 3 banking domains &middot; 32 agents &middot; 22 tools (21 banking-domain + 1 routing) &middot; 5 control points &middot; 4 attack plugins + 1 failure-control family + 1 security-mechanism guardrail &middot; 7 automated evaluator dimensions &middot; 7 observability export targets (jsonl, mlflow, otel, jaeger, grafana, langfuse, phoenix) &middot; 0 source edits needed to run an experiment. Numbers reflect Paper 1 plus its Post-Paper Extensions; Paper 1 itself (`paper/mantis_paper.tex`) is frozen and reports the system as it stood at that time. See `CHANGELOG.md` for what's changed since, including a Zero Trust Backplane integration that was explored and repeated-trial-verified but is now kept local rather than shipped in this repo, per a team decision.
+**At a glance:** 3 banking domains &middot; 2 institution profiles (default and a smaller regional credit union, same agents/tools/workflows with their own seeded data and policy thresholds) &middot; 34 agents &middot; 27 tools (26 banking-domain + 1 routing) &middot; 5 control points &middot; 4 attack plugins + 1 failure-control family + 6 security-mechanism plugins covering every category coding plan §11 names (amount-limit guardrail, risk-aware routing guard with an optional compliant-route recovery mode, batch integrity guard, response redaction, rate-limit guardrail, action isolation) &middot; 7 automated evaluator dimensions &middot; 7 observability export targets (jsonl, mlflow, otel, jaeger, grafana, langfuse, phoenix) &middot; 0 source edits needed to run an experiment. Numbers reflect Paper 1 plus its Post-Paper Extensions; Paper 1 itself (`paper/mantis_paper.tex`) is frozen and reports the system as it stood at that time. See `CHANGELOG.md` for what's changed since, including a Zero Trust Backplane integration that was explored and repeated-trial-verified but is now kept local rather than shipped in this repo, per a team decision.
 
 ---
 
@@ -60,12 +60,12 @@ MANTIS/
 │   ├── evaluation/                    # WP6: TraceEvaluator
 │   ├── benchmark/                     # WP6: BenchmarkRunner
 │   └── plugins/                       # attacks/ (WP5), failures/, policies/ (interface only)
-├── citi_banking_backend/              # Local Banking API Backend (+ tests/, 15 tests)
+├── citi_banking_backend/              # Local Banking API Backend (+ tests/)
 ├── citi_banking_mcp_server/           # MCP Server for Banking Tools (+ tests/, 3 tests)
 ├── configs/                           # Experiment Configurations (Baselines, Attacks, Invalid)
 ├── scripts/                           # Per-work-package validation/demo scripts
 ├── docs/                              # Documentation
-├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events) -- 139 tests
+├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events, config/scenario consistency) -- 670 passing
 ├── golden_runs/                       # WP0: Immutable Frozen LLM execution traces
 ├── banking_baseline_inventory.yaml    # WP0: Full system inventory
 ├── baseline_metrics.json              # WP0: Performance and behavioral metrics

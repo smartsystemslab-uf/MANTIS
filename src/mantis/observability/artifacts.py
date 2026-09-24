@@ -1,5 +1,6 @@
 import json
 import hashlib
+import os
 import platform
 import subprocess
 import sys
@@ -32,6 +33,23 @@ def _capture_environment() -> dict:
         "platform": platform.platform(),
         "packages": packages,
         "git_commit": git_commit,
+        "llm": _capture_llm(),
+    }
+
+
+def _capture_llm() -> dict:
+    """Which model actually served this run. A live result is only meaningful
+    relative to the model behind it, and until now nothing in the manifest said
+    which one that was. Read from the environment (not from mantis.banking.settings,
+    whose import must not be forced this early) and deliberately records the
+    endpoint *host* only -- never the API key or the full URL."""
+    from urllib.parse import urlparse
+    mock = os.getenv("MANTIS_MOCK_LLM", "").lower() in {"1", "true", "yes", "on"}
+    base = os.getenv("UF_NAVIGATOR_BASE_URL", "https://api.ai.it.ufl.edu")
+    return {
+        "mock": mock,
+        "model": "mock" if mock else os.getenv("UF_NAVIGATOR_MODEL", "gpt-oss-20b"),
+        "endpoint_host": None if mock else (urlparse(base).hostname or None),
     }
 
 

@@ -117,7 +117,16 @@
     <button onclick="loadTrace()">Load trace</button>
     <button class="secondary" onclick="doEvaluate()">Evaluate</button>
     <button class="secondary" onclick="loadEvaluation()">View evaluation</button>
+    <button class="secondary" onclick="loadHookCoverage()">View hook coverage</button>
     <div id="viewer-result"></div>
+
+    <fieldset>
+      <legend>Campaign (sweep a config directory)</legend>
+      <label>Directory (relative to repo root)</label><input id="c-dir" placeholder="configs/extensions">
+      <button onclick="doCampaign()">Run campaign</button>
+      <button class="secondary" onclick="loadCampaignReport()">View report</button>
+      <div id="campaign-result"></div>
+    </fieldset>
   </section>
 </main>
 
@@ -223,14 +232,72 @@ async function doEvaluate() {
   refreshRuns();
 }
 
+function escapeHtml(s) {
+  return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+}
+
 async function loadEvaluation() {
   const name = document.getElementById("v-run").value;
   if (!name) return;
   try {
     const data = await getJSON(`/api/runs/${encodeURIComponent(name)}/evaluation`);
-    document.getElementById("viewer-result").innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    // Generic across all seven (or more) evaluator dimensions rather than
+    // hardcoding each one's shape -- shows the score where a dimension has
+    // one, and the rest of its fields compactly for detail.
+    const rows = Object.entries(data).map(([dim, v]) => {
+      const score = (v && typeof v === "object" && "score" in v) ? v.score : "";
+      const rest = (v && typeof v === "object")
+        ? Object.entries(v).filter(([k]) => k !== "score").map(([k, val]) => `${k}=${JSON.stringify(val)}`).join(", ")
+        : JSON.stringify(v);
+      return `<tr><td>${dim}</td><td>${score}</td><td>${escapeHtml(rest)}</td></tr>`;
+    }).join("");
+    document.getElementById("viewer-result").innerHTML =
+      `<table><thead><tr><th>Dimension</th><th>Score</th><th>Detail</th></tr></thead><tbody>${rows}</tbody></table>`;
   } catch (e) {
     document.getElementById("viewer-result").innerHTML = `<pre>${e.message}</pre>`;
+  }
+}
+
+async function loadHookCoverage() {
+  const name = document.getElementById("v-run").value;
+  if (!name) return;
+  try {
+    const data = await getJSON(`/api/runs/${encodeURIComponent(name)}/hook-coverage`);
+    const hits = data.hits || {};
+    const fired = Object.values(hits).filter(c => c > 0).length;
+    const rows = Object.entries(hits).map(([point, count]) =>
+      `<tr><td>${point}</td><td>${count}</td></tr>`).join("");
+    document.getElementById("viewer-result").innerHTML =
+      `<p class="muted">${fired} / ${Object.keys(hits).length} before/after control points fired at least once</p>` +
+      `<table><thead><tr><th>Control point</th><th>Times fired</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } catch (e) {
+    document.getElementById("viewer-result").innerHTML = `<pre>${e.message}</pre>`;
+  }
+}
+
+let lastCampaignRunName = null;
+
+async function doCampaign() {
+  const dir = document.getElementById("c-dir").value.trim();
+  if (!dir) return;
+  document.getElementById("campaign-result").innerHTML = "<p class='muted'>Running campaign… this runs every config in the directory live and can take a while.</p>";
+  const r = await fetch("/api/campaign", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({directory: dir}) });
+  const data = await r.json();
+  lastCampaignRunName = data.run_name;
+  renderResult("campaign-result", data);
+  refreshRuns();
+}
+
+async function loadCampaignReport() {
+  if (!lastCampaignRunName) {
+    document.getElementById("campaign-result").innerHTML = "<p class='muted'>Run a campaign first, or its run name is unknown to this page.</p>";
+    return;
+  }
+  try {
+    const data = await getJSON(`/api/campaign/${encodeURIComponent(lastCampaignRunName)}/report`);
+    document.getElementById("campaign-result").innerHTML = `<pre>${escapeHtml(data.report_markdown)}</pre>`;
+  } catch (e) {
+    document.getElementById("campaign-result").innerHTML = `<pre>${e.message}</pre>`;
   }
 }
 

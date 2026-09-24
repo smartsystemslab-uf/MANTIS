@@ -1,0 +1,45 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "front_office_transaction_execution": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "front_office_router"
+    },
+    {
+      "agent": "front_office_router",
+      "event": "transfer",
+      "to": "customer_service_chatbot_workflow"
+    },
+    {
+      "agent": "transaction_processing_agent",
+      "event": "tool_call",
+      "tool": "execute_transfer",
+      "args": {
+        "source_account": "CHK-002",
+        "destination_account": "EXT-998",
+        "amount": 125.5,
+        "memo": "Utility backup payment",
+        "customer_id": "CUST-002"
+      }
+    },
+    {
+      "agent": "transaction_processing_agent",
+      "event": "tool_result",
+      "tool": "execute_transfer",
+      "result": null
+    },
+    {
+      "agent": "transaction_processing_agent",
+      "event": "result",
+      "key": "fo_transaction_execution",
+      "value": {
+        "status": "failed",
+        "execution_performed": false,
+        "transaction_id": "",
+        "outcome": "blocked by action_isolation: execute_transfer moves money or posts to the ledger, and this run is isolated (blocked effects: financial_side_effect)",
+        "customer_message": "The transfer could not be processed automatically due to system constraints and requires manual review."
+      }
+    }
+  ]
+}

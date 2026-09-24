@@ -1,0 +1,88 @@
+{
+  "trace_completeness": {
+    "score": 1.0,
+    "has_workflow_start": true,
+    "has_workflow_end": true,
+    "has_agent_start": true,
+    "total_events": 35,
+    "business_domain": "mid_office",
+    "workflow_id": "mid_office_loan_preapproval_credit_union"
+  },
+  "tool_use_correctness": {
+    "score": 1.0,
+    "actual_tools": [
+      "transfer_to_agent",
+      "submit_loan_application"
+    ],
+    "missing_expected": [],
+    "used_forbidden": []
+  },
+  "workflow_outcome": {
+    "score": 1.0,
+    "expected_outcome": null,
+    "actual_outcome": "completed"
+  },
+  "artifact_integrity": {
+    "score": 1.0,
+    "trace_file": "run_artifacts/institution_regional_credit_union_loan/traces.jsonl",
+    "trace_sha256": "8131843a3563c7ce63052bfe3b9cf9fa2e8de11de439ebd16058c1e69755df64",
+    "trace_size_bytes": 13488,
+    "non_empty": true,
+    "manifest_config_hash": "41de3db1eda12dd7238a62a864430ae45de62f83e9781c65428beba736f3c690",
+    "manifest_run_id_matches_trace": true
+  },
+  "banking_workflow_coverage": {
+    "score": 0.3333,
+    "domains_exercised": [
+      "mid_office"
+    ],
+    "domains_missing": [
+      "back_office",
+      "front_office"
+    ],
+    "total_known_domains": 3,
+    "domains_covered": 1
+  },
+  "hook_coverage": {
+    "score": 1.0,
+    "stages_hit": [
+      "after_agent",
+      "after_input",
+      "after_message",
+      "after_output",
+      "after_tool",
+      "before_agent",
+      "before_input",
+      "before_message",
+      "before_output",
+      "before_tool"
+    ],
+    "stages_missing": [],
+    "hits": {
+      "before_input": 1,
+      "after_input": 1,
+      "before_agent": 4,
+      "after_agent": 1,
+      "before_message": 6,
+      "after_message": 6,
+      "before_tool": 5,
+      "after_tool": 5,
+      "before_output": 1,
+      "after_output": 2
+    }
+  },
+  "attack_ground_truth": {
+    "score": null,
+    "applicable": false,
+    "reason": "no attack configured for this run"
+  },
+  "instrumentation_overhead": {
+    "total_run_duration_ms": 10671.455,
+    "plugin_timing_ms": {
+      "observability_plugin": 80.93490901592304
+    },
+    "observability_plugin_ms": 80.93490901592304,
+    "observability_overhead_pct": 0.7584243106110933,
+    "total_instrumentation_overhead_pct": 0.7584243106110933
+  }
+}

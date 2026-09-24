@@ -5,6 +5,28 @@ All notable changes to the MANTIS project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-09-24
+
+### Added (Post-Paper Extensions, completed)
+- **Security-mechanism plugins, all five categories the coding plan names.** `rate_limit_guardrail` (caps calls per run / window / argument value) and `action_isolation` (refuses tools with a chosen side effect -- "shadow mode") join `amount_limit_guardrail`, `risk_aware_routing_guard` (now with an optional `redirect_to` recovery mode), `batch_integrity_guard`, and `response_redaction`. Live-verified 5/5 each: the rate limit turned a hijack loop that crashed 10 of 10 attempts undefended into 5 of 5 completed runs (zero policy events on a no-attack control); isolation denied an attacked funds transfer every trial with the backend's transaction count unchanged.
+- **Additional banking workloads and an institution variant.** Back-office SAR/exception escalation, mid-office loan pre-approval (a deterministic rule), and a `regional_credit_union` institution profile (`experiment.institution`) with isolated data and a stricter threshold.
+- **Minimal UI depth:** campaign, campaign-report, and hook-coverage endpoints plus table views.
+- **Extended scenario library** (`configs/extended/`, `attacks/prompt_0*.txt`, `docs/extended_scenarios.md`): 19 measured baselines and 26 attack/fault variants, run live (123 scored trials) with per-trial database snapshots. Findings: injection at the decision agent bypassed manual review 5/5 (vs 1/5 at the upstream monitor); SAR-agent suppression 5/5; four tool-mutation configs changed the database in 20/20 trials while tool-use scoring flagged none; a corrupted ledger response crashed the end-of-day workflow in 5/9 attempts.
+- `scripts/run_attack_efficacy_trials.py`: `--output`, `--runtime-dir`, `--reset-db`, `--retries`, per-trial tool sets, outcomes, policy-event counts, and database snapshots. Defaults unchanged, so Paper 1's evidence file is not overwritten.
+- `GUIDE/` (platform guide source and PDF), `scripts/build_guide.sh`, `scripts/publish.sh`, and an opt-in `.githooks/pre-push` that keeps the guide PDF current at every push.
+- Run manifests now record the serving model and endpoint host (`environment.llm`), never the key.
+
+### Fixed
+- `mantis --validate` rejected the shipped `ci_mock_prompt_injection.yaml` (target `user_proxy_agent`, the real root agent) although `--run` accepts it; the root agent is now a valid attack target.
+- Every prompt-injection config pointed at `attacks/prompt_01.txt`, which was never committed, so the plugin silently injected its built-in fallback. The file now exists with identical text (Paper 1's evidence stays reproducible) and a missing payload file logs a warning.
+- `file_dispute` persisted a real case with `unknown` for customer, transaction, and reason; it now validates its arguments. `file_sar_report` requires an existing exception case.
+- Dispute, SAR, and loan tools had no trace semantics (risk, sensitivity, side effect) and no terminal outcomes; added.
+- Reference exceptions are now seeded idempotently on every initialize, so a database that predates a new reference case still gets it.
+- Output-stage `MUTATE` now reaches the caller (`runner.run_message` dispatches a second `after_output` with the real result), with a guard so it is not misread as a second workflow end.
+
+### Tests
+- 670 offline tests passing (was 139), including parametrized consistency suites over every shipped config and scenario.
+
 ## [Unreleased] - 2026-09-14
 
 ### Fixed (WP0-WP8 gap audit)

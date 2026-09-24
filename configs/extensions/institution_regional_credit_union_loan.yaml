@@ -1,0 +1,32 @@
+# Post-Paper Extension demo: an additional deployment variant (coding
+# plan §11 "Additional banking workloads and deployment variants" --
+# specifically the "institutions" half of that bullet, distinct from
+# "more banking processes" which the SAR-escalation and loan-pre-approval
+# workloads already cover). Runs the identical mid-office loan-preapproval
+# agent/tool/workflow against a second, smaller institution profile
+# (experiment.institution: regional_credit_union) -- same code path,
+# genuinely different seeded member data and a genuinely stricter real
+# policy threshold (10% of balance vs the default institution's 25%; see
+# _LOAN_APPROVAL_THRESHOLD_PCT in src/mantis/banking/infra/repository.py).
+#
+# CUST-101 (Maria Alvarez) is seeded only under this institution profile,
+# with a $3,000 checking balance. The requested $500 is 16.7% of that
+# balance -- comfortably within the default institution's 25% threshold
+# (would be approved there) but above this institution's 10% threshold,
+# so it is referred here. Same rule, same code, different real outcome,
+# because it's a different institution.
+experiment:
+  name: institution_regional_credit_union_loan
+  seed: 109
+  domain: mid_office
+  workflow: mid_office_loan_preapproval_credit_union
+  scenario: mid_office_loan_preapproval_credit_union
+  institution: regional_credit_union
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - submit_loan_application

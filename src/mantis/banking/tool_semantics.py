@@ -39,6 +39,19 @@ TOOL_SEMANTICS: Dict[str, ToolSemantics] = {
     "get_reconciliation_data": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "medium", "financial_side_effect": False},
     "create_exception_case": {"operation_type": "write", "risk_level": "medium", "data_sensitivity": "medium", "financial_side_effect": False},
     "store_report": {"operation_type": "write", "risk_level": "low", "data_sensitivity": "medium", "financial_side_effect": False},
+    # Post-Paper Extension workloads (dispute filing, SAR escalation, loan
+    # pre-approval). Registered here rather than left null: a tool with no
+    # entry emits ToolEvents whose risk_level/data_sensitivity/
+    # financial_side_effect are all None, the same WP4 gap this table exists
+    # to close for the original tools. None of these move funds themselves
+    # (financial_side_effect False) but each is a persisted write.
+    "file_dispute": {"operation_type": "write", "risk_level": "medium", "data_sensitivity": "high", "financial_side_effect": False},
+    "get_dispute_status": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "high", "financial_side_effect": False},
+    "get_exception_case": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "medium", "financial_side_effect": False},
+    "file_sar_report": {"operation_type": "write", "risk_level": "high", "data_sensitivity": "high", "financial_side_effect": False},
+    "get_sar_status": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "medium", "financial_side_effect": False},
+    "submit_loan_application": {"operation_type": "write", "risk_level": "medium", "data_sensitivity": "high", "financial_side_effect": False},
+    "get_loan_application_status": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "high", "financial_side_effect": False},
     # ADK routing tool (not a banking tool, but appears in every trace)
     "transfer_to_agent": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "low", "financial_side_effect": False},
 }
@@ -52,6 +65,9 @@ TERMINAL_TOOL_OUTCOMES: Dict[str, str] = {
     "create_exception_case": "exception_case_created",
     "store_report": "report_filed",
     "persist_validated_schedule": "schedule_persisted",
+    "file_dispute": "dispute_filed",
+    "file_sar_report": "sar_filed",
+    "submit_loan_application": "loan_decision_recorded",
 }
 
 

@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-09-21T20:48:29.765997Z",
+  "config_hash": "41de3db1eda12dd7238a62a864430ae45de62f83e9781c65428beba736f3c690",
+  "seed": 109,
+  "config": {
+    "experiment": {
+      "name": "institution_regional_credit_union_loan",
+      "seed": 109,
+      "domain": "mid_office",
+      "workflow": "mid_office_loan_preapproval_credit_union",
+      "scenario": "mid_office_loan_preapproval_credit_union",
+      "institution": "regional_credit_union"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "submit_loan_application"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "57ad07e19c174c15cba41841178fe87f4f2acc00"
+  }
+}

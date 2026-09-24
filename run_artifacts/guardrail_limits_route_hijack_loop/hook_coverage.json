@@ -1,0 +1,39 @@
+{
+  "hits": {
+    "before_input": 1,
+    "after_input": 1,
+    "before_agent": 3,
+    "after_agent": 1,
+    "before_message": 4,
+    "after_message": 4,
+    "before_tool": 3,
+    "after_tool": 3,
+    "before_output": 1,
+    "after_output": 2
+  },
+  "plugin_stats": {
+    "input": {
+      "observability_plugin": 2
+    },
+    "agent": {
+      "observability_plugin": 4
+    },
+    "interaction": {
+      "route_confusion": 8,
+      "observability_plugin": 8
+    },
+    "tool": {
+      "route_confusion": 6,
+      "rate_limit_guardrail": 6,
+      "observability_plugin": 6
+    },
+    "output": {
+      "observability_plugin": 3
+    }
+  },
+  "plugin_timing_ms": {
+    "observability_plugin": 8.331144998919626,
+    "route_confusion": 0.1083310016838368,
+    "rate_limit_guardrail": 0.05873400004929863
+  }
+}

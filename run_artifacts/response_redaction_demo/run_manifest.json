@@ -1,0 +1,44 @@
+{
+  "timestamp": "2026-09-21T17:22:36.039293Z",
+  "config_hash": "b96a3d058a87de45cde5e50a2fb223c379d803d1c1369539783d697740726690",
+  "seed": 105,
+  "config": {
+    "experiment": {
+      "name": "response_redaction_demo",
+      "seed": 105,
+      "domain": "front_office",
+      "workflow": "front_office_transaction_execution",
+      "scenario": "front_office_transaction_execution"
+    },
+    "policies": [
+      {
+        "plugin": "response_redaction",
+        "parameters": {}
+      }
+    ],
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "transfer_to_agent"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "57ad07e19c174c15cba41841178fe87f4f2acc00"
+  }
+}

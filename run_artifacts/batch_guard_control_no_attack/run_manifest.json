@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-09-21T20:38:44.850331Z",
+  "config_hash": "72202cc4f5a57b47e6797570794096e337f49c87d6d33f613e2004ddcd4981de",
+  "seed": 107,
+  "config": {
+    "experiment": {
+      "name": "batch_guard_control_no_attack",
+      "seed": 107,
+      "domain": "back_office",
+      "workflow": "back_office_clean",
+      "scenario": "back_office_clean"
+    },
+    "policies": [
+      {
+        "plugin": "batch_integrity_guard",
+        "parameters": {
+          "target_tool": "apply_ledger_updates"
+        }
+      }
+    ],
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "apply_ledger_updates"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "57ad07e19c174c15cba41841178fe87f4f2acc00"
+  }
+}

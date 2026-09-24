@@ -16,11 +16,11 @@ DOMAIN_AGENTS: dict[str, list[str]] = {
         "data_analysis_agent", "forecasting_agent", "staff_scheduling_agent", "validation_agent",
         "support_guidance_agent", "planning_summary_agent", "financial_data_agent",
         "recommender_agent", "loan_agent", "risk_compliance_agent", "representative_merge_agent",
-        "mid_office_router",
+        "mid_office_router", "loan_preapproval_agent",
     ],
     "back_office": [
         "validation_checkpoint_agent", "eod_processing_agent", "ledger_update_agent",
         "reconciliation_agent", "report_writing_agent", "exception_agent",
-        "back_office_eod_workflow", "back_office_router",
+        "back_office_eod_workflow", "back_office_router", "sar_escalation_agent",
     ],
 }

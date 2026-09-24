@@ -36,7 +36,7 @@ _FAILURE_PLUGIN_NAMES = {"reliability_failure"}
 # POLICY_EVENT classification for its own DENY without a code change here:
 # add its name to this set at import time, e.g.
 # `from mantis.observability import plugin; plugin._POLICY_PLUGIN_NAMES.add("my_plugin")`.
-_POLICY_PLUGIN_NAMES = {"amount_limit_guardrail"}
+_POLICY_PLUGIN_NAMES = {"amount_limit_guardrail", "risk_aware_routing_guard", "response_redaction", "batch_integrity_guard", "rate_limit_guardrail", "action_isolation"}
 
 
 def _hash_payload(payload: Optional[dict]) -> Optional[str]:
@@ -131,7 +131,15 @@ class ObservabilityPlugin:
                 source=ctx.source,
                 target=ctx.target
             )
-        elif stage in ("before_output", "after_output"):
+        elif stage in ("before_output", "after_output") and "status" in (ctx.payload or {}):
+            # The "status" guard matters: mantis.banking.runner.run_message
+            # dispatches a *second*, separate after_output event (payload
+            # {"events": ...}, no "status" key) so an output-stage policy
+            # plugin can see and mutate the real final result, not just the
+            # workflow's terminal-outcome classification
+            # MantisHookPlugin.after_run_callback already sends. Without
+            # this guard, that second dispatch would be misread as another,
+            # spurious WORKFLOW_END with a null outcome.
             event = WorkflowEvent(
                 event_type=EventType.WORKFLOW_END,
                 run_id=ctx.run_id,

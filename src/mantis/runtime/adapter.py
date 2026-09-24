@@ -53,12 +53,23 @@ _TOOL_MODULE_PATHS = [
     "mantis.banking.tools.ops_tools",
     "mantis.banking.tools.back_office_tools",
     "mantis.banking.tools.dispute_tools",
+    "mantis.banking.tools.sar_tools",
+    "mantis.banking.tools.loan_tools",
 ]
 
 # Not a banking tool -- ADK auto-generates this on every agent that has
 # sub_agents, to hand a request off to a specialist. It shows up in every
 # trace and is a legitimate attack/inspection target (e.g. route confusion).
 _ADK_BUILTIN_TOOLS = ["transfer_to_agent"]
+
+# The root orchestrator LlmAgent every run enters through (see
+# mantis.banking.agents.build_root_agent / the adapter's build()). It belongs
+# to no banking domain, so it is deliberately not in DOMAIN_AGENTS or the
+# inventory's agent count -- but it is a real, targetable agent (the CI mock
+# config attacks it precisely because MANTIS_MOCK_LLM=1 always reaches it), so
+# config validation must accept it as an attack target rather than reject a
+# config that `mantis --run` executes fine.
+ROOT_AGENT_NAME = "user_proxy_agent"
 
 # Mirrors exactly which tool functions each domain's agents import (see the
 # `from ..tools.<module> import ...` lines in
@@ -79,11 +90,12 @@ _DOMAIN_TOOL_NAMES: dict[str, list[str]] = {
     "mid_office": [
         "get_customer_financial_profile", "search_loan_playbooks", "search_product_catalog",
         "get_operations_snapshot", "get_support_playbooks", "persist_validated_schedule",
-        "search_policies",
+        "search_policies", "submit_loan_application", "get_loan_application_status",
     ],
     "back_office": [
         "apply_ledger_updates", "create_exception_case", "get_eod_batch",
         "get_reconciliation_data", "store_report", "validate_eod_readiness",
+        "get_exception_case", "file_sar_report", "get_sar_status",
     ],
 }
 

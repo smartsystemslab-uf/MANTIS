@@ -17,6 +17,7 @@ or directly:
 """
 import asyncio
 import json
+import re
 import subprocess
 import sys
 import uuid
@@ -44,6 +45,10 @@ app = FastAPI(title="MANTIS Minimal UI")
 
 class RunConfigPayload(BaseModel):
     config: dict[str, Any]
+
+
+class CampaignPayload(BaseModel):
+    directory: str
 
 
 def _write_config(config: dict[str, Any]) -> Path:
@@ -181,6 +186,61 @@ def get_evaluation(run_name: str):
     if not eval_file.exists():
         raise HTTPException(status_code=404, detail=f"No evaluation_results.json for run '{run_name}' -- run evaluate first")
     return json.loads(eval_file.read_text())
+
+
+@app.get("/api/runs/{run_name}/hook-coverage")
+def get_hook_coverage(run_name: str):
+    """Symmetric with /trace and /evaluation above -- reads the same
+    hook_coverage.json every run already writes, confirming which of the
+    five control points (ten, before/after) actually fired."""
+    coverage_file = REPO_ROOT / "run_artifacts" / run_name / "hook_coverage.json"
+    if not coverage_file.exists():
+        raise HTTPException(status_code=404, detail=f"No hook_coverage.json for run '{run_name}'")
+    return json.loads(coverage_file.read_text())
+
+
+@app.post("/api/campaign")
+async def campaign(payload: CampaignPayload):
+    """Shells out to `mantis --campaign <dir>`, the same way /api/run shells
+    out to `--run`, then chains the existing `--report` CLI command against
+    the resulting campaign output directory -- two existing CLI
+    invocations in sequence, not a new business-logic path."""
+    campaign_dir = REPO_ROOT / payload.directory
+    if not campaign_dir.exists():
+        raise HTTPException(status_code=404, detail=f"Campaign directory not found: {payload.directory}")
+
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(
+        None, lambda: _run_cli(["--campaign", str(campaign_dir)], timeout=1800)
+    )
+
+    match = re.search(r"Output Directory:\s*(\S+)", result["stdout"])
+    if not match:
+        result["run_name"] = None
+        result["report_generated"] = False
+        return result
+
+    run_name = Path(match.group(1)).name
+    result["run_name"] = run_name
+    report_result = await loop.run_in_executor(
+        None, lambda: _run_cli(["--report", str(REPO_ROOT / "run_artifacts" / run_name)], timeout=60)
+    )
+    result["report_generated"] = report_result["returncode"] == 0
+    return result
+
+
+@app.get("/api/campaign/{run_name}/report")
+def get_campaign_report(run_name: str):
+    """Reads the campaign's report.md, written by CampaignManager's own
+    generate_report -- the same file `mantis --report` produces at the
+    terminal."""
+    report_file = REPO_ROOT / "run_artifacts" / run_name / "report.md"
+    if not report_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"No report.md for '{run_name}' -- POST /api/campaign first, or run `mantis --report run_artifacts/{run_name}`",
+        )
+    return {"run_name": run_name, "report_markdown": report_file.read_text()}
 
 
 def main():

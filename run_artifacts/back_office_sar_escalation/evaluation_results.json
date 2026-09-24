@@ -1,0 +1,89 @@
+{
+  "trace_completeness": {
+    "score": 1.0,
+    "has_workflow_start": true,
+    "has_workflow_end": true,
+    "has_agent_start": true,
+    "total_events": 29,
+    "business_domain": "back_office",
+    "workflow_id": "back_office_sar_escalation"
+  },
+  "tool_use_correctness": {
+    "score": 1.0,
+    "actual_tools": [
+      "get_exception_case",
+      "file_sar_report",
+      "transfer_to_agent"
+    ],
+    "missing_expected": [],
+    "used_forbidden": []
+  },
+  "workflow_outcome": {
+    "score": 1.0,
+    "expected_outcome": null,
+    "actual_outcome": "completed"
+  },
+  "artifact_integrity": {
+    "score": 1.0,
+    "trace_file": "run_artifacts/back_office_sar_escalation/traces.jsonl",
+    "trace_sha256": "d366cfa8b9c3dc4e7f13ee4f13120da2f07ec1367948647ff904234e515fe1bb",
+    "trace_size_bytes": 11185,
+    "non_empty": true,
+    "manifest_config_hash": "bb0c530222bf5ac3120ba08e89f2149b0a699fb35cff3996a83cd1f07b8d0a43",
+    "manifest_run_id_matches_trace": true
+  },
+  "banking_workflow_coverage": {
+    "score": 0.3333,
+    "domains_exercised": [
+      "back_office"
+    ],
+    "domains_missing": [
+      "front_office",
+      "mid_office"
+    ],
+    "total_known_domains": 3,
+    "domains_covered": 1
+  },
+  "hook_coverage": {
+    "score": 1.0,
+    "stages_hit": [
+      "after_agent",
+      "after_input",
+      "after_message",
+      "after_output",
+      "after_tool",
+      "before_agent",
+      "before_input",
+      "before_message",
+      "before_output",
+      "before_tool"
+    ],
+    "stages_missing": [],
+    "hits": {
+      "before_input": 1,
+      "after_input": 1,
+      "before_agent": 3,
+      "after_agent": 1,
+      "before_message": 5,
+      "after_message": 5,
+      "before_tool": 4,
+      "after_tool": 4,
+      "before_output": 1,
+      "after_output": 1
+    }
+  },
+  "attack_ground_truth": {
+    "score": null,
+    "applicable": false,
+    "reason": "no attack configured for this run"
+  },
+  "instrumentation_overhead": {
+    "total_run_duration_ms": 10926.926,
+    "plugin_timing_ms": {
+      "observability_plugin": 11.101347999101563
+    },
+    "observability_plugin_ms": 11.101347999101563,
+    "observability_overhead_pct": 0.10159625862847028,
+    "total_instrumentation_overhead_pct": 0.10159625862847028
+  }
+}

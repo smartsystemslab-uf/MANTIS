@@ -9,7 +9,7 @@
     "before_tool": 3,
     "after_tool": 3,
     "before_output": 1,
-    "after_output": 1
+    "after_output": 2
   },
   "plugin_stats": {
     "input": {
@@ -27,12 +27,12 @@
       "observability_plugin": 6
     },
     "output": {
-      "observability_plugin": 2
+      "observability_plugin": 3
     }
   },
   "plugin_timing_ms": {
-    "observability_plugin": 14.362859015818685,
-    "tool_parameter_mutation": 0.04918000195175409,
-    "amount_limit_guardrail": 0.03678892971947789
+    "observability_plugin": 14.425726999434119,
+    "tool_parameter_mutation": 0.059295999562891666,
+    "amount_limit_guardrail": 0.039556000047014095
   }
 }

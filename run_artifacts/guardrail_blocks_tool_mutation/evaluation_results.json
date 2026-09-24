@@ -11,8 +11,8 @@
   "tool_use_correctness": {
     "score": 1.0,
     "actual_tools": [
-      "transfer_to_agent",
-      "execute_transfer"
+      "execute_transfer",
+      "transfer_to_agent"
     ],
     "missing_expected": [],
     "used_forbidden": []
@@ -25,8 +25,8 @@
   "artifact_integrity": {
     "score": 1.0,
     "trace_file": "run_artifacts/guardrail_blocks_tool_mutation/traces.jsonl",
-    "trace_sha256": "955b3da29fbec43fe6dff6237d67512a182c125c4e39c4193d8fd497790a783b",
-    "trace_size_bytes": 12228,
+    "trace_sha256": "c94f4059ad624460eba0ff8b50719690112314fd6a0d995f2c8e37d72bd2a388",
+    "trace_size_bytes": 12221,
     "non_empty": true,
     "manifest_config_hash": "74ac4e2c721002323c52392a409e0d3407102476218261a84846428fb2250b76",
     "manifest_run_id_matches_trace": true
@@ -68,7 +68,7 @@
       "before_tool": 3,
       "after_tool": 3,
       "before_output": 1,
-      "after_output": 1
+      "after_output": 2
     }
   },
   "attack_ground_truth": {
@@ -82,14 +82,14 @@
     "effect_detected_vs_ground_truth": false
   },
   "instrumentation_overhead": {
-    "total_run_duration_ms": 13852.305,
+    "total_run_duration_ms": 9855.672999999999,
     "plugin_timing_ms": {
-      "observability_plugin": 14.362859015818685,
-      "tool_parameter_mutation": 0.04918000195175409,
-      "amount_limit_guardrail": 0.03678892971947789
+      "observability_plugin": 14.425726999434119,
+      "tool_parameter_mutation": 0.059295999562891666,
+      "amount_limit_guardrail": 0.039556000047014095
     },
-    "observability_plugin_ms": 14.362859015818685,
-    "observability_overhead_pct": 0.10368569718771486,
-    "total_instrumentation_overhead_pct": 0.10430630821000489
+    "observability_plugin_ms": 14.425726999434119,
+    "observability_overhead_pct": 0.1463697811345214,
+    "total_instrumentation_overhead_pct": 0.1473727770700593
   }
 }

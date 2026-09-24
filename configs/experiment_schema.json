@@ -168,6 +168,19 @@
           "description": "Specific scenario ID mapping to a concrete prompt",
           "title": "Scenario",
           "type": "string"
+        },
+        "institution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Post-Paper Extension (coding plan \u00a711 'Additional banking workloads and deployment variants'): which seeded institution profile's data and policy parameters to run against (e.g. 'regional_credit_union'). Reuses the identical agents/tools/workflows -- only the seeded dataset and institution-specific thresholds (e.g. loan pre-approval's approval percentage) differ. Omit for the default institution.",
+          "title": "Institution"
         }
       },
       "required": [

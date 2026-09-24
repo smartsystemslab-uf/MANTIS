@@ -1,0 +1,39 @@
+{
+  "hits": {
+    "before_input": 1,
+    "after_input": 1,
+    "before_agent": 2,
+    "after_agent": 1,
+    "before_message": 3,
+    "after_message": 3,
+    "before_tool": 2,
+    "after_tool": 2,
+    "before_output": 1,
+    "after_output": 2
+  },
+  "plugin_stats": {
+    "input": {
+      "observability_plugin": 2
+    },
+    "agent": {
+      "observability_plugin": 3
+    },
+    "interaction": {
+      "route_confusion": 6,
+      "observability_plugin": 6
+    },
+    "tool": {
+      "route_confusion": 4,
+      "risk_aware_routing_guard": 4,
+      "observability_plugin": 4
+    },
+    "output": {
+      "observability_plugin": 3
+    }
+  },
+  "plugin_timing_ms": {
+    "observability_plugin": 6.164694998005871,
+    "route_confusion": 0.0862420010889764,
+    "risk_aware_routing_guard": 42.37356500016176
+  }
+}

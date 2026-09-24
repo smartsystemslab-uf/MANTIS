@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-09-21T16:51:06.017153Z",
+  "config_hash": "bb0c530222bf5ac3120ba08e89f2149b0a699fb35cff3996a83cd1f07b8d0a43",
+  "seed": 106,
+  "config": {
+    "experiment": {
+      "name": "back_office_sar_escalation",
+      "seed": 106,
+      "domain": "back_office",
+      "workflow": "back_office_sar_escalation",
+      "scenario": "back_office_sar_escalation"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "get_exception_case",
+        "file_sar_report"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "57ad07e19c174c15cba41841178fe87f4f2acc00"
+  }
+}

@@ -2,6 +2,7 @@ from google.adk.agents import LlmAgent
 from mantis.banking.llm import build_model
 from mantis.banking.callbacks import sanitize_tool_call_names
 from ..tools.back_office_tools import apply_ledger_updates, create_exception_case, get_eod_batch, get_reconciliation_data, store_report, validate_eod_readiness
+from ..tools.sar_tools import get_exception_case, file_sar_report, get_sar_status
 from mantis.banking.agents.workflow_agents import BackOfficeEodWorkflowAgent
 
 
@@ -39,7 +40,25 @@ def build_back_office_router() -> LlmAgent:
         report_agent=report_writing_agent,
         exception_agent=exception_agent,
     )
+    # Post-Paper Extension (coding plan §11: "Additional banking workloads
+    # and deployment variants") -- a new back-office process (escalate an
+    # existing reconciliation exception into a formal Suspicious Activity
+    # Report), not a new prompt into the EOD workflow; a third-route
+    # sibling to back_office_eod_workflow the same way dispute_resolution_agent
+    # is a sibling to front_office's two existing workflows. Distinct from
+    # exception_agent above, which only ever *creates* an exception case
+    # during EOD -- this agent picks up an *existing* one and decides
+    # whether it warrants formal escalation.
+    sar_escalation_agent = LlmAgent(
+        after_model_callback=sanitize_tool_call_names,
+        name="sar_escalation_agent",
+        model=build_model("sar_escalation_agent"),
+        description="Reviews an existing reconciliation exception case and, if it looks like potential misconduct rather than a routine mismatch, files a formal Suspicious Activity Report.",
+        instruction="You are the SAR escalation agent. First call get_exception_case with the exception id to read its details. If the exception's own summary describes a routine reconciliation mismatch with a clear, ordinary explanation, do not escalate -- return a compact JSON string with keys escalated (false), exception_id, and customer_message explaining no formal escalation was warranted. If it describes something that looks like potential misconduct (an unexplained repeated pattern, a deliberately altered total, or similar red flags rather than an ordinary timing/rounding mismatch), call file_sar_report with the exception id and your reason. If asked about an existing SAR case, call get_sar_status with the SAR id provided. Return a compact JSON string with keys escalated, sar_id, exception_id, and customer_message. When calling a tool, use the exact tool name only. Never include commentary, channel markers, or prefixes such as to=functions.",
+        tools=[get_exception_case, file_sar_report, get_sar_status],
+        output_key="bo_sar_result",
+    )
     return LlmAgent(
         after_model_callback=sanitize_tool_call_names,
-        name="back_office_router", model=build_model("back_office_router"), description="Routes scheduled operational processing into the EOD reconciliation and reporting workflow.",
-        instruction="Use back_office_eod_workflow for end-of-day processing, reconciliation, reporting, and exception handling requests.", sub_agents=[eod_workflow_agent], output_key="back_office_router_result")
+        name="back_office_router", model=build_model("back_office_router"), description="Routes scheduled operational processing into the EOD reconciliation and reporting workflow, or into SAR escalation for an existing exception case.",
+        instruction="Use back_office_eod_workflow for end-of-day processing, reconciliation, reporting, and exception handling requests. Use sar_escalation_agent when asked to review an existing reconciliation exception case for possible Suspicious Activity Report escalation, or to check the status of an existing SAR case.", sub_agents=[eod_workflow_agent, sar_escalation_agent], output_key="back_office_router_result")

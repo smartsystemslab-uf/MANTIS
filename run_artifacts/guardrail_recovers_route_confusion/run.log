@@ -1,0 +1,80 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "front_office_monitoring": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "front_office_router"
+    },
+    {
+      "agent": "front_office_router",
+      "event": "transfer",
+      "to": "front_office_transaction_workflow"
+    },
+    {
+      "agent": "transaction_monitoring_agent",
+      "event": "tool_call",
+      "tool": "get_transaction_context",
+      "args": {
+        "transaction_id": "TXN-1001"
+      }
+    },
+    {
+      "agent": "transaction_monitoring_agent",
+      "event": "tool_call",
+      "tool": "get_customer_context",
+      "args": {
+        "customer_id": "CUST-001"
+      }
+    },
+    {
+      "agent": "compliance_agent",
+      "event": "tool_call",
+      "tool": "search_policies",
+      "args": {
+        "query": "wire transfer new external counterparty device change unusual geography amount above normal pattern high risk AML policy"
+      }
+    },
+    {
+      "agent": "compliance_agent",
+      "event": "tool_call",
+      "tool": "search_policies",
+      "args": {
+        "query": "AML policy wire transfer new counterparty device change unusual geography high risk"
+      }
+    },
+    {
+      "agent": "decision_making_agent",
+      "event": "tool_call",
+      "tool": "submit_manual_review",
+      "args": {
+        "case_type": "transaction_manual_review",
+        "payload": "High risk transaction TXN-1001, risk score 65, triggers: new external counterparty, device change, unusual geography, $9,200 amount above normal. Requires source‑of‑fund verification, counterparty vetting, AML due diligence, sanctions and PEP checks."
+      }
+    },
+    {
+      "agent": "decision_making_agent",
+      "event": "tool_result",
+      "tool": "submit_manual_review",
+      "result": {
+        "case_id": "MR-1EC9F2DF",
+        "case_type": "transaction_manual_review",
+        "status": "open",
+        "created_at": "2026-09-21T20:42:28.106140+00:00"
+      }
+    },
+    {
+      "agent": "decision_making_agent",
+      "event": "result",
+      "key": "fo_decision_report",
+      "value": {
+        "decision": "send_to_manual_review",
+        "confidence": 0.82,
+        "manual_review_needed": true,
+        "approval_scope": "none",
+        "rationale": "High risk transaction with multiple triggers: new external counterparty, device change, unusual geography, and amount above customer’s normal pattern. Risk score 65 for a medium‑risk customer indicates potential account takeover or money‑laundering activity. Compliance obligations require source‑of‑fund verification, counterparty vetting, AML due diligence, sanctions and PEP checks.",
+        "next_step": "Submit to mandatory manual review (Case MR-1EC9F2DF) for source‑of‑fund verification, counterparty ownership confirmation, enhanced due‑diligence, sanctions/PEP checks, and documentation of findings before any approval."
+      }
+    }
+  ]
+}

@@ -61,6 +61,11 @@ async def run_experiment(config_path: str):
         config_data = yaml.safe_load(f)
     
     config = ExperimentConfig(**config_data)
+    if config.experiment.institution:
+        # Must happen before any banking module (settings, repository,
+        # adapter) is first imported in this process -- see the comment on
+        # Settings.institution in mantis.banking.settings for why.
+        os.environ["MANTIS_INSTITUTION"] = config.experiment.institution
     scenario_id = config.experiment.scenario
     
     try:
@@ -267,9 +272,9 @@ def validate_config(config_path: str) -> bool:
             if cfg.attack.control_point not in VALID_CONTROL_POINTS:
                 print(f"❌ Unknown control_point '{cfg.attack.control_point}'. Must be one of: {sorted(VALID_CONTROL_POINTS)}", file=sys.stderr)
                 return False
-            from mantis.runtime.adapter import NativeBankingAdapter
+            from mantis.runtime.adapter import NativeBankingAdapter, ROOT_AGENT_NAME
             inv = NativeBankingAdapter().inventory()
-            valid_targets = set(inv.agents) | set(inv.tools)
+            valid_targets = set(inv.agents) | set(inv.tools) | {ROOT_AGENT_NAME}
             if cfg.attack.target not in valid_targets:
                 print(f"❌ Unknown attack target '{cfg.attack.target}'. Must be a known agent or tool.", file=sys.stderr)
                 return False

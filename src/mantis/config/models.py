@@ -7,6 +7,17 @@ class ExperimentMetadata(BaseModel):
     domain: str = Field(description="Target banking domain (e.g., front_office, mid_office, back_office)")
     workflow: str = Field(description="Target workflow (e.g., fraud_review, front_office_monitoring)")
     scenario: str = Field(description="Specific scenario ID mapping to a concrete prompt")
+    institution: Optional[str] = Field(
+        default=None,
+        description=(
+            "Post-Paper Extension (coding plan §11 'Additional banking workloads and "
+            "deployment variants'): which seeded institution profile's data and "
+            "policy parameters to run against (e.g. 'regional_credit_union'). "
+            "Reuses the identical agents/tools/workflows -- only the seeded dataset "
+            "and institution-specific thresholds (e.g. loan pre-approval's approval "
+            "percentage) differ. Omit for the default institution."
+        ),
+    )
 
 class AgentConfig(BaseModel):
     model: str = Field(default="default", description="Model to use for this agent")

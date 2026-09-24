@@ -79,3 +79,25 @@ def test_front_office_card_dispute_workflow_is_registered():
     from mantis.core.registry import scenario_registry, workflow_registry
     assert "front_office_card_dispute" in scenario_registry.all()
     assert workflow_registry.get("front_office_card_dispute") == "front_office"
+
+
+def test_file_dispute_rejects_fabricated_placeholder_arguments(repo):
+    """Regression: a live baseline run of the FAQ scenario had this tool called
+    with customer_id, transaction_id and reason all "unknown", and it persisted
+    a real dispute row from what was only an informational question."""
+    from mantis.banking.tools.dispute_tools import file_dispute
+    result = json.loads(file_dispute("unknown", "unknown", "unknown"))
+    assert "error" in result and "dispute_id" not in result
+    assert repo._all("SELECT * FROM disputes") == [], "no case may be recorded for a request that names no real customer/transaction"
+
+
+def test_file_dispute_rejects_a_real_customer_with_an_unknown_transaction(repo):
+    from mantis.banking.tools.dispute_tools import file_dispute
+    monkey_result = json.loads(file_dispute("CUST-001", "TXN-DOES-NOT-EXIST", "not mine"))
+    assert "error" in monkey_result
+    assert repo._all("SELECT * FROM disputes") == []
+
+
+def test_file_dispute_still_accepts_a_real_customer_and_transaction(repo):
+    from mantis.banking.tools.dispute_tools import file_dispute
+    assert json.loads(file_dispute("CUST-001", "TXN-1001", "not mine"))["status"] == "filed"

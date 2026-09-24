@@ -117,3 +117,33 @@ def test_run_manifest_generation(tmp_path: Path):
     assert manifest["environment"]["python_version"]
     assert manifest["environment"]["platform"]
     assert "mantis" in manifest["environment"]["packages"]
+
+
+def test_manifest_records_which_model_served_the_run_and_never_the_key(tmp_path, monkeypatch):
+    """A live result is only meaningful relative to its model. The manifest used
+    to record Python, packages and the git commit but not the model, so 'one
+    model family' was unverifiable per run. The endpoint host is recorded; the
+    API key and full URL never are."""
+    import json
+    from mantis.config.models import ExperimentConfig
+    from mantis.observability.artifacts import create_run_manifest
+    monkeypatch.delenv("MANTIS_MOCK_LLM", raising=False)
+    monkeypatch.setenv("UF_NAVIGATOR_MODEL", "some-model-x")
+    monkeypatch.setenv("UF_NAVIGATOR_BASE_URL", "https://llm.example.org/v1/secret-path")
+    monkeypatch.setenv("UF_NAVIGATOR_API_KEY", "sk-super-secret-value")
+    cfg = ExperimentConfig(experiment={"name": "t", "domain": "front_office", "workflow": "front_office_monitoring", "scenario": "front_office_monitoring"})
+    path = create_run_manifest(cfg, tmp_path)
+    raw = path.read_text()
+    llm = json.loads(raw)["environment"]["llm"]
+    assert llm == {"mock": False, "model": "some-model-x", "endpoint_host": "llm.example.org"}
+    assert "sk-super-secret-value" not in raw and "secret-path" not in raw
+
+
+def test_manifest_marks_mock_runs_as_mock(tmp_path, monkeypatch):
+    import json
+    from mantis.config.models import ExperimentConfig
+    from mantis.observability.artifacts import create_run_manifest
+    monkeypatch.setenv("MANTIS_MOCK_LLM", "1")
+    cfg = ExperimentConfig(experiment={"name": "t", "domain": "front_office", "workflow": "front_office_monitoring", "scenario": "front_office_monitoring"})
+    llm = json.loads(create_run_manifest(cfg, tmp_path).read_text())["environment"]["llm"]
+    assert llm["mock"] is True and llm["model"] == "mock" and llm["endpoint_host"] is None

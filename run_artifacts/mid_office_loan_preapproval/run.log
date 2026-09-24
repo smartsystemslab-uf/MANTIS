@@ -1,0 +1,30 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "mid_office_loan_preapproval": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "front_office_router"
+    },
+    {
+      "agent": "front_office_router",
+      "event": "transfer",
+      "to": "mid_office_router"
+    },
+    {
+      "agent": "mid_office_router",
+      "event": "transfer",
+      "to": "loan_preapproval_agent"
+    },
+    {
+      "agent": "loan_preapproval_agent",
+      "event": "tool_call",
+      "tool": "submit_loan_application",
+      "args": {
+        "customer_id": "CUST-002",
+        "amount": 2000,
+        "purpose": "home improvement"
+      }
+    }
+  ]
+}

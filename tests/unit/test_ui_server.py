@@ -118,3 +118,62 @@ def test_validate_accepts_a_real_valid_config():
 def test_write_config_rejects_a_config_that_fails_real_pydantic_validation():
     r = client.post("/api/validate", json={"config": {"experiment": {"name": "missing_required_fields"}}})
     assert r.status_code == 422
+
+
+def test_get_hook_coverage_returns_real_data_from_a_real_run():
+    r = client.get(f"/api/runs/{REAL_RUN}/hook-coverage")
+    assert r.status_code == 200
+    data = r.json()
+    assert "hits" in data
+    assert data["hits"]["before_input"] >= 1
+
+
+def test_get_hook_coverage_404s_for_an_unknown_run():
+    r = client.get("/api/runs/this_run_does_not_exist/hook-coverage")
+    assert r.status_code == 404
+
+
+def test_campaign_404s_for_a_nonexistent_directory():
+    r = client.post("/api/campaign", json={"directory": "configs/this_directory_does_not_exist"})
+    assert r.status_code == 404
+
+
+def test_campaign_report_404s_when_report_md_is_missing():
+    r = client.get("/api/campaign/this_campaign_does_not_exist/report")
+    assert r.status_code == 404
+    assert "mantis --report" in r.json()["detail"]
+
+
+def test_campaign_parses_the_output_directory_from_cli_stdout_and_chains_report(monkeypatch, tmp_path):
+    """No separate business logic: /api/campaign shells out to the real
+    --campaign CLI, then chains the real --report CLI against the
+    directory that CLI printed -- verified here by faking only the
+    subprocess boundary (_run_cli), not the parsing/chaining logic."""
+    import mantis.ui.server as server
+
+    calls = []
+
+    def fake_run_cli(args, timeout=180):
+        calls.append(args)
+        if args[0] == "--campaign":
+            return {
+                "returncode": 0,
+                "stdout": "🚀 Starting Campaign Execution. Found 1 configs.\n📁 Output Directory: run_artifacts/campaign_run_999\n",
+                "stderr": "",
+            }
+        elif args[0] == "--report":
+            return {"returncode": 0, "stdout": "report generated", "stderr": ""}
+        raise AssertionError(f"unexpected CLI args: {args}")
+
+    monkeypatch.setattr(server, "_run_cli", fake_run_cli)
+    # A real directory must exist for the endpoint's own existence check.
+    real_dir = tmp_path / "some_configs"
+    real_dir.mkdir()
+
+    r = client.post("/api/campaign", json={"directory": str(real_dir)})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["run_name"] == "campaign_run_999"
+    assert data["report_generated"] is True
+    assert calls[0][0] == "--campaign"
+    assert calls[1] == ["--report", str(server.REPO_ROOT / "run_artifacts" / "campaign_run_999")]

@@ -34,6 +34,11 @@ from mantis.plugins.attacks.route_confusion import RouteConfusionPlugin
 from mantis.plugins.attacks.tool_mutation import ToolParameterMutationPlugin
 from mantis.plugins.failures.reliability import ReliabilityFailurePlugin
 from mantis.plugins.policies.amount_limit_guardrail import AmountLimitGuardrailPlugin
+from mantis.plugins.policies.routing_guard import RiskAwareRoutingGuardPlugin
+from mantis.plugins.policies.response_redaction import ResponseRedactionPlugin
+from mantis.plugins.policies.batch_integrity_guard import BatchIntegrityGuardPlugin
+from mantis.plugins.policies.rate_limit_guardrail import RateLimitGuardrailPlugin
+from mantis.plugins.policies.action_isolation import ActionIsolationPlugin
 
 plugin_registry.register("mock_attack", MockAttackPlugin)
 plugin_registry.register("prompt_injection", PromptInjectionPlugin)
@@ -41,6 +46,11 @@ plugin_registry.register("message_spoofing", MessageSpoofingPlugin)
 plugin_registry.register("route_confusion", RouteConfusionPlugin)
 plugin_registry.register("tool_mutation", ToolParameterMutationPlugin)
 plugin_registry.register("amount_limit_guardrail", AmountLimitGuardrailPlugin)
+plugin_registry.register("risk_aware_routing_guard", RiskAwareRoutingGuardPlugin)
+plugin_registry.register("response_redaction", ResponseRedactionPlugin)
+plugin_registry.register("batch_integrity_guard", BatchIntegrityGuardPlugin)
+plugin_registry.register("rate_limit_guardrail", RateLimitGuardrailPlugin)
+plugin_registry.register("action_isolation", ActionIsolationPlugin)
 plugin_registry.register("reliability_failure", ReliabilityFailurePlugin)
 
 # Banking-specific data (which agents belong to which domain, scenario

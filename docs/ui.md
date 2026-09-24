@@ -14,6 +14,8 @@ mantis --ui
 - **Schema, registries, and inventory** (`/api/schema`, `/api/registries`, `/api/inventory`) call `ExperimentConfig.model_json_schema()`, the same `domain_registry`/`scenario_registry`/`workflow_registry`/`plugin_registry`/`evaluator_registry` objects, and `NativeBankingAdapter().inventory()` directly — the identical objects `mantis --generate-schemas`/`--validate`/`--inventory` already read from, not a UI-maintained copy.
 - **Trace viewer** (`/api/runs/<name>/trace`) reads `run_artifacts/<name>/traces.jsonl` directly — the same portable JSONL file every other MANTIS consumer (the evaluator, the campaign report, `docs/observability.md`) reads.
 - **Evaluate** (`/api/runs/<name>/evaluate`) shells out to `mantis --evaluate <dir>`.
+- **Hook coverage** (`/api/runs/<name>/hook-coverage`) reads `run_artifacts/<name>/hook_coverage.json` directly, symmetric with the trace/evaluation endpoints above.
+- **Campaign** (`/api/campaign`) shells out to `mantis --campaign <dir>`, then chains a second, real CLI invocation (`mantis --report <output_dir>`) against the directory that command printed — two existing CLI commands run in sequence, not new aggregation logic. **Campaign report** (`/api/campaign/<name>/report`) then reads the resulting `report.md` directly.
 
 ## Editor form fields are schema-driven, not hardcoded
 

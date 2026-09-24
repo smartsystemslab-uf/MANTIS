@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-09-21T17:28:35.440612Z",
+  "config_hash": "f04658c52674c974b8cadc5cfb9954e9ee13f37944360f7f4dde94d09b1ca19f",
+  "seed": 106,
+  "config": {
+    "experiment": {
+      "name": "mid_office_loan_preapproval",
+      "seed": 106,
+      "domain": "mid_office",
+      "workflow": "mid_office_loan_preapproval",
+      "scenario": "mid_office_loan_preapproval"
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "submit_loan_application"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "57ad07e19c174c15cba41841178fe87f4f2acc00"
+  }
+}

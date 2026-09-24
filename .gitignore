@@ -19,3 +19,6 @@ run_artifacts/campaign_run_*/
 run_artifacts/verify_*/
 # Scratch configs the minimal UI (mantis --ui) writes per validate/run action.
 configs/ui_generated/
+# Per-trial scratch dirs of the extended scenario campaign; the recorded evidence is
+# results/extended_*.json (each trial carries its own tools, outcome, and database snapshot).
+run_artifacts/ext_*/

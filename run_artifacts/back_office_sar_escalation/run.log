@@ -1,0 +1,32 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "back_office_sar_escalation": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "back_office_router"
+    },
+    {
+      "agent": "back_office_router",
+      "event": "transfer",
+      "to": "sar_escalation_agent"
+    },
+    {
+      "agent": "sar_escalation_agent",
+      "event": "tool_call",
+      "tool": "get_exception_case",
+      "args": {
+        "exception_id": "EX-SEEDED01"
+      }
+    },
+    {
+      "agent": "sar_escalation_agent",
+      "event": "tool_call",
+      "tool": "file_sar_report",
+      "args": {
+        "exception_id": "EX-SEEDED01",
+        "reason": "Repeated, unexplained round-number discrepancy of $190.00 across multiple days without source system entry or timing/rounding justification, indicating potential manipulation or misreporting."
+      }
+    }
+  ]
+}
