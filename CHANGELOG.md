@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GUIDE/` (platform guide source and PDF), `scripts/build_guide.sh`, `scripts/publish.sh`, and an opt-in `.githooks/pre-push` that keeps the guide PDF current at every push.
 - Run manifests now record the serving model and endpoint host (`environment.llm`), never the key.
 
+- **Starter campaigns** (`configs/campaigns/`, four themed sets, 20 configs, all run live): an attack tour, the six defenses, the added workloads, and extended attacks on the newer workflows; each is one `mantis --campaign` command. Run folders (`run_artifacts/camp_*`) are git-ignored.
+- Guide sections 9.1 to 9.3 (a from-scratch add-your-own-attack walkthrough, where every new artifact lives, and a novice checklist), and a starter-campaigns section.
+- `presentations/` (dated decks with read-aloud scripts and an index) and a README refresh covering the extensions, campaigns, UI and where new experiments live.
+
 ### Fixed
 - `mantis --validate` rejected the shipped `ci_mock_prompt_injection.yaml` (target `user_proxy_agent`, the real root agent) although `--run` accepts it; the root agent is now a valid attack target.
 - Every prompt-injection config pointed at `attacks/prompt_01.txt`, which was never committed, so the plugin silently injected its built-in fallback. The file now exists with identical text (Paper 1's evidence stays reproducible) and a missing payload file logs a warning.
@@ -25,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Output-stage `MUTATE` now reaches the caller (`runner.run_message` dispatches a second `after_output` with the real result), with a guard so it is not misread as a second workflow end.
 
 ### Tests
-- 670 offline tests passing (was 139), including parametrized consistency suites over every shipped config and scenario.
+- 768 offline tests passing, 165 skipped by design (was 139), including parametrized consistency suites over every shipped config and scenario.
 
 ## [Unreleased] - 2026-09-14
 

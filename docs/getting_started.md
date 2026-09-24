@@ -108,6 +108,8 @@ mantis --evaluate run_artifacts/advanced_attack_test
 
 ## 6. Running a Full Security Campaign
 
+New to MANTIS? Start with the four small starter campaigns in [`configs/campaigns/`](../configs/campaigns/README.md), for example `mantis --campaign configs/campaigns/1_attack_tour`, then open the results with `mantis --ui`.
+
 Run all attacks in a directory and generate a comparative Markdown report:
 
 ```bash

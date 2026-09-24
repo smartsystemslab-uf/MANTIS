@@ -19,7 +19,7 @@ REPO = Path(__file__).resolve().parents[2]
 DATE = "2026-09-24"
 OUT_DIR = REPO / "presentations"
 NAME = f"MANTIS_Presentation_{DATE}"
-TESTS = "670"
+TESTS = "768"
 MODEL_LINE = "gpt-oss-20b (open-weight), served through UF Navigator"
 
 # ---------------------------------------------------------------- recorded results

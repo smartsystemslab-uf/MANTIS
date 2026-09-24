@@ -8,6 +8,10 @@ mantis --ui
 # open http://127.0.0.1:8765
 ```
 
+## Seeing an attack in the browser
+
+After any run, open the page and pick the run in the Trace Viewer dropdown (`Refresh` reloads the list; runs marked ✓evaluated have a scorecard). **Load trace** shows every event (look for `ATTACK_INJECTED`, `POLICY_EVENT`, `ANOMALY`), **View evaluation** shows the scored dimensions (see `attack_ground_truth` and `workflow_outcome`), and **View hook coverage** shows which checkpoints fired. **Evaluate** scores a run from the browser, the same as `mantis --evaluate`.
+
 ## What "no separate business logic" means here concretely
 
 - **Validate / Run** shell out to the exact same `mantis` console-script entrypoint a terminal user would type — `python -m mantis.cli.main --validate <file>` / `--run <file>` — as a real subprocess. There is no second, UI-side config-validation or experiment-execution code path that could drift from the real CLI's behavior.

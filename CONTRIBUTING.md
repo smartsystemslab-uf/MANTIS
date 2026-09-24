@@ -45,3 +45,12 @@ If you are contributing new security attack plugins or failure modes:
 - Register the plugin in `src/mantis/core/registry.py`.
 - Include a reproducible configuration in `configs/attacks/`.
 - Provide machine-readable ground truth and unit tests validating interception.
+
+## Adding an experiment, plugin or defense
+
+The platform guide (`GUIDE/MANTIS_Platform_Guide.pdf`, sections 9.1 to 9.3) has a from-scratch walkthrough, a table of where every new artifact lives, and a checklist. In short:
+- Give each experiment a unique `experiment.name`; reusing a shipped name overwrites that run folder, and the `wp5_*`, `wp6_*` and baseline runs are recorded paper evidence.
+- Defenses go under `src/mantis/plugins/policies/` and their name must be added to `_POLICY_PLUGIN_NAMES` in `src/mantis/observability/plugin.py`.
+- New config folders should be added to `CONFIG_DIRS` in `tests/unit/test_config_library.py` so they are validated automatically.
+- The offline tests and `scripts/release_validation.sh` rewrite a few tracked run folders; run `git status` and `git checkout --` those before committing.
+- Never commit an API key. Keys live in `.env`, which is git-ignored. Pushing through `./scripts/publish.sh` also refreshes the guide PDF.
