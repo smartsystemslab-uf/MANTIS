@@ -1,4 +1,4 @@
-# Minimal UI *(Post-Paper Extension, coding plan §11)*
+# Minimal UI
 
 A schema-driven experiment editor and trace viewer, invoking the same CLI/API MANTIS already ships — no separate business logic.
 
