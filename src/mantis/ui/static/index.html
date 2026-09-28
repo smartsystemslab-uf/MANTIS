@@ -39,12 +39,22 @@
   th { color: var(--ink-soft); font-weight: 600; text-transform: uppercase; font-size: 10px; }
   .muted { color: var(--ink-soft); font-size: 12px; }
   .schema-note { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  header { flex-wrap: wrap; }
+  .caps { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; margin-top: 2px; }
+  .caps span { font-size: 10.5px; color: #cfdaf0; background: rgba(255,255,255,.08); border-radius: 99px; padding: 2px 9px; }
 </style>
 </head>
 <body>
 <header>
   <h1>MANTIS</h1>
-  <p>Minimal UI — schema-driven editor &amp; trace viewer, invoking the real CLI underneath (Post-Paper Extension, coding plan §11)</p>
+  <p>Experiment editor &amp; trace viewer, backed by the real CLI</p>
+  <div class="caps">
+    <span>Validate &amp; run configs</span>
+    <span>Trace viewer</span>
+    <span>Evaluation scores</span>
+    <span>Hook coverage</span>
+    <span>Campaigns &amp; reports</span>
+  </div>
 </header>
 <main>
   <section id="editor">
