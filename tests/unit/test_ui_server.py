@@ -46,6 +46,23 @@ def test_registries_endpoint_matches_the_real_registries():
     assert "front_office_monitoring" in data["scenarios"]
 
 
+def test_registries_endpoint_splits_plugins_by_category_for_the_editor_form():
+    """The editor's Attack and Policy dropdowns must only offer plugins of
+    their own kind -- previously both were populated from the same
+    undifferentiated `plugins` list, so a defense could be picked under
+    Attack (and vice versa) with nothing catching it."""
+    from mantis.observability.plugin import _POLICY_PLUGIN_NAMES
+
+    r = client.get("/api/registries")
+    data = r.json()
+    assert set(data["attack_plugins"]) & set(data["policy_plugins"]) == set(), "no plugin should appear in both"
+    assert set(data["policy_plugins"]) == _POLICY_PLUGIN_NAMES
+    assert set(data["attack_plugins"]) | set(data["policy_plugins"]) | {"mock_attack"} == set(plugin_registry.all().keys())
+    assert "route_confusion" in data["attack_plugins"] and "route_confusion" not in data["policy_plugins"]
+    assert "amount_limit_guardrail" in data["policy_plugins"] and "amount_limit_guardrail" not in data["attack_plugins"]
+    assert "mock_attack" not in data["attack_plugins"] and "mock_attack" not in data["policy_plugins"]
+
+
 def test_inventory_endpoint_matches_the_real_adapter():
     r = client.get("/api/inventory")
     data = r.json()

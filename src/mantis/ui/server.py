@@ -91,12 +91,29 @@ def get_schema():
 @app.get("/api/registries")
 def get_registries():
     """Real registry contents -- the same dicts `mantis --validate` checks
-    a config's domain/workflow/scenario/plugin references against."""
+    a config's domain/workflow/scenario/plugin references against.
+
+    `plugins` is every registered plugin, kept for backward compatibility.
+    `attack_plugins`/`policy_plugins` split that same list by the one
+    place the codebase already distinguishes them --
+    observability.plugin._POLICY_PLUGIN_NAMES, which classifies a plugin's
+    own actions as POLICY_EVENT vs ATTACK_INJECTED/ANOMALY -- so the editor
+    form can offer each dropdown only the plugins that belong in it,
+    without a second, UI-maintained category list to drift out of sync.
+    `mock_attack` is a test-only harness plugin, excluded from both.
+    """
+    from mantis.observability.plugin import _POLICY_PLUGIN_NAMES
+
+    all_plugins = set(plugin_registry.all().keys())
+    policy_plugins = sorted(all_plugins & _POLICY_PLUGIN_NAMES)
+    attack_plugins = sorted(all_plugins - _POLICY_PLUGIN_NAMES - {"mock_attack"})
     return {
         "domains": sorted(domain_registry.all().keys()),
         "workflows": sorted(workflow_registry.all().keys()),
         "scenarios": sorted(scenario_registry.all().keys()),
-        "plugins": sorted(plugin_registry.all().keys()),
+        "plugins": sorted(all_plugins),
+        "attack_plugins": attack_plugins,
+        "policy_plugins": policy_plugins,
         "evaluators": sorted(evaluator_registry.all().keys()),
     }
 

@@ -316,9 +316,8 @@ async function init() {
   document.getElementById("f-domain").innerHTML = registries.domains.map(d => `<option>${d}</option>`).join("");
   document.getElementById("f-workflow").innerHTML = registries.workflows.map(w => `<option>${w}</option>`).join("");
   document.getElementById("f-scenario").innerHTML = registries.scenarios.map(s => `<option>${s}</option>`).join("");
-  const pluginOpts = registries.plugins.map(p => `<option>${p}</option>`).join("");
-  document.getElementById("a-plugin").innerHTML += pluginOpts;
-  document.getElementById("p-plugin").innerHTML += pluginOpts;
+  document.getElementById("a-plugin").innerHTML += registries.attack_plugins.map(p => `<option>${p}</option>`).join("");
+  document.getElementById("p-plugin").innerHTML += registries.policy_plugins.map(p => `<option>${p}</option>`).join("");
   await refreshRuns();
 }
 init();
