@@ -100,7 +100,7 @@ class CampaignManager:
             return
 
         lines = []
-        lines.append("# 🛡️ MANTIS Security Campaign Report")
+        lines.append("# MANTIS Security Campaign Report")
         lines.append(f"**Directory**: `{self.output_dir}`\n")
         lines.append("| Experiment | Completeness | Correctness | Status | Attack Effect |")
         lines.append("|------------|--------------|-------------|--------|---------------|")
@@ -113,7 +113,7 @@ class CampaignManager:
             results = evaluator.evaluate_all()
 
             if "error" in results:
-                lines.append(f"| {run_dir.name} | N/A | N/A | ❌ ERR | N/A |")
+                lines.append(f"| {run_dir.name} | N/A | N/A | ERROR | N/A |")
                 continue
 
             comp_score = results.get("trace_completeness", {}).get("score", 0.0)
@@ -132,15 +132,15 @@ class CampaignManager:
                 fired = ground_truth.get("attack_fired")
                 effect = ground_truth.get("effect_detected_vs_ground_truth")
                 if fired and effect:
-                    attack_effect = "⚔️ fired, effect detected"
+                    attack_effect = "fired, effect detected"
                 elif fired:
-                    attack_effect = "⚔️ fired, no effect this trial"
+                    attack_effect = "fired, no effect this trial"
                 else:
-                    attack_effect = "❌ did not fire"
+                    attack_effect = "did not fire"
             else:
                 attack_effect = "n/a (baseline)"
 
-            status = "✅ PASS" if (comp_score == 1.0 and corr_score == 1.0) else "⚠️ FAIL"
+            status = "PASS" if (comp_score == 1.0 and corr_score == 1.0) else "FAIL"
 
             lines.append(f"| {run_dir.name} | {comp_score:.1f} | {corr_score:.1f} | {status} | {attack_effect} |")
 
