@@ -25,6 +25,8 @@ After any run, open the page and pick the run in the Trace Viewer dropdown (`Ref
 
 Domain, workflow, scenario, and attack/policy plugin dropdowns are populated at page load from `/api/registries` and `/api/inventory` — live data, not a hand-maintained list baked into `index.html`. Submitting the form validates the assembled dict against the real `ExperimentConfig` Pydantic model server-side (`_write_config` in `src/mantis/ui/server.py`) before it's ever written to disk as the YAML file the CLI subprocess reads.
 
+One exception: the **Zero Trust Backplane** fieldset is a fixed checkbox and PDP-URL field, not populated from the registries — it's a dedicated toggle for the `zero_trust:` config block (see `extensions/zero_trust/README.md`), separate from the generic Policy dropdown above it, so turning it on or off doesn't require knowing the plugin's name.
+
 ## What this is not
 
 Not a replacement for the CLI, and not a second implementation of anything — a thinner surface over it. Not authenticated or hardened for anything beyond local, single-user use (it binds to `127.0.0.1` only). Building out a fuller editor (nested observability/benchmark sub-forms, multi-policy lists, live-updating trace tail while a run is in progress) is future work; this slice covers the fields most experiments actually use.

@@ -177,3 +177,7 @@ policies:
 ```
 
 Live-verified 5/5 (`configs/extensions/guardrail_isolates_funds_movement.yaml`): the transfer-rewriting attack fires and `execute_transfer` is denied every trial; the banking backend's transaction count did not change. Because isolation cannot tell a legitimate call from an attacked one, the customer's real transfer is refused too -- by design. A workflow with a downstream step that depends on a blocked tool will see the denial as a failed step (see `docs/extended_scenarios.md` on fault propagation).
+
+### A policy plugin that calls out to a real external system
+
+All six plugins above are policy logic MANTIS itself implements. `ZeroTrustEnforcementPlugin` (`src/mantis/plugins/policies/zero_trust_enforcement.py`) is a different shape again: a `PolicyPlugin` whose `apply(ctx)` calls a real, separately-running service -- the independent `Citi_P3_Zero_Trust_Backplane` project's signed PDP -- rather than deciding anything itself. It's the pattern to follow when a defense's actual decision logic belongs to, or should stay in sync with, a system MANTIS doesn't own: build the request, call out, map the real response onto `HookResult`, and fail closed (`DENY`) if that system is unreachable. See `extensions/zero_trust/README.md` for the full integration and its dedicated `zero_trust:` config toggle (separate from the generic `policies:` list used above).
