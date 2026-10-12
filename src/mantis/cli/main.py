@@ -31,7 +31,7 @@ class _Tee:
 # that purely structural CLI commands (--help, --inventory, --generate-schemas,
 # --evaluate) work even when the full ADK stack is not installed (e.g. CI).
 # --------------------------------------------------------------------------
-from mantis.config.models import ExperimentConfig, ObservabilityConfig
+from mantis.config.models import ExperimentConfig, ObservabilityConfig, PolicyConfig
 from mantis.core.registry import scenario_registry, plugin_registry, domain_registry, workflow_registry
 
 VALID_CONTROL_POINTS = {"input", "agent", "interaction", "tool", "output"}
@@ -151,15 +151,35 @@ async def run_experiment(config_path: str):
                 # before observability, for the same reason attack plugins
                 # do: ObservabilityPlugin must be dispatched last to see
                 # every earlier plugin's effect for that call.
-                if config.policies:
-                    for policy_cfg in config.policies:
-                        try:
-                            policy_cls = plugin_registry.get(policy_cfg.plugin)
-                            policy_instance = policy_cls(**policy_cfg.parameters)
-                            hooks.register(policy_instance)
-                        except Exception as e:
-                            print(f"❌ Failed to load policy plugin {policy_cfg.plugin}: {e}", file=sys.stderr)
-                            sys.exit(1)
+                policy_configs = list(config.policies or [])
+                # zero_trust: is a dedicated toggle, not a second mechanism --
+                # it just appends the same zero_trust_enforcement PolicyConfig
+                # the generic `policies:` list would, so it goes through the
+                # identical registration path (and ordering) below.
+                if config.zero_trust and config.zero_trust.enabled:
+                    policy_configs.append(PolicyConfig(
+                        plugin="zero_trust_enforcement",
+                        parameters={"pdp_url": config.zero_trust.pdp_url},
+                    ))
+                for policy_cfg in policy_configs:
+                    try:
+                        policy_cls = plugin_registry.get(policy_cfg.plugin)
+                        policy_instance = policy_cls(**policy_cfg.parameters)
+                        hooks.register(policy_instance)
+                    except KeyError:
+                        if policy_cfg.plugin == "zero_trust_enforcement":
+                            print(
+                                '❌ zero_trust: is enabled but zero_trust_enforcement is not registered -- '
+                                'install the optional dependency: pip install -e ".[zero_trust]" '
+                                "(see extensions/zero_trust/README.md)",
+                                file=sys.stderr,
+                            )
+                        else:
+                            print(f"❌ Failed to load policy plugin {policy_cfg.plugin}: unknown plugin", file=sys.stderr)
+                        sys.exit(1)
+                    except Exception as e:
+                        print(f"❌ Failed to load policy plugin {policy_cfg.plugin}: {e}", file=sys.stderr)
+                        sys.exit(1)
 
                 if obs_config.mode != "off":
                     trace_writer = TraceArtifactWriter(str(output_dir))
@@ -293,6 +313,14 @@ def validate_config(config_path: str) -> bool:
                 if policy_cfg.plugin not in plugin_registry.all():
                     print(f"❌ Unknown policy plugin '{policy_cfg.plugin}' in registry. If it's from an external extension, validate through that extension's own entrypoint instead of `mantis` directly, so it's actually imported first.", file=sys.stderr)
                     return False
+        if cfg.zero_trust and cfg.zero_trust.enabled and "zero_trust_enforcement" not in plugin_registry.all():
+            print(
+                '❌ zero_trust: is enabled but zero_trust_enforcement is not registered -- '
+                'install the optional dependency: pip install -e ".[zero_trust]" '
+                "(see extensions/zero_trust/README.md)",
+                file=sys.stderr,
+            )
+            return False
         print(f"✅ Configuration '{config_path}' is valid (Experiment: {cfg.experiment.name}, Scenario: {cfg.experiment.scenario}).")
         return True
     except Exception as e:

@@ -50,6 +50,8 @@ def _skip_if_plugin_unavailable(cfg: ExperimentConfig) -> None:
     extra installed isn't a false negative, while still catching a config
     that references a plugin not registered at all."""
     names = ([cfg.attack.plugin] if cfg.attack and cfg.attack.plugin else []) + [p.plugin for p in (cfg.policies or [])]
+    if cfg.zero_trust and cfg.zero_trust.enabled:
+        names.append("zero_trust_enforcement")
     missing = [n for n in names if n not in plugin_registry.all()]
     if missing:
         pytest.skip(f"plugin(s) {missing} not registered -- optional dependency not installed")

@@ -110,3 +110,40 @@ def test_pdp_unreachable_fails_closed():
         result = ZeroTrustEnforcementPlugin().apply(_ctx())
     assert result.action == HookAction.DENY
     assert "PDP unavailable" in result.payload["error"]
+
+
+def test_the_dedicated_toggle_validates_and_resolves_to_the_same_plugin(tmp_path, monkeypatch):
+    """zero_trust: {enabled: true} is sugar over the generic policies: list
+    -- same plugin, same validation path, just a clearer single switch to
+    flip for someone configuring an attack."""
+    from mantis.cli.main import validate_config
+
+    cfg = tmp_path / "zt_toggle.yaml"
+    cfg.write_text(
+        "experiment:\n  name: zt_toggle_test\n  domain: front_office\n"
+        "  workflow: front_office_monitoring\n  scenario: front_office_monitoring\n"
+        "zero_trust:\n  enabled: true\n"
+    )
+    from pathlib import Path
+    monkeypatch.chdir(Path(__file__).resolve().parents[2])
+    assert validate_config(str(cfg)) is True
+
+
+def test_toggle_disabled_does_not_require_the_plugin_at_all(tmp_path, monkeypatch):
+    """enabled: false must validate even if zero_trust_enforcement were
+    somehow unavailable -- the whole point of a toggle is that off means off."""
+    from mantis.cli.main import validate_config
+    import mantis.core.registry as registry
+
+    cfg = tmp_path / "zt_toggle_off.yaml"
+    cfg.write_text(
+        "experiment:\n  name: zt_toggle_off_test\n  domain: front_office\n"
+        "  workflow: front_office_monitoring\n  scenario: front_office_monitoring\n"
+        "zero_trust:\n  enabled: false\n"
+    )
+    original = dict(registry.plugin_registry._registry)
+    try:
+        del registry.plugin_registry._registry["zero_trust_enforcement"]
+        assert validate_config(str(cfg)) is True
+    finally:
+        registry.plugin_registry._registry = original

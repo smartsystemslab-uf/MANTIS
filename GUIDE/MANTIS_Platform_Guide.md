@@ -456,11 +456,12 @@ python extensions/zero_trust/bootstrap_keys.py     # once: local dev signing key
 add it to a config's `policies:`:
 
 ```yaml
-policies:
-  - plugin: zero_trust_enforcement
-    parameters:
-      pdp_url: http://127.0.0.1:8600
+zero_trust:
+  enabled: true
+  pdp_url: http://127.0.0.1:8600
 ```
+
+(The UI's Experiment Editor has the same thing as a checkbox, next to the Policy fieldset.)
 
 `configs/extensions/zero_trust_demo.yaml` runs a full legitimate workflow
 with it on: every real tool call is checked by the real PDP before it

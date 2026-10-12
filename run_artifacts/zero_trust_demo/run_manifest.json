@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-10-12T19:10:10.159074Z",
-  "config_hash": "505588b570d0cad335ca5af3cdcc3d5dc6b1a4faf6df50e5f6dbe1383e5ab2cb",
+  "timestamp": "2026-10-12T19:48:04.416317Z",
+  "config_hash": "2a1592752e60321f2067b53e60d96fb2882c6a7d39c8ee0c0312f0666e3e90cd",
   "seed": 110,
   "config": {
     "experiment": {
@@ -10,14 +10,10 @@
       "workflow": "front_office_monitoring",
       "scenario": "front_office_monitoring"
     },
-    "policies": [
-      {
-        "plugin": "zero_trust_enforcement",
-        "parameters": {
-          "pdp_url": "http://127.0.0.1:8600"
-        }
-      }
-    ],
+    "zero_trust": {
+      "enabled": false,
+      "pdp_url": "http://127.0.0.1:8600"
+    },
     "observability": {
       "mode": "full",
       "export": [
@@ -43,7 +39,7 @@
       "mcp": "1.29.0",
       "pydantic": "2.13.4"
     },
-    "git_commit": "f9d09dd57359698d73d676d1da39d91ef23cd1a8",
+    "git_commit": "0d6dcdc59a660bd9dbe08c460e1c9f12e5b89483",
     "llm": {
       "mock": false,
       "model": "gpt-oss-20b",

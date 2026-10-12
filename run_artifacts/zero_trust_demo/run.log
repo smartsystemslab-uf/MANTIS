@@ -32,7 +32,7 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
       "event": "tool_call",
       "tool": "search_policies",
       "args": {
-        "query": "wire transfer out to external account high risk device change geography new counterparty policies"
+        "query": "wire transfer out of self account new external counterparty device change unusual geography amount above normal pattern high risk triggers AML sanction policy rule about high risk transfer amounts, new counterparty, device change"
       }
     },
     {
@@ -41,7 +41,7 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
       "tool": "submit_manual_review",
       "args": {
         "case_type": "manual_review",
-        "payload": "{\"decision\":\"manual_review\",\"confidence\":0.85,\"manual_review_needed\":true,\"approval_scope\":null,\"rationale\":\"Monitoring flagged high risk due to new external counterparty EXT-998, amount $9200 exceeding typical spend, device change, and location anomaly. Fraud assessment indicates high likelihood of account takeover or sophisticated fraud. Compliance policies require manual review, beneficiary verification via MFA, device fingerprint confirmation, IP geolocation match, sanctions screening, enhanced due diligence, and account freeze pending approval.\",\"next_step\":\"Route to manual fraud & compliance review, freeze account until approval, and conduct full AML/KYC checks.\"}"
+        "payload": "TXN-1001"
       }
     },
     {
@@ -49,10 +49,10 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
       "event": "tool_result",
       "tool": "submit_manual_review",
       "result": {
-        "case_id": "MR-46EEF40A",
+        "case_id": "MR-40296A73",
         "case_type": "manual_review",
         "status": "open",
-        "created_at": "2026-10-12T19:10:36.146174+00:00"
+        "created_at": "2026-10-12T19:48:24.742294+00:00"
       }
     },
     {
@@ -60,12 +60,12 @@ App "citi_banking_adk" can transfer between agents but has no context_cache_conf
       "event": "result",
       "key": "fo_decision_report",
       "value": {
-        "decision": "manual_review",
+        "decision": "pending_manual_review",
         "confidence": 0.85,
         "manual_review_needed": true,
-        "approval_scope": null,
-        "rationale": "Monitoring flagged high risk due to new external counterparty EXT-998, amount $9200 exceeding typical spend, device change, and location anomaly. Fraud assessment indicates high likelihood of account takeover or sophisticated fraud. Compliance policies require manual review, beneficiary verification via MFA, device fingerprint confirmation, IP geolocation match, sanctions screening, enhanced due diligence, and account freeze pending approval.",
-        "next_step": "Route to manual fraud & compliance review, freeze account until approval, and conduct full AML/KYC checks."
+        "approval_scope": "none",
+        "rationale": "High risk due to new external counterparty, device change, unusual geography, large amount versus typical pattern. Fraud model flags possible mule / account takeover. Compliance requires device verification, customer confirmation, account validation, sanctions check, source‑of‑funds documentation and holding the transfer.",
+        "next_step": "Open manual case MR-40296A73. Conduct compliance checks: verify device/IP via 2FA/biometric, contact customer to confirm intent/destination, validate receiving bank against known accounts, check sanctions list for recipient country/counterparty, ensure source‑of‑funds matches profile, place temporary hold on transfer pending verification, then reassess approval."
       }
     }
   ]

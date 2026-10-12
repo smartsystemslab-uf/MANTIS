@@ -19,10 +19,12 @@ experiment:
   workflow: front_office_monitoring
   scenario: front_office_monitoring
 
-policies:
-  - plugin: zero_trust_enforcement
-    parameters:
-      pdp_url: http://127.0.0.1:8600
+# The dedicated toggle -- flip `enabled` to false (or delete the block) to
+# run the exact same scenario with Zero Trust off; everything else about
+# this config, and MANTIS's own behavior, stays identical either way.
+zero_trust:
+  enabled: true
+  pdp_url: http://127.0.0.1:8600
 
 observability:
   mode: full

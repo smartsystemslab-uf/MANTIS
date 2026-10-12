@@ -22,7 +22,6 @@
       "observability_plugin": 20
     },
     "tool": {
-      "zero_trust_enforcement": 12,
       "observability_plugin": 12
     },
     "output": {
@@ -30,7 +29,6 @@
     }
   },
   "plugin_timing_ms": {
-    "observability_plugin": 22.780317987781018,
-    "zero_trust_enforcement": 332.6889319869224
+    "observability_plugin": 26.55548509210348
   }
 }

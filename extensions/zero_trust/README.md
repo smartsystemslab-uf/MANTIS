@@ -67,14 +67,15 @@ python extensions/zero_trust/bootstrap_keys.py    # once; regenerate after a --f
 ./extensions/zero_trust/run_pdp.sh                # leave running, in its own terminal (port 8600)
 ```
 
-Then, in any config:
+Then, in any config -- a dedicated toggle, so turning it on or off when configuring an attack is one clear switch rather than remembering the plugin name and its parameters by hand:
 
 ```yaml
-policies:
-  - plugin: zero_trust_enforcement
-    parameters:
-      pdp_url: http://127.0.0.1:8600   # default; override if you ran run_pdp.sh on a different port
+zero_trust:
+  enabled: true                         # flip to false (or delete the block) to run the same config without it
+  pdp_url: http://127.0.0.1:8600        # default; override if you ran run_pdp.sh on a different port
 ```
+
+(This is sugar over the generic `policies:` list every other defense uses -- `policies: [{plugin: zero_trust_enforcement, parameters: {pdp_url: ...}}]` works identically, if you prefer that form. The UI's Experiment Editor has the same toggle as a checkbox.)
 
 `mantis --run configs/extensions/zero_trust_demo.yaml` runs a full,
 undefended-equivalent legitimate workflow with the toggle on -- every real

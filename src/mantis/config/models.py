@@ -32,6 +32,20 @@ class AttackConfig(BaseModel):
     target: str = Field(description="Target component ID")
     parameters: Dict[str, Any] = Field(default_factory=dict, description="Plugin specific parameters")
 
+class ZeroTrustConfig(BaseModel):
+    """A dedicated toggle for the Zero Trust Backplane extension
+    (extensions/zero_trust/, src/mantis/plugins/policies/
+    zero_trust_enforcement.py), separate from the generic `policies:` list
+    so attaching it to an attack config is one clear switch rather than
+    remembering the plugin name and its parameters by hand. Requires the
+    optional `zero_trust` dependency installed (`pip install -e
+    ".[zero_trust]"`) and the real PDP service running (`./extensions/
+    zero_trust/run_pdp.sh`) -- a clear error is raised at run time if
+    either is missing, rather than a silent no-op."""
+    enabled: bool = Field(default=True, description="Turn the Zero Trust Backplane PEP on for this run; the config key's presence already implies intent, this lets it be toggled without deleting the block")
+    pdp_url: str = Field(default="http://127.0.0.1:8600", description="The real Zero Trust Backplane PDP service's URL")
+
+
 class PolicyConfig(BaseModel):
     """A defense plugin to register alongside (and, in the hook dispatch
     order, after) any configured attack -- Post-Paper Extension, coding
@@ -72,6 +86,7 @@ class ExperimentConfig(BaseModel):
     modifications: Optional[ModificationsConfig] = None
     attack: Optional[AttackConfig] = None
     policies: Optional[List[PolicyConfig]] = None
+    zero_trust: Optional[ZeroTrustConfig] = None
     observability: Optional[ObservabilityConfig] = None
     evaluation: Optional[EvaluationConfig] = None
     benchmark: Optional[BenchmarkConfig] = None
