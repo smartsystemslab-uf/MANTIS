@@ -5,6 +5,11 @@ All notable changes to the MANTIS project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-10-12
+
+### Changed (reverses the 2026-09-14 decision below)
+- **Zero Trust Backplane is back in the MANTIS repo, per a team decision, as a toggleable extension** (`extensions/zero_trust/`, `src/mantis/plugins/policies/zero_trust_enforcement.py`): a real integration of the independent, real `Citi_P3_Zero_Trust_Backplane` project's Task 4 signed PDP -- not a reimplementation. Opt-in only: a stock install never imports or registers it (confirmed by running the full offline suite with and without the optional `zero_trust` dependency installed -- 822 passed either way, 11 more collected with it present, 0 failures in both states); add `zero_trust_enforcement` to any config's `policies:` to turn it on, the same mechanism every other defense already uses. Live-verified: two full legitimate-traffic runs through the real PDP (fed by MANTIS's own 34-agent, 27-tool inventory) completed identically to the undefended baseline, and a standalone script confirmed same-domain ALLOW, cross-domain DENY, an unrecognized agent correctly denied before a challenge is even issued, and a shared tool name (`search_policies`, front and mid office) resolved correctly in both directions.
+
 ## [Unreleased] - 2026-09-24
 
 ### Added (Post-Paper Extensions, completed)

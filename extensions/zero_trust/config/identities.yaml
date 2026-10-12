@@ -1,0 +1,307 @@
+identities:
+- id: back_office_eod_workflow
+  canonical_id: agent.back_office.back_office_eod_workflow
+  type: agent
+  roles:
+  - back_office_eod_workflow
+  domain: back_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: back_office_router
+  canonical_id: agent.back_office.back_office_router
+  type: agent
+  roles:
+  - back_office_router
+  domain: back_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: eod_processing_agent
+  canonical_id: agent.back_office.eod_processing_agent
+  type: agent
+  roles:
+  - eod_processing_agent
+  domain: back_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: exception_agent
+  canonical_id: agent.back_office.exception_agent
+  type: agent
+  roles:
+  - exception_agent
+  domain: back_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: ledger_update_agent
+  canonical_id: agent.back_office.ledger_update_agent
+  type: agent
+  roles:
+  - ledger_update_agent
+  domain: back_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: reconciliation_agent
+  canonical_id: agent.back_office.reconciliation_agent
+  type: agent
+  roles:
+  - reconciliation_agent
+  domain: back_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: report_writing_agent
+  canonical_id: agent.back_office.report_writing_agent
+  type: agent
+  roles:
+  - report_writing_agent
+  domain: back_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: sar_escalation_agent
+  canonical_id: agent.back_office.sar_escalation_agent
+  type: agent
+  roles:
+  - sar_escalation_agent
+  domain: back_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: validation_checkpoint_agent
+  canonical_id: agent.back_office.validation_checkpoint_agent
+  type: agent
+  roles:
+  - validation_checkpoint_agent
+  domain: back_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: chatbot_intent_agent
+  canonical_id: agent.front_office.chatbot_intent_agent
+  type: agent
+  roles:
+  - chatbot_intent_agent
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: compliance_agent
+  canonical_id: agent.front_office.compliance_agent
+  type: agent
+  roles:
+  - compliance_agent
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: customer_service_agent
+  canonical_id: agent.front_office.customer_service_agent
+  type: agent
+  roles:
+  - customer_service_agent
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: customer_service_chatbot_workflow
+  canonical_id: agent.front_office.customer_service_chatbot_workflow
+  type: agent
+  roles:
+  - customer_service_chatbot_workflow
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: decision_making_agent
+  canonical_id: agent.front_office.decision_making_agent
+  type: agent
+  roles:
+  - decision_making_agent
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: dispute_resolution_agent
+  canonical_id: agent.front_office.dispute_resolution_agent
+  type: agent
+  roles:
+  - dispute_resolution_agent
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: fraud_detection_agent
+  canonical_id: agent.front_office.fraud_detection_agent
+  type: agent
+  roles:
+  - fraud_detection_agent
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: front_office_router
+  canonical_id: agent.front_office.front_office_router
+  type: agent
+  roles:
+  - front_office_router
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: front_office_transaction_workflow
+  canonical_id: agent.front_office.front_office_transaction_workflow
+  type: agent
+  roles:
+  - front_office_transaction_workflow
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: knowledge_base_agent
+  canonical_id: agent.front_office.knowledge_base_agent
+  type: agent
+  roles:
+  - knowledge_base_agent
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: transaction_monitoring_agent
+  canonical_id: agent.front_office.transaction_monitoring_agent
+  type: agent
+  roles:
+  - transaction_monitoring_agent
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: transaction_processing_agent
+  canonical_id: agent.front_office.transaction_processing_agent
+  type: agent
+  roles:
+  - transaction_processing_agent
+  domain: front_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: data_analysis_agent
+  canonical_id: agent.mid_office.data_analysis_agent
+  type: agent
+  roles:
+  - data_analysis_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: financial_data_agent
+  canonical_id: agent.mid_office.financial_data_agent
+  type: agent
+  roles:
+  - financial_data_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: forecasting_agent
+  canonical_id: agent.mid_office.forecasting_agent
+  type: agent
+  roles:
+  - forecasting_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: loan_agent
+  canonical_id: agent.mid_office.loan_agent
+  type: agent
+  roles:
+  - loan_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: loan_preapproval_agent
+  canonical_id: agent.mid_office.loan_preapproval_agent
+  type: agent
+  roles:
+  - loan_preapproval_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: mid_office_router
+  canonical_id: agent.mid_office.mid_office_router
+  type: agent
+  roles:
+  - mid_office_router
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: planning_summary_agent
+  canonical_id: agent.mid_office.planning_summary_agent
+  type: agent
+  roles:
+  - planning_summary_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: recommender_agent
+  canonical_id: agent.mid_office.recommender_agent
+  type: agent
+  roles:
+  - recommender_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: representative_merge_agent
+  canonical_id: agent.mid_office.representative_merge_agent
+  type: agent
+  roles:
+  - representative_merge_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: risk_compliance_agent
+  canonical_id: agent.mid_office.risk_compliance_agent
+  type: agent
+  roles:
+  - risk_compliance_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: staff_scheduling_agent
+  canonical_id: agent.mid_office.staff_scheduling_agent
+  type: agent
+  roles:
+  - staff_scheduling_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: support_guidance_agent
+  canonical_id: agent.mid_office.support_guidance_agent
+  type: agent
+  roles:
+  - support_guidance_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: validation_agent
+  canonical_id: agent.mid_office.validation_agent
+  type: agent
+  roles:
+  - validation_agent
+  domain: mid_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory

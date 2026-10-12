@@ -1,0 +1,41 @@
+# Zero Trust Backplane toggle demo (real integration -- see
+# extensions/zero_trust/README.md and
+# src/mantis/plugins/policies/zero_trust_enforcement.py).
+#
+# No attack here on purpose: this config exists to show the toggle adds a
+# real, independent security layer -- a full legitimate workflow, with the
+# real PDP checking every tool call -- WITHOUT changing the outcome. Compare
+# against configs/baselines/front_office_baseline.yaml (same scenario, no
+# zero_trust_enforcement): same expected tools, same terminal state.
+#
+# Requires: pip install -e ".[zero_trust]", then in separate terminals,
+# python extensions/zero_trust/bootstrap_keys.py (once) and
+# ./extensions/zero_trust/run_pdp.sh (left running on port 8600), plus the
+# usual banking backend and a live LLM.
+experiment:
+  name: zero_trust_demo
+  seed: 110
+  domain: front_office
+  workflow: front_office_monitoring
+  scenario: front_office_monitoring
+
+policies:
+  - plugin: zero_trust_enforcement
+    parameters:
+      pdp_url: http://127.0.0.1:8600
+
+observability:
+  mode: full
+  export: [jsonl]
+
+# Same ground truth as the undefended baseline for this scenario
+# (run_artifacts/front_office_monitoring): no expected_terminal_state here
+# either, since this scenario's own terminal tool varies by trial even
+# undefended -- that's normal LLM variance, not something the toggle
+# changes. expected_tools is the real check: if the PDP had wrongly denied
+# even one real call, this list would not match.
+evaluation:
+  expected_tools:
+    - get_transaction_context
+    - get_customer_context
+    - search_policies

@@ -53,6 +53,19 @@ plugin_registry.register("rate_limit_guardrail", RateLimitGuardrailPlugin)
 plugin_registry.register("action_isolation", ActionIsolationPlugin)
 plugin_registry.register("reliability_failure", ReliabilityFailurePlugin)
 
+# Zero Trust Backplane enforcement -- toggleable integration of the real,
+# separate github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane
+# project (see src/mantis/plugins/policies/zero_trust_enforcement.py).
+# Registered only when its optional dependency is installed
+# (`pip install -e ".[zero_trust]"`); a stock install never imports
+# zt_backplane and this plugin simply does not appear in the registry,
+# `mantis --inventory`, or the UI's plugin dropdowns.
+try:
+    from mantis.plugins.policies.zero_trust_enforcement import ZeroTrustEnforcementPlugin
+    plugin_registry.register("zero_trust_enforcement", ZeroTrustEnforcementPlugin)
+except ImportError:
+    pass
+
 # Banking-specific data (which agents belong to which domain, scenario
 # prompts, workflow->domain mapping) lives under mantis.banking -- this
 # module only wires it into the shared registries. Keeps shared MANTIS

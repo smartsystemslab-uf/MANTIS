@@ -36,7 +36,7 @@ _FAILURE_PLUGIN_NAMES = {"reliability_failure"}
 # POLICY_EVENT classification for its own DENY without a code change here:
 # add its name to this set at import time, e.g.
 # `from mantis.observability import plugin; plugin._POLICY_PLUGIN_NAMES.add("my_plugin")`.
-_POLICY_PLUGIN_NAMES = {"amount_limit_guardrail", "risk_aware_routing_guard", "response_redaction", "batch_integrity_guard", "rate_limit_guardrail", "action_isolation"}
+_POLICY_PLUGIN_NAMES = {"amount_limit_guardrail", "risk_aware_routing_guard", "response_redaction", "batch_integrity_guard", "rate_limit_guardrail", "action_isolation", "zero_trust_enforcement"}
 
 
 def _hash_payload(payload: Optional[dict]) -> Optional[str]:

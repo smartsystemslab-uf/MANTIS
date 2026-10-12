@@ -434,6 +434,47 @@ attack-induced crash but does not restore the compliant path. Isolation cannot
 tell a legitimate call from an attacked one, so it also refuses the customer's
 real transfer; that is what isolating an effect means.
 
+## 7.1 Zero Trust Backplane (toggleable, real external project)
+
+A seventh, different kind of defense: a real, toggleable integration of the
+independently-developed
+[`Citi_P3_Zero_Trust_Backplane`](https://github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane)
+project -- specifically its Task 4 signed Policy Decision Point -- not a
+plugin MANTIS implements itself. A stock `pip install -e .` never installs
+or imports it; everything above this section works exactly the same with
+or without it.
+
+**Setup** (separate from the rest of MANTIS):
+
+```bash
+pip install -e ".[zero_trust]"                    # pulls the real project's PDP package
+python extensions/zero_trust/bootstrap_keys.py     # once: local dev signing keys
+./extensions/zero_trust/run_pdp.sh                 # leave running, its own terminal, port 8600
+```
+
+**Turning it on** is the same mechanism as every other defense above --
+add it to a config's `policies:`:
+
+```yaml
+policies:
+  - plugin: zero_trust_enforcement
+    parameters:
+      pdp_url: http://127.0.0.1:8600
+```
+
+`configs/extensions/zero_trust_demo.yaml` runs a full legitimate workflow
+with it on: every real tool call is checked by the real PDP before it
+executes, and the run completes identically to the undefended baseline.
+
+**What's real, what's MANTIS's.** The authorization decision, request/
+response signing, and audit trail are the real project's own code, run as
+its own process. MANTIS's own part is just the policy input: `extensions/
+zero_trust/generate_policy.py` reads MANTIS's live inventory and writes a
+default-deny-by-domain policy (an agent may act on a tool in its own
+domain; anything else is denied by the PDP's own default) in the real
+project's schema -- see `extensions/zero_trust/README.md` for the full
+picture, including what this integration does not yet cover.
+
 # 8. Workloads and Institution Profiles
 
 Beyond the original workflows, three new banking processes were added, each

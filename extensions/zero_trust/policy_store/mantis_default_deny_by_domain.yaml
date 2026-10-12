@@ -1,0 +1,111 @@
+apiVersion: ztb/v1alpha1
+kind: PolicyBundle
+metadata:
+  id: bundle.mantis_default_deny_by_domain
+  version: 1.0.0
+  domain: mantis
+  status: confirmed
+policies:
+- id: policy.mantis.back_office_same_domain_access
+  description: 'MANTIS default-deny-by-domain: a back_office agent may call a back_office
+    tool. Anything not matched here (cross-domain, or an unknown subject/resource)
+    is denied by the PDP''s own default (default_deny_no_matching_policy).'
+  priority: 100
+  effect: ALLOW
+  match:
+    subjects:
+    - agent.back_office.back_office_eod_workflow
+    - agent.back_office.back_office_router
+    - agent.back_office.eod_processing_agent
+    - agent.back_office.exception_agent
+    - agent.back_office.ledger_update_agent
+    - agent.back_office.reconciliation_agent
+    - agent.back_office.report_writing_agent
+    - agent.back_office.sar_escalation_agent
+    - agent.back_office.validation_checkpoint_agent
+    resources:
+    - resource.back_office.apply_ledger_updates
+    - resource.back_office.create_exception_case
+    - resource.back_office.file_sar_report
+    - resource.back_office.get_eod_batch
+    - resource.back_office.get_exception_case
+    - resource.back_office.get_reconciliation_data
+    - resource.back_office.get_sar_status
+    - resource.back_office.store_report
+    - resource.back_office.validate_eod_readiness
+    actions:
+    - read
+    - write
+  obligations: []
+  enabled: true
+- id: policy.mantis.front_office_same_domain_access
+  description: 'MANTIS default-deny-by-domain: a front_office agent may call a front_office
+    tool. Anything not matched here (cross-domain, or an unknown subject/resource)
+    is denied by the PDP''s own default (default_deny_no_matching_policy).'
+  priority: 100
+  effect: ALLOW
+  match:
+    subjects:
+    - agent.front_office.chatbot_intent_agent
+    - agent.front_office.compliance_agent
+    - agent.front_office.customer_service_agent
+    - agent.front_office.customer_service_chatbot_workflow
+    - agent.front_office.decision_making_agent
+    - agent.front_office.dispute_resolution_agent
+    - agent.front_office.fraud_detection_agent
+    - agent.front_office.front_office_router
+    - agent.front_office.front_office_transaction_workflow
+    - agent.front_office.knowledge_base_agent
+    - agent.front_office.transaction_monitoring_agent
+    - agent.front_office.transaction_processing_agent
+    resources:
+    - resource.front_office.execute_transfer
+    - resource.front_office.file_dispute
+    - resource.front_office.get_customer_context
+    - resource.front_office.get_dispute_status
+    - resource.front_office.get_transaction_context
+    - resource.front_office.list_recent_transactions
+    - resource.front_office.search_faqs
+    - resource.front_office.search_policies
+    - resource.front_office.submit_manual_review
+    actions:
+    - read
+    - write
+  obligations: []
+  enabled: true
+- id: policy.mantis.mid_office_same_domain_access
+  description: 'MANTIS default-deny-by-domain: a mid_office agent may call a mid_office
+    tool. Anything not matched here (cross-domain, or an unknown subject/resource)
+    is denied by the PDP''s own default (default_deny_no_matching_policy).'
+  priority: 100
+  effect: ALLOW
+  match:
+    subjects:
+    - agent.mid_office.data_analysis_agent
+    - agent.mid_office.financial_data_agent
+    - agent.mid_office.forecasting_agent
+    - agent.mid_office.loan_agent
+    - agent.mid_office.loan_preapproval_agent
+    - agent.mid_office.mid_office_router
+    - agent.mid_office.planning_summary_agent
+    - agent.mid_office.recommender_agent
+    - agent.mid_office.representative_merge_agent
+    - agent.mid_office.risk_compliance_agent
+    - agent.mid_office.staff_scheduling_agent
+    - agent.mid_office.support_guidance_agent
+    - agent.mid_office.validation_agent
+    resources:
+    - resource.mid_office.get_customer_financial_profile
+    - resource.mid_office.get_loan_application_status
+    - resource.mid_office.get_operations_snapshot
+    - resource.mid_office.get_support_playbooks
+    - resource.mid_office.persist_validated_schedule
+    - resource.mid_office.search_loan_playbooks
+    - resource.mid_office.search_policies
+    - resource.mid_office.search_product_catalog
+    - resource.mid_office.submit_loan_application
+    actions:
+    - read
+    - write
+  obligations: []
+  enabled: true

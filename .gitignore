@@ -23,3 +23,10 @@ configs/ui_generated/
 # results/extended_*.json (each trial carries its own tools, outcome, and database snapshot).
 run_artifacts/ext_*/
 run_artifacts/camp_*/
+
+# Zero Trust Backplane extension (extensions/zero_trust/): generated dev
+# signing keys and runtime audit/replay state, never committed, same as
+# .env. Regenerate keys with extensions/zero_trust/bootstrap_keys.py.
+extensions/zero_trust/security/
+extensions/zero_trust/runtime/
+extensions/zero_trust/policy_store/*.sig.json

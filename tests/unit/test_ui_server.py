@@ -56,7 +56,11 @@ def test_registries_endpoint_splits_plugins_by_category_for_the_editor_form():
     r = client.get("/api/registries")
     data = r.json()
     assert set(data["attack_plugins"]) & set(data["policy_plugins"]) == set(), "no plugin should appear in both"
-    assert set(data["policy_plugins"]) == _POLICY_PLUGIN_NAMES
+    # Intersected with what's actually registered: zero_trust_enforcement is
+    # in _POLICY_PLUGIN_NAMES but only registered when its optional
+    # dependency is installed (see core/registry.py), so it may legitimately
+    # be absent here without that being a bug in the split itself.
+    assert set(data["policy_plugins"]) == _POLICY_PLUGIN_NAMES & set(plugin_registry.all().keys())
     assert set(data["attack_plugins"]) | set(data["policy_plugins"]) | {"mock_attack"} == set(plugin_registry.all().keys())
     assert "route_confusion" in data["attack_plugins"] and "route_confusion" not in data["policy_plugins"]
     assert "amount_limit_guardrail" in data["policy_plugins"] and "amount_limit_guardrail" not in data["attack_plugins"]
