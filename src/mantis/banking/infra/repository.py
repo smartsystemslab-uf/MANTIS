@@ -1,7 +1,7 @@
 from __future__ import annotations
 import json, sqlite3, uuid
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from ..settings import settings
 
@@ -11,6 +11,18 @@ from ..settings import settings
 # regional credit union's much stricter 10%, reflecting a real difference
 # in risk appetite between institutions using the identical decision logic.
 _LOAN_APPROVAL_THRESHOLD_PCT = {"default": 0.25, "regional_credit_union": 0.10}
+
+# Anti-Money Laundering Office (ported from Citi_P3's citi_banking_backend
+# app/aml_alert_repository.py): which status an open AML alert may move to
+# next. An alert is either resolved as routine (cleared) or escalated into a
+# formal SAR -- once in either terminal state it cannot be reopened through
+# this transition, mirroring the source repo's own ALLOWED_STATUS_TRANSITIONS.
+AML_ALERT_STATUS_TRANSITIONS: dict[str, set[str]] = {
+    "open": {"in-investigation"},
+    "in-investigation": {"cleared", "escalated-to-sar"},
+    "cleared": set(),
+    "escalated-to-sar": set(),
+}
 
 class BankingRepository:
     def __init__(self, db_path=None, institution=None) -> None:
@@ -81,6 +93,24 @@ class BankingRepository:
             application_id TEXT PRIMARY KEY, customer_id TEXT, amount REAL, purpose TEXT,
             decision TEXT, decision_reason TEXT, created_at TEXT, status TEXT
         );
+        CREATE TABLE IF NOT EXISTS aml_alerts (
+            alert_id TEXT PRIMARY KEY,
+            customer_id TEXT,
+            alert_type TEXT,
+            detection_window_params TEXT,
+            cumulative_total REAL,
+            threshold REAL,
+            status TEXT,
+            raw_payload TEXT,
+            created_at TEXT
+        );
+        CREATE TABLE IF NOT EXISTS aml_alert_status_history (
+            history_id TEXT PRIMARY KEY,
+            alert_id TEXT NOT NULL,
+            previous_status TEXT NOT NULL,
+            new_status TEXT NOT NULL,
+            changed_at TEXT NOT NULL
+        );
         """
         with self.connect() as conn:
             conn.executescript(schema)
@@ -89,6 +119,7 @@ class BankingRepository:
                 self._seed(conn)
             if self.institution == "default":
                 self._ensure_reference_exceptions(conn)
+                self._ensure_reference_aml_alerts(conn)
 
     def _seed(self, conn):
         # Post-Paper Extension (coding plan §11 "Additional banking
@@ -132,6 +163,19 @@ class BankingRepository:
             ("TXN-1002", "CUST-002", "CHK-002", "EXT-998", 220.55, "USD", "mobile_app", "bill_payment", "Utility Hub", "posted", json.dumps({"geo":"Florida","device_change":False,"velocity_24h":1,"note":"Routine payment"}), now),
         ]
         conn.executemany("INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", txns)
+        # AML Office seed data: three inbound deposits to CUST-001's own
+        # checking account from an external counterparty, within a 7-day
+        # window, that sum past detect_structuring's default $10,000
+        # threshold -- a real, reproducible positive case for the ported
+        # structuring detector. Deposit rows only (no accounts.balance
+        # change), so mid_office_loan_large_approved's existing
+        # 25%-of-balance approval for CUST-001 is unaffected.
+        aml_window_txns = [
+            ("TXN-2001", "CUST-001", "EXT-777", "CHK-001", 4000.00, "USD", "wire", "wire_in", "Offshore Holdings LLC", "posted", json.dumps({"geo":"Cayman Islands","device_change":True,"velocity_24h":1,"note":"Inbound wire, new counterparty"}), (datetime.now(timezone.utc) - timedelta(days=5)).isoformat()),
+            ("TXN-2002", "CUST-001", "EXT-777", "CHK-001", 4000.00, "USD", "wire", "wire_in", "Offshore Holdings LLC", "posted", json.dumps({"geo":"Cayman Islands","device_change":False,"velocity_24h":1,"note":"Inbound wire, same counterparty"}), (datetime.now(timezone.utc) - timedelta(days=3)).isoformat()),
+            ("TXN-2003", "CUST-001", "EXT-777", "CHK-001", 4000.00, "USD", "wire", "wire_in", "Offshore Holdings LLC", "posted", json.dumps({"geo":"Cayman Islands","device_change":False,"velocity_24h":1,"note":"Inbound wire, same counterparty"}), (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()),
+        ]
+        conn.executemany("INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", aml_window_txns)
         batches = [
             ("EOD-2026-04-21-CLEAN", "2026-04-21", 18250.55, 18250.55, 1, "ready", json.dumps({"expected_items":43,"source_system":"core_banking_system"})),
             ("EOD-2026-04-21-MISMATCH", "2026-04-21", 18310.55, 18120.55, 1, "ready", json.dumps({"expected_items":43,"source_system":"core_banking_system"})),
@@ -165,6 +209,20 @@ class BankingRepository:
         ]
         conn.executemany("INSERT OR IGNORE INTO exceptions VALUES (?, ?, ?, ?, ?)", exceptions)
 
+    def _ensure_reference_aml_alerts(self, conn):
+        """A stable, reproducible AML alert (ALT-SEEDED01) the alert-triage
+        scenario points at, the same way _ensure_reference_exceptions
+        seeds EX-SEEDED01 for the SAR-escalation scenario -- detect_structuring
+        generates a fresh, unpredictable alert id each run, so a scenario
+        that asks to triage a *specific, known* alert needs one seeded up
+        front instead."""
+        now = datetime.now(timezone.utc).isoformat()
+        alerts = [
+            ("ALT-SEEDED01", "CUST-001", "structuring", "7d", 12000.0, 10000.0, "open",
+             json.dumps({"note": "Seeded reference alert for the alert-triage scenario"}), now),
+        ]
+        conn.executemany("INSERT OR IGNORE INTO aml_alerts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", alerts)
+
     def _one(self, q, *params):
         with self.connect() as conn:
             row = conn.execute(q, params).fetchone()
@@ -186,6 +244,13 @@ class BankingRepository:
         if row:
             row["metadata_json"] = json.loads(row["metadata_json"])
         return row
+
+    def get_customer_transactions(self, customer_id: str):
+        """Full transaction history for a customer, oldest first -- the AML
+        office's structuring/mule-ring detectors need the complete ordered
+        history, not the capped, newest-first slice list_recent_transactions
+        returns for front-office display."""
+        return self._all("SELECT * FROM transactions WHERE customer_id = ? ORDER BY created_at ASC", customer_id)
 
     def list_recent_transactions(self, customer_id: str, limit: int = 5):
         return self._all("SELECT transaction_id, amount, currency, channel, txn_type, merchant_or_counterparty, status, created_at FROM transactions WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?", customer_id, limit)
@@ -332,6 +397,58 @@ class BankingRepository:
 
     def get_loan_application(self, application_id: str):
         return self._one("SELECT * FROM loan_applications WHERE application_id = ?", application_id)
+
+    def create_aml_alert(self, customer_id: str, alert_type: str, detection_window_params: str, cumulative_total: float, threshold: float, raw_payload: str, status: str = "open") -> dict[str, Any]:
+        alert_id = f"ALT-{uuid.uuid4().hex[:8].upper()}"
+        now = datetime.now(timezone.utc).isoformat()
+        with self.connect() as conn:
+            conn.execute("INSERT INTO aml_alerts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (alert_id, customer_id, alert_type, detection_window_params, cumulative_total, threshold, status, raw_payload, now))
+        return {"alert_id": alert_id, "customer_id": customer_id, "alert_type": alert_type, "status": status, "created_at": now}
+
+    def get_aml_alert(self, alert_id: str) -> dict[str, Any] | None:
+        return self._one("SELECT * FROM aml_alerts WHERE alert_id = ?", alert_id)
+
+    def list_aml_alerts(self, customer_id: str | None = None, status: str | None = None, alert_type: str | None = None) -> list[dict[str, Any]]:
+        query = "SELECT * FROM aml_alerts"
+        conditions = []
+        params = []
+        if customer_id:
+            conditions.append("customer_id = ?")
+            params.append(customer_id)
+        if status:
+            conditions.append("status = ?")
+            params.append(status)
+        if alert_type:
+            conditions.append("alert_type = ?")
+            params.append(alert_type)
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+        query += " ORDER BY created_at DESC"
+        return self._all(query, *params)
+
+    def transition_aml_alert_status(self, alert_id: str, new_status: str) -> dict[str, Any]:
+        """Move an AML alert to its next lifecycle status (ported from Citi_P3's
+        app/aml_alert_repository.py:transition_aml_alert_status), enforcing
+        AML_ALERT_STATUS_TRANSITIONS and recording the change in
+        aml_alert_status_history."""
+        new_status = new_status.strip().lower()
+        with self.connect() as conn:
+            alert = conn.execute("SELECT * FROM aml_alerts WHERE alert_id = ?", (alert_id,)).fetchone()
+            if alert is None:
+                raise ValueError(f"AML alert {alert_id} not found")
+            current_status = alert["status"].strip().lower()
+            allowed_next_statuses = AML_ALERT_STATUS_TRANSITIONS.get(current_status, set())
+            if new_status not in allowed_next_statuses:
+                raise ValueError(f"Invalid AML alert status transition: {current_status} -> {new_status}")
+            history_id = f"HIST-{uuid.uuid4().hex[:8].upper()}"
+            changed_at = datetime.now(timezone.utc).isoformat()
+            conn.execute("UPDATE aml_alerts SET status = ? WHERE alert_id = ?", (new_status, alert_id))
+            conn.execute(
+                "INSERT INTO aml_alert_status_history VALUES (?, ?, ?, ?, ?)",
+                (history_id, alert_id, current_status, new_status, changed_at),
+            )
+            updated = conn.execute("SELECT * FROM aml_alerts WHERE alert_id = ?", (alert_id,)).fetchone()
+        return dict(updated)
 
     def save_report(self, batch_id: str, report_body: str):
         rid = f"RPT-{uuid.uuid4().hex[:8].upper()}"

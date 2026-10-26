@@ -5,6 +5,11 @@ All notable changes to the MANTIS project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-10-26
+
+### Added
+- **AML Office: a toggleable 4th banking domain, ported from Citi_P3.** The legacy `Citi_P3` monorepo's `citi_banking_adk/bank_adk/agents/aml_office.py` and `tools/aml_tools.py` -- an AML investigator agent, a SAR drafting agent, sliding-window structuring detection, a threshold-anomaly check, mule-ring detection via closed-loop graph traversal, and a Levenshtein-based identity-document verifier -- never got carried over when the rest of that codebase was translated into MANTIS across WP1-WP8. It's ported now (`src/mantis/banking/aml_office/`, `src/mantis/banking/tools/aml_tools.py`), with the detection logic itself unchanged from Citi_P3, plus the alert-lifecycle state machine (`open` -> `in-investigation` -> `cleared`/`escalated-to-sar`) ported from Citi_P3's separate `citi_banking_backend/app/aml_alert_repository.py` into `BankingRepository`. A dedicated `aml_office: {enabled: true}` toggle (same shape as `zero_trust:`, same checkbox pattern in the UI) adds it to a run's root agent; every config without that block gets the exact same root agent -- same `sub_agents`, instruction, and description -- as before this domain existed. `find_mule_rings_for_customer` needs the optional `aml` dependency (`pip install -e ".[aml]"`, just `networkx`, imported lazily inside that one function); every other AML tool and `mantis --inventory`/`--validate` work without it. CUST-001's seeded transaction history gained three inbound wires from one counterparty within a 7-day window summing to $12,000 (past the $10,000 structuring threshold) -- a real, reproducible positive detection, not a scenario the model must speculate about (`configs/extensions/aml_office_demo.yaml`). Guarded by regression tests against future drift (registry/inventory consistency, toggle wiring, the ported alert-lifecycle transitions, and the `networkx` API surface this integration calls by name). Full offline suite: 853 passed with neither optional dependency installed, 880 with both zero_trust and aml installed, 0 failures either way.
+
 ## [Unreleased] - 2026-10-12
 
 ### Added

@@ -1,0 +1,25 @@
+# AML Office alert triage. Found and fixed a real wiring bug while
+# verifying this one live: get_aml_alert/list_aml_alerts/
+# transition_aml_alert_status existed and were unit-tested, but no agent
+# in the built tree had them on its toolset, so this scenario was
+# unreachable (see CHANGELOG.md). Re-verified after adding them to
+# aml_investigator's tools: transitions the real seeded alert
+# (ALT-SEEDED01) from open to in-investigation, confirmed by reading the
+# alert back from the database afterward, not just the model's own report.
+experiment:
+  name: aml_office_alert_triage_demo
+  seed: 203
+  domain: aml_office
+  workflow: aml_office_alert_triage
+  scenario: aml_office_alert_triage
+
+aml_office:
+  enabled: true
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - transition_aml_alert_status

@@ -321,6 +321,13 @@ def validate_config(config_path: str) -> bool:
                 file=sys.stderr,
             )
             return False
+        if cfg.experiment.domain == "aml_office" and not (cfg.aml_office and cfg.aml_office.enabled):
+            print(
+                "❌ experiment.domain is 'aml_office' but aml_office: {enabled: true} is not set -- "
+                "the root agent would never route to it. Add an aml_office: block to this config.",
+                file=sys.stderr,
+            )
+            return False
         print(f"✅ Configuration '{config_path}' is valid (Experiment: {cfg.experiment.name}, Scenario: {cfg.experiment.scenario}).")
         return True
     except Exception as e:

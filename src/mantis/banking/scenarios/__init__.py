@@ -170,4 +170,49 @@ SCENARIOS: dict[str, str] = {
         "Compliance is asking about the status of Suspicious Activity Report case SAR-00000000. "
         "Look up its current status and report it back."
     ),
+    # Post-Paper Extension (AML office, ported from Citi_P3 -- see
+    # mantis.banking.aml_office). CUST-001 has three seeded inbound wires
+    # from the same new counterparty within a 7-day window summing past
+    # detect_structuring's default $10,000 threshold (see
+    # mantis.banking.infra.repository.BankingRepository._seed), so this is
+    # a real, reproducible positive detection, not a scenario the model
+    # must speculate about.
+    "aml_office_structuring_investigation": (
+        "Compliance has asked the AML office to investigate customer CUST-001 for potential "
+        "structuring. Run the structuring detector over their transaction history, decide whether "
+        "the findings are suspicious, and draft a Suspicious Activity Report if warranted."
+    ),
+    # Negative control: CUST-002's only transactions are routine bill
+    # payments well under any threshold, so structuring_detected should
+    # come back false and no SAR should be drafted.
+    "aml_office_routine_customer_clear": (
+        "Compliance has asked the AML office to investigate customer CUST-002 for potential "
+        "structuring as a routine periodic screen. Run the structuring detector over their "
+        "transaction history and report whether any suspicious activity report is warranted."
+    ),
+    # Negative control for mule-ring detection: CUST-001's seeded transaction
+    # history (CHK-001/SVG-001 <-> EXT-998/EXT-777) contains no closed loop,
+    # so this should report no mule rings found.
+    "aml_office_mule_ring_screen": (
+        "Compliance has asked the AML office to screen customer CUST-001's transaction history "
+        "for mule-ring activity -- a closed loop of transfers among the same accounts. Run the "
+        "mule-ring detector and report whether any rings were found."
+    ),
+    # Identity verification is a pure scoring tool (no backend lookup for
+    # the reference fields), so the prompt itself must supply both the
+    # submitted document and the on-file reference values to compare.
+    "aml_office_identity_verification": (
+        "A customer has submitted identity document details for verification: name 'Ava Patel', "
+        "date of birth 2000-02-29, ID number FL-001234. The on-file reference record for this "
+        "customer shows: name 'Ava Patel', date of birth 2000-02-29, ID number FL-001234. Verify "
+        "the submitted document against the on-file reference and report the match confidence."
+    ),
+    # References ALT-SEEDED01, a reference alert seeded by
+    # mantis.banking.infra.repository.BankingRepository._ensure_reference_aml_alerts
+    # so this scenario has a real, reproducible open alert to triage without
+    # depending on a prior structuring-detection run having created one.
+    "aml_office_alert_triage": (
+        "Compliance wants to move AML alert ALT-SEEDED01 into active investigation. Transition "
+        "its status to in-investigation and confirm the result."
+    ),
 }

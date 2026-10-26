@@ -1,0 +1,32 @@
+# AML Office toggle demo (Post-Paper Extension, ported from Citi_P3's
+# citi_banking_adk/bank_adk/agents/aml_office.py -- see
+# src/mantis/banking/aml_office/). No attack here on purpose: this config
+# shows the toggle adding a real, independent domain -- structuring
+# detection, SAR drafting -- that every existing front/mid/back-office
+# config is completely unaffected by when this block is absent.
+#
+# CUST-001 has three seeded inbound wires from the same counterparty within
+# a 7-day window summing to $12,000 (see
+# BankingRepository._seed), past detect_structuring's default $10,000
+# threshold -- a real, reproducible positive case, not a scenario the model
+# must speculate about.
+experiment:
+  name: aml_office_demo
+  seed: 120
+  domain: aml_office
+  workflow: aml_office_structuring_investigation
+  scenario: aml_office_structuring_investigation
+
+# The dedicated toggle -- without this block (or with enabled: false), the
+# root agent never routes to aml_office_router at all; domain: aml_office
+# alone is not enough (see validate_config()'s own check for this combo).
+aml_office:
+  enabled: true
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - detect_structuring

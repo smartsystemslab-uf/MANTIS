@@ -1,4 +1,94 @@
 resources:
+- id: aml_office.check_threshold_anomaly
+  canonical_id: resource.aml_office.check_threshold_anomaly
+  actions:
+  - read
+  domain: aml_office
+  classification: restricted
+  critical: false
+  attributes:
+    source: mantis_live_inventory
+    risk_level: medium
+- id: aml_office.detect_structuring
+  canonical_id: resource.aml_office.detect_structuring
+  actions:
+  - write
+  domain: aml_office
+  classification: restricted
+  critical: false
+  attributes:
+    source: mantis_live_inventory
+    risk_level: high
+- id: aml_office.find_mule_rings_for_customer
+  canonical_id: resource.aml_office.find_mule_rings_for_customer
+  actions:
+  - read
+  domain: aml_office
+  classification: restricted
+  critical: false
+  attributes:
+    source: mantis_live_inventory
+    risk_level: medium
+- id: aml_office.get_aml_alert
+  canonical_id: resource.aml_office.get_aml_alert
+  actions:
+  - read
+  domain: aml_office
+  classification: restricted
+  critical: false
+  attributes:
+    source: mantis_live_inventory
+    risk_level: low
+- id: aml_office.get_customer_context
+  canonical_id: resource.aml_office.get_customer_context
+  actions:
+  - read
+  domain: aml_office
+  classification: restricted
+  critical: false
+  attributes:
+    source: mantis_live_inventory
+    risk_level: low
+- id: aml_office.list_aml_alerts
+  canonical_id: resource.aml_office.list_aml_alerts
+  actions:
+  - read
+  domain: aml_office
+  classification: restricted
+  critical: false
+  attributes:
+    source: mantis_live_inventory
+    risk_level: low
+- id: aml_office.list_recent_transactions
+  canonical_id: resource.aml_office.list_recent_transactions
+  actions:
+  - read
+  domain: aml_office
+  classification: restricted
+  critical: false
+  attributes:
+    source: mantis_live_inventory
+    risk_level: low
+- id: aml_office.transition_aml_alert_status
+  canonical_id: resource.aml_office.transition_aml_alert_status
+  actions:
+  - write
+  domain: aml_office
+  classification: restricted
+  critical: false
+  attributes:
+    source: mantis_live_inventory
+    risk_level: high
+- id: aml_office.verify_identity_document
+  canonical_id: resource.aml_office.verify_identity_document
+  actions:
+  - read
+  domain: aml_office
+  classification: restricted
+  critical: false
+  attributes:
+    source: mantis_live_inventory
+    risk_level: low
 - id: back_office.apply_ledger_updates
   canonical_id: resource.back_office.apply_ledger_updates
   actions:

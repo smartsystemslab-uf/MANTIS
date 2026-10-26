@@ -36,6 +36,9 @@ ui = [
 zero_trust = [
     "zero-trust-pdp-task4-secure @ git+https://github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane.git#subdirectory=zero_trust_pdp_task4_secure"
 ]
+aml = [
+    "networkx>=3.0"
+]
 
 [project.scripts]
 mantis = "mantis.cli.main:main"

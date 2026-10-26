@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-10-26T18:12:40.335929Z",
+  "config_hash": "dd35ae526a0fbad97a068b9b6722c6ff370f5d5e7bec8eb686a3d8d25abcd9e5",
+  "seed": 201,
+  "config": {
+    "experiment": {
+      "name": "aml_office_mule_ring_demo",
+      "seed": 201,
+      "domain": "aml_office",
+      "workflow": "aml_office_mule_ring_screen",
+      "scenario": "aml_office_mule_ring_screen"
+    },
+    "aml_office": {
+      "enabled": true
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "find_mule_rings_for_customer"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "47a8716e570628571e493c493410882be5c5724e",
+    "llm": {
+      "mock": false,
+      "model": "gpt-oss-20b",
+      "endpoint_host": "api.ai.it.ufl.edu"
+    }
+  }
+}

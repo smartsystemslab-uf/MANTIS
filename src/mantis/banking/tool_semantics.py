@@ -52,6 +52,15 @@ TOOL_SEMANTICS: Dict[str, ToolSemantics] = {
     "get_sar_status": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "medium", "financial_side_effect": False},
     "submit_loan_application": {"operation_type": "write", "risk_level": "medium", "data_sensitivity": "high", "financial_side_effect": False},
     "get_loan_application_status": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "high", "financial_side_effect": False},
+    # AML office (Post-Paper Extension, ported from Citi_P3 -- see
+    # mantis.banking.aml_office / tools/aml_tools.py).
+    "detect_structuring": {"operation_type": "write", "risk_level": "high", "data_sensitivity": "high", "financial_side_effect": False},
+    "check_threshold_anomaly": {"operation_type": "read", "risk_level": "medium", "data_sensitivity": "high", "financial_side_effect": False},
+    "find_mule_rings_for_customer": {"operation_type": "read", "risk_level": "medium", "data_sensitivity": "high", "financial_side_effect": False},
+    "verify_identity_document": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "high", "financial_side_effect": False},
+    "get_aml_alert": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "high", "financial_side_effect": False},
+    "list_aml_alerts": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "high", "financial_side_effect": False},
+    "transition_aml_alert_status": {"operation_type": "write", "risk_level": "high", "data_sensitivity": "high", "financial_side_effect": False},
     # ADK routing tool (not a banking tool, but appears in every trace)
     "transfer_to_agent": {"operation_type": "read", "risk_level": "low", "data_sensitivity": "low", "financial_side_effect": False},
 }

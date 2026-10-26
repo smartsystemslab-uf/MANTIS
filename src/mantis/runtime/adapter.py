@@ -34,12 +34,14 @@ class LegacyBankingHandle:
             scenario=self.config.experiment.scenario if self.config else None,
             disabled_agents=disabled_agents,
         )
+        enable_aml = bool(self.config and self.config.aml_office and self.config.aml_office.enabled)
         return await run_message(
             message,
             mcp_session=self.mcp_session,
             mcp_tools=self.mcp_tools,
             compact=True,
-            mantis_plugin=plugin
+            mantis_plugin=plugin,
+            enable_aml=enable_aml,
         )
 
 # Tool modules that make up the real banking tool surface. Listed here (not
@@ -55,6 +57,7 @@ _TOOL_MODULE_PATHS = [
     "mantis.banking.tools.dispute_tools",
     "mantis.banking.tools.sar_tools",
     "mantis.banking.tools.loan_tools",
+    "mantis.banking.tools.aml_tools",
 ]
 
 # Not a banking tool -- ADK auto-generates this on every agent that has
@@ -96,6 +99,15 @@ _DOMAIN_TOOL_NAMES: dict[str, list[str]] = {
         "apply_ledger_updates", "create_exception_case", "get_eod_batch",
         "get_reconciliation_data", "store_report", "validate_eod_readiness",
         "get_exception_case", "file_sar_report", "get_sar_status",
+    ],
+    # AML office (Post-Paper Extension, ported from Citi_P3 -- see
+    # mantis.banking.aml_office). get_customer_context and
+    # list_recent_transactions are shared with front_office, the same way
+    # search_policies is shared between front_office and mid_office above.
+    "aml_office": [
+        "detect_structuring", "check_threshold_anomaly", "find_mule_rings_for_customer",
+        "verify_identity_document", "get_customer_context", "list_recent_transactions",
+        "get_aml_alert", "list_aml_alerts", "transition_aml_alert_status",
     ],
 }
 

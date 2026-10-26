@@ -1,0 +1,24 @@
+# AML Office identity verification. Found and fixed a real routing bug
+# while verifying this one live: the root agent's routing instruction
+# didn't mention identity verification as an AML task, so this request was
+# misrouted to front_office_router instead of aml_office_router (see
+# CHANGELOG.md). Re-verified after the fix: routes correctly and
+# verify_identity_document scores a 100% match on the identical
+# name/DOB/ID number supplied in the scenario prompt.
+experiment:
+  name: aml_office_identity_verification_demo
+  seed: 202
+  domain: aml_office
+  workflow: aml_office_identity_verification
+  scenario: aml_office_identity_verification
+
+aml_office:
+  enabled: true
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - verify_identity_document

@@ -4,11 +4,15 @@ MANTIS is a modular, observable multi-agent security testbed for configuring age
 
 Currently, MANTIS focuses on banking multi-agent architectures (spanning Front, Mid, and Back-Office workflows) as the primary application domain for security evaluation. The goal is a **testbed to conduct mock attacks (e.g., prompt injections), capture outputs, and evaluate AI agent failures under adversarial conditions.**
 
-**At a glance:** 3 banking domains &middot; 2 institution profiles (default and a smaller regional credit union, same agents/tools/workflows with their own seeded data and policy thresholds) &middot; 34 agents &middot; 27 tools (26 banking-domain + 1 routing) &middot; 5 control points &middot; 4 attack plugins + 1 failure-control family + 6 security-mechanism plugins covering every category coding plan §11 names (amount-limit guardrail, risk-aware routing guard with an optional compliant-route recovery mode, batch integrity guard, response redaction, rate-limit guardrail, action isolation) &middot; 7 automated evaluator dimensions &middot; 7 observability export targets (jsonl, mlflow, otel, jaeger, grafana, langfuse, phoenix) &middot; 3 added banking workloads (dispute filing, SAR escalation, loan pre-approval) &middot; an extended scenario library (19 measured baselines, 26 attack/fault variants, database-state evidence) &middot; a minimal browser UI &middot; a toggleable Zero Trust Backplane integration (`extensions/zero_trust/`) &middot; 0 source edits needed to run an experiment. Numbers reflect Paper 1 plus its Post-Paper Extensions; Paper 1 itself (`paper/mantis_paper.tex`) is frozen and reports the system as it stood at that time. See `CHANGELOG.md` for what's changed since.
+**At a glance:** 3 banking domains plus a toggleable 4th (AML office) &middot; 2 institution profiles (default and a smaller regional credit union, same agents/tools/workflows with their own seeded data and policy thresholds) &middot; 34 agents (38 with AML office enabled) &middot; 27 tools (26 banking-domain + 1 routing; 34 with AML office's structuring/mule-ring/identity-verification/alert tools) &middot; 5 control points &middot; 4 attack plugins + 1 failure-control family + 6 security-mechanism plugins covering every category coding plan §11 names (amount-limit guardrail, risk-aware routing guard with an optional compliant-route recovery mode, batch integrity guard, response redaction, rate-limit guardrail, action isolation) &middot; 7 automated evaluator dimensions &middot; 7 observability export targets (jsonl, mlflow, otel, jaeger, grafana, langfuse, phoenix) &middot; 3 added banking workloads (dispute filing, SAR escalation, loan pre-approval) &middot; an extended scenario library (19 measured baselines, 26 attack/fault variants, database-state evidence) &middot; a minimal browser UI &middot; a toggleable Zero Trust Backplane integration (`extensions/zero_trust/`) &middot; a toggleable AML Office domain ported from Citi_P3 (`src/mantis/banking/aml_office/`) &middot; 0 source edits needed to run an experiment. Numbers reflect Paper 1 plus its Post-Paper Extensions; Paper 1 itself (`paper/mantis_paper.tex`) is frozen and reports the system as it stood at that time. See `CHANGELOG.md` for what's changed since.
 
 ## Zero Trust Backplane (toggleable)
 
 A real, opt-in integration of the independent [`Citi_P3_Zero_Trust_Backplane`](https://github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane) project's signed Policy Decision Point -- not a reimplementation. A stock install never touches it; a dedicated `zero_trust: {enabled: true}` block on any config turns it on for that attack (the same checkbox exists in the minimal UI's editor), `enabled: false` or no block at all turns it off -- live-verified both ways on the identical config, including with the real PDP process killed outright to confirm the "off" state has zero dependency on it. Guarded by 11 regression tests against future drift (stale generated policy, toggle-wiring changes, the real project's own API surface changing). See [`extensions/zero_trust/README.md`](extensions/zero_trust/README.md) for setup and what's real project code versus MANTIS-side glue.
+
+## AML Office (toggleable)
+
+A 4th banking domain, ported from the legacy [`Citi_P3`](https://github.com/smartsystemslab-uf/Citi_P3) monorepo's `citi_banking_adk/bank_adk/agents/aml_office.py` and `tools/aml_tools.py` -- the detection logic (sliding-window structuring detection, a threshold-anomaly check, mule-ring detection via closed-loop graph traversal, and a Levenshtein-based identity-document verifier) is carried over as-is, not reimplemented, plus the alert-lifecycle operations (`open` → `in-investigation` → `cleared`/`escalated-to-sar`) ported from `citi_banking_backend/app/aml_alert_repository.py`. A dedicated `aml_office: {enabled: true}` block on any config adds the AML office router to that run's root agent (the same checkbox exists in the minimal UI's editor); every config without that block gets the exact same root agent -- same `sub_agents`, same instruction, same description -- as before this domain existed. `find_mule_rings_for_customer` needs the optional `aml` dependency (`pip install -e ".[aml]"`, just `networkx`); every other AML tool works without it. CUST-001's seeded transaction history includes three inbound wires from the same counterparty within a 7-day window summing past the $10,000 structuring threshold -- a real, reproducible positive detection (see `configs/extensions/aml_office_demo.yaml`), not a scenario the model must speculate about. Guarded by regression tests against future drift (registry/inventory consistency, toggle wiring, the ported lifecycle transitions, and the `networkx` API surface this integration calls by name).
 
 ## Where to start
 
@@ -45,6 +49,7 @@ flowchart TD
         FO["Front Office"]
         MO["Mid Office"]
         BO["Back Office"]
+        AML["AML Office<br/>(toggleable)"]
     end
 
     BANK -->|emits events| OBS["Observability<br/>OTel · MLflow · JSONL"]
@@ -65,6 +70,7 @@ MANTIS/
 │   ├── banking/                       # Domain logic (Front/Mid/Back Office)
 │   │   ├── agents/, tools/, data/     # Agent defs, banking tool functions, JSON knowledge base
 │   │   ├── scenarios/, workflows/     # Scenario prompts; workflow -> domain mapping
+│   │   ├── aml_office/                # Toggleable 4th domain, ported from Citi_P3 (opt-in; see README's AML Office section)
 │   │   └── domains.py                 # Domain -> agent membership
 │   ├── runtime/                       # BankingRuntimeAdapter, ADK<->HookBus glue (WP1)
 │   ├── hooks/                         # HookBus, HookContext, HookResult (WP3)
@@ -89,7 +95,7 @@ MANTIS/
 ├── GUIDE/                             # Platform guide (Markdown + PDF, rebuilt on every push)
 ├── presentations/                     # Decks and read-aloud scripts, one per date, with an index
 ├── paper/                             # Paper 1 (frozen) and the post-paper extensions paper
-├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events, config/scenario consistency) -- 823 passing offline (846 with the optional zero_trust dependency; 168 more skip by design without a live backend or model)
+├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events, config/scenario consistency) -- 853 passing offline (880 with both optional dependencies, zero_trust and aml, installed; 178 more skip by design without a live backend or model)
 ├── golden_runs/                       # WP0: Immutable Frozen LLM execution traces
 ├── banking_baseline_inventory.yaml    # WP0: Full system inventory
 ├── baseline_metrics.json              # WP0: Performance and behavioral metrics
@@ -341,7 +347,7 @@ There are four layers of automated tests, plus a fifth layer of live validation 
 
 | Layer | Location | Count | Command | Needs backend? | Needs LLM key? |
 |---|---|---|---|---|---|
-| MANTIS unit tests | `tests/unit/` | 823 passing, 168 skipped by design (846 passing with the optional `zero_trust` dependency installed) | `pytest tests/unit/` | Two tests exercise the real CLI/ADK/MCP pipeline under a mock model (see below); the rest are pure offline | No |
+| MANTIS unit tests | `tests/unit/` | 853 passing, 178 skipped by design (880 passing with both the optional `zero_trust` and `aml` dependencies installed) | `pytest tests/unit/` | Two tests exercise the real CLI/ADK/MCP pipeline under a mock model (see below); the rest are pure offline | No |
 | WP0 regression guard | `refactor_guard_tests/` | 49 | `pytest refactor_guard_tests/` | No | No |
 | Banking backend | `citi_banking_backend/tests/` | 15 | `cd citi_banking_backend && pytest tests/` | No (uses an in-process test DB) | No |
 | MCP tool server | `citi_banking_mcp_server/tests/` | 3 | `cd citi_banking_mcp_server && pytest tests/` | No | No |

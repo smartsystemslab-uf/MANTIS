@@ -46,6 +46,17 @@ class ZeroTrustConfig(BaseModel):
     pdp_url: str = Field(default="http://127.0.0.1:8600", description="The real Zero Trust Backplane PDP service's URL")
 
 
+class AMLConfig(BaseModel):
+    """A dedicated toggle for the AML (Anti-Money Laundering) office domain
+    (mantis.banking.aml_office, ported from Citi_P3), mirroring
+    ZeroTrustConfig's shape: this domain's agents/tools exist in the
+    registry either way, but the root agent only routes to it, and the
+    structuring/mule-ring/identity-verification tools only run, when this
+    block is present and enabled. Every config without an `aml_office:`
+    block gets the exact same root agent as before this domain existed."""
+    enabled: bool = Field(default=True, description="Add the AML office domain to this run's root agent; the config key's presence already implies intent, this lets it be toggled without deleting the block")
+
+
 class PolicyConfig(BaseModel):
     """A defense plugin to register alongside (and, in the hook dispatch
     order, after) any configured attack -- Post-Paper Extension, coding
@@ -87,6 +98,7 @@ class ExperimentConfig(BaseModel):
     attack: Optional[AttackConfig] = None
     policies: Optional[List[PolicyConfig]] = None
     zero_trust: Optional[ZeroTrustConfig] = None
+    aml_office: Optional[AMLConfig] = None
     observability: Optional[ObservabilityConfig] = None
     evaluation: Optional[EvaluationConfig] = None
     benchmark: Optional[BenchmarkConfig] = None

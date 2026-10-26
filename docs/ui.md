@@ -25,7 +25,7 @@ After any run, open the page and pick the run in the Trace Viewer dropdown (`Ref
 
 Domain, workflow, scenario, and attack/policy plugin dropdowns are populated at page load from `/api/registries` and `/api/inventory` — live data, not a hand-maintained list baked into `index.html`. Submitting the form validates the assembled dict against the real `ExperimentConfig` Pydantic model server-side (`_write_config` in `src/mantis/ui/server.py`) before it's ever written to disk as the YAML file the CLI subprocess reads.
 
-One exception: the **Zero Trust Backplane** fieldset is a fixed checkbox and PDP-URL field, not populated from the registries — it's a dedicated toggle for the `zero_trust:` config block (see `extensions/zero_trust/README.md`), separate from the generic Policy dropdown above it, so turning it on or off doesn't require knowing the plugin's name.
+One exception: the **Zero Trust Backplane** and **AML Office** fieldsets are fixed checkboxes (plus, for Zero Trust, a PDP-URL field), not populated from the registries — dedicated toggles for the `zero_trust:` and `aml_office:` config blocks (see `extensions/zero_trust/README.md` and the AML office section of `README.md`), separate from the generic Policy dropdown and Domain selector above them, so turning either on or off doesn't require knowing the plugin/domain name.
 
 ## What this is not
 

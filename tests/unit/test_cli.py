@@ -54,7 +54,7 @@ def test_cli_inventory_reflects_real_banking_system():
     assert "front_office_router" in data["agents"]
     assert len(data["agents"]) > 4
     assert len(data["tools"]) > 2
-    assert set(data["domains"].keys()) == {"front_office", "mid_office", "back_office"}
+    assert set(data["domains"].keys()) == {"front_office", "mid_office", "back_office", "aml_office"}
 
 def test_cli_inspect_scenario():
     result = subprocess.run(["mantis", "--inspect", "front_office_monitoring"], capture_output=True, text=True)

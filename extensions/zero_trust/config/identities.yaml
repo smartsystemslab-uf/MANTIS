@@ -1,4 +1,40 @@
 identities:
+- id: aml_investigation_workflow
+  canonical_id: agent.aml_office.aml_investigation_workflow
+  type: agent
+  roles:
+  - aml_investigation_workflow
+  domain: aml_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: aml_investigator
+  canonical_id: agent.aml_office.aml_investigator
+  type: agent
+  roles:
+  - aml_investigator
+  domain: aml_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: aml_office_router
+  canonical_id: agent.aml_office.aml_office_router
+  type: agent
+  roles:
+  - aml_office_router
+  domain: aml_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
+- id: sar_drafting_agent
+  canonical_id: agent.aml_office.sar_drafting_agent
+  type: agent
+  roles:
+  - sar_drafting_agent
+  domain: aml_office
+  enabled: true
+  attributes:
+    source: mantis_live_inventory
 - id: back_office_eod_workflow
   canonical_id: agent.back_office.back_office_eod_workflow
   type: agent

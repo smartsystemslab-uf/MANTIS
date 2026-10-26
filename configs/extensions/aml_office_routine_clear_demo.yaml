@@ -1,0 +1,22 @@
+# AML Office negative control (see configs/extensions/aml_office_demo.yaml
+# for the positive case). CUST-002's only transaction is a routine bill
+# payment well under any threshold, so this should report no structuring
+# and create no alert -- proving the detector doesn't false-positive on
+# ordinary activity.
+experiment:
+  name: aml_office_routine_clear_demo
+  seed: 200
+  domain: aml_office
+  workflow: aml_office_routine_customer_clear
+  scenario: aml_office_routine_customer_clear
+
+aml_office:
+  enabled: true
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - detect_structuring

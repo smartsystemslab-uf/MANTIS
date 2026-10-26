@@ -1,5 +1,18 @@
 {
   "$defs": {
+    "AMLConfig": {
+      "description": "A dedicated toggle for the AML (Anti-Money Laundering) office domain\n(mantis.banking.aml_office, ported from Citi_P3), mirroring\nZeroTrustConfig's shape: this domain's agents/tools exist in the\nregistry either way, but the root agent only routes to it, and the\nstructuring/mule-ring/identity-verification tools only run, when this\nblock is present and enabled. Every config without an `aml_office:`\nblock gets the exact same root agent as before this domain existed.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Add the AML office domain to this run's root agent; the config key's presence already implies intent, this lets it be toggled without deleting the block",
+          "title": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "AMLConfig",
+      "type": "object"
+    },
     "AgentConfig": {
       "properties": {
         "model": {
@@ -417,6 +430,17 @@
       "anyOf": [
         {
           "$ref": "#/$defs/ZeroTrustConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "aml_office": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AMLConfig"
         },
         {
           "type": "null"

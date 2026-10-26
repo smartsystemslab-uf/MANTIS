@@ -53,6 +53,15 @@ _DUMMY_ARGS = {
     "get_reconciliation_data": {"batch_id": "EOD-2026-04-21-CLEAN"},
     "create_exception_case": {"batch_id": "EOD-2026-04-21-MISMATCH", "mismatch_summary": "mock mismatch"},
     "store_report": {"batch_id": "EOD-2026-04-21-CLEAN", "report_body": "mock report"},
+    "detect_structuring": {"customer_id": "CUST-001"},
+    "check_threshold_anomaly": {"account_id": "CHK-001", "transaction_id": "TXN-1001", "amount": 100.0},
+    "find_mule_rings_for_customer": {"customer_id": "CUST-001"},
+    "verify_identity_document": {
+        "submitted_name": "Ava Patel", "submitted_dob": "2000-02-29", "submitted_id_number": "FL-001234",
+        "reference_name": "Ava Patel", "reference_dob": "2000-02-29", "reference_id_number": "FL-001234",
+    },
+    "get_aml_alert": {"alert_id": "ALT-00000000"},
+    "transition_aml_alert_status": {"alert_id": "ALT-00000000", "new_status": "in-investigation"},
 }
 
 

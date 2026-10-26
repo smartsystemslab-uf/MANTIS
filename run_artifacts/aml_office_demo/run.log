@@ -1,0 +1,53 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "aml_office_structuring_investigation": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "aml_office_router"
+    },
+    {
+      "agent": "aml_office_router",
+      "event": "transfer",
+      "to": "aml_investigation_workflow"
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "tool_call",
+      "tool": "detect_structuring",
+      "args": {
+        "customer_id": "CUST-001"
+      }
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "result",
+      "key": "aml_investigation_summary",
+      "value": {
+        "investigation_status": "open",
+        "findings": "Structuring detected for CUST-001: three deposits of USD 4,000 each made from EXT-777 to CHK-001 within a 7‑day window (Oct 21‑25, 2026).  The cumulative amount of USD 12,000 exceeds the 7‑day threshold of USD 10,000, triggering a suspicious activity alert.",
+        "risk_score": 0.8,
+        "case_facts": {
+          "names": [
+            "CUST-001"
+          ],
+          "amounts": [
+            4000.0,
+            4000.0,
+            4000.0
+          ],
+          "dates": [
+            "2026-10-21",
+            "2026-10-23",
+            "2026-10-25"
+          ],
+          "red_flags": [
+            "structuring",
+            "structuring",
+            "structuring"
+          ]
+        }
+      }
+    }
+  ]
+}

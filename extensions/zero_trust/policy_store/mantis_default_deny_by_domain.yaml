@@ -6,6 +6,33 @@ metadata:
   domain: mantis
   status: confirmed
 policies:
+- id: policy.mantis.aml_office_same_domain_access
+  description: 'MANTIS default-deny-by-domain: a aml_office agent may call a aml_office
+    tool. Anything not matched here (cross-domain, or an unknown subject/resource)
+    is denied by the PDP''s own default (default_deny_no_matching_policy).'
+  priority: 100
+  effect: ALLOW
+  match:
+    subjects:
+    - agent.aml_office.aml_investigation_workflow
+    - agent.aml_office.aml_investigator
+    - agent.aml_office.aml_office_router
+    - agent.aml_office.sar_drafting_agent
+    resources:
+    - resource.aml_office.check_threshold_anomaly
+    - resource.aml_office.detect_structuring
+    - resource.aml_office.find_mule_rings_for_customer
+    - resource.aml_office.get_aml_alert
+    - resource.aml_office.get_customer_context
+    - resource.aml_office.list_aml_alerts
+    - resource.aml_office.list_recent_transactions
+    - resource.aml_office.transition_aml_alert_status
+    - resource.aml_office.verify_identity_document
+    actions:
+    - read
+    - write
+  obligations: []
+  enabled: true
 - id: policy.mantis.back_office_same_domain_access
   description: 'MANTIS default-deny-by-domain: a back_office agent may call a back_office
     tool. Anything not matched here (cross-domain, or an unknown subject/resource)

@@ -17,6 +17,8 @@ IMPORTANT_RESULT_KEYS = {
     "mid_office_representative_result",
     "bo_report_output",
     "bo_exception_output",
+    "aml_investigation_summary",
+    "aml_sar_draft",
 }
 
 TOOL_RESULT_WHITELIST = {
@@ -120,8 +122,9 @@ async def run_message(
     mcp_tools=None,
     compact: bool = True,
     mantis_plugin=None,
+    enable_aml: bool = False,
 ):
-    app = create_app(mcp_session=mcp_session, mcp_tools=mcp_tools)
+    app = create_app(mcp_session=mcp_session, mcp_tools=mcp_tools, enable_aml=enable_aml)
 
     # Modern ADK: plugins are part of App. Compatibility fallback: older ADK
     # releases accepted plugins on Runner instead. Do not silently construct an

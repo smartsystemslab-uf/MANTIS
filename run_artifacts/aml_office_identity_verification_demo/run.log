@@ -1,0 +1,48 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "aml_office_identity_verification": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "aml_office_router"
+    },
+    {
+      "agent": "aml_office_router",
+      "event": "transfer",
+      "to": "aml_investigation_workflow"
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "tool_call",
+      "tool": "verify_identity_document",
+      "args": {
+        "submitted_name": "Ava Patel",
+        "submitted_dob": "2000-02-29",
+        "submitted_id_number": "FL-001234",
+        "reference_name": "Ava Patel",
+        "reference_dob": "2000-02-29",
+        "reference_id_number": "FL-001234"
+      }
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "result",
+      "key": "aml_investigation_summary",
+      "value": {
+        "investigation_status": "completed",
+        "findings": "Identity verification successful. Full match confidence 1.0.",
+        "risk_score": 0,
+        "case_facts": {
+          "names": [
+            "Ava Patel"
+          ],
+          "amounts": [],
+          "dates": [
+            "2000-02-29"
+          ],
+          "red_flags": []
+        }
+      }
+    }
+  ]
+}

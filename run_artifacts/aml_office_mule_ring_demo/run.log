@@ -1,0 +1,40 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "aml_office_mule_ring_screen": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "aml_office_router"
+    },
+    {
+      "agent": "aml_office_router",
+      "event": "transfer",
+      "to": "aml_investigation_workflow"
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "tool_call",
+      "tool": "find_mule_rings_for_customer",
+      "args": {
+        "customer_id": "CUST-001",
+        "max_depth": 5
+      }
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "result",
+      "key": "aml_investigation_summary",
+      "value": {
+        "investigation_status": "none detected",
+        "findings": "No mule ring activity detected in CUST-001's transaction history.",
+        "risk_score": "low",
+        "case_facts": {
+          "names": [],
+          "amounts": [],
+          "dates": [],
+          "red_flags": []
+        }
+      }
+    }
+  ]
+}

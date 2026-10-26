@@ -6,9 +6,9 @@ from .infra.bootstrap import bootstrap_runtime
 bootstrap_runtime()
 
 
-def create_app(mcp_session=None, mcp_tools=None):
+def create_app(mcp_session=None, mcp_tools=None, enable_aml: bool = False):
     """Build the native ADK App."""
-    root_agent = build_root_agent(mcp_session=mcp_session, mcp_tools=mcp_tools)
+    root_agent = build_root_agent(mcp_session=mcp_session, mcp_tools=mcp_tools, enable_aml=enable_aml)
     plugins = []
 
     # Current ADK exposes App.plugins. If an older compatible ADK release does

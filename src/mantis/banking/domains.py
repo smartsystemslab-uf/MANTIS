@@ -23,4 +23,14 @@ DOMAIN_AGENTS: dict[str, list[str]] = {
         "reconciliation_agent", "report_writing_agent", "exception_agent",
         "back_office_eod_workflow", "back_office_router", "sar_escalation_agent",
     ],
+    # Post-Paper Extension: Anti-Money Laundering office, ported from
+    # Citi_P3 (see mantis.banking.aml_office). Always listed here (pure
+    # metadata -- mantis --inventory, evaluation, config validation), but
+    # only actually built into the running agent tree when
+    # ExperimentConfig.aml_office.enabled is set (see
+    # mantis.banking.agents.root.build_root_agent); every config without
+    # that block is unaffected.
+    "aml_office": [
+        "aml_investigator", "sar_drafting_agent", "aml_investigation_workflow", "aml_office_router",
+    ],
 }

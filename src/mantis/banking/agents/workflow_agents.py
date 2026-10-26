@@ -6,6 +6,8 @@ from google.adk.agents import BaseAgent, LlmAgent, ParallelAgent, SequentialAgen
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event
 
+from mantis.banking.sar_prompt import format_sar_case_facts
+
 
 def _state_get(ctx: InvocationContext, key: str) -> Any:
     return ctx.session.state.get(key)
@@ -209,6 +211,56 @@ class BackOfficeEodWorkflowAgent(BaseAgent):
                 yield event
         else:
             async for event in self.exception_agent.run_async(ctx):
+                yield event
+
+
+class AmlInvestigationWorkflowAgent(BaseAgent):
+    investigator_agent: LlmAgent
+    reporter_agent: LlmAgent
+
+    model_config = {"arbitrary_types_allowed": True}
+
+    def __init__(
+        self,
+        name: str,
+        investigator_agent: LlmAgent,
+        reporter_agent: LlmAgent,
+    ):
+        super().__init__(
+            name=name,
+            investigator_agent=investigator_agent,
+            reporter_agent=reporter_agent,
+            description="Orchestrates the AML investigation and conditional SAR (Suspicious Activity Report) generation.",
+            sub_agents=[
+                investigator_agent,
+                reporter_agent,
+            ],
+        )
+
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        # Step 1: Run the investigator agent
+        async for event in self.investigator_agent.run_async(ctx):
+            yield event
+
+        # Step 2: Extract investigator output from session state
+        investigation = _extract_json(_state_get(ctx, "aml_investigation_summary"))
+
+        case_facts = investigation.get("case_facts", {})
+
+        ctx.session.state["aml_sar_case_facts"] = format_sar_case_facts(case_facts)
+
+        # Step 3: Conditionally run the reporter agent based on findings
+        risk_score = investigation.get("risk_score", 0)
+        status = str(investigation.get("investigation_status", "")).lower()
+
+        # Trigger the reporter if risk is elevated or explicitly marked suspicious
+        is_high_risk = isinstance(risk_score, (int, float)) and risk_score >= 50
+        is_suspicious = "suspicious" in status
+
+        if is_high_risk or is_suspicious:
+            async for event in self.reporter_agent.run_async(ctx):
                 yield event
 
 

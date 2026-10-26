@@ -99,6 +99,14 @@
     </fieldset>
 
     <fieldset>
+      <legend>AML Office</legend>
+      <label style="display:flex; align-items:center; gap:6px; font-weight:normal;">
+        <input type="checkbox" id="aml-enabled" style="width:auto;"> Enable for this run
+      </label>
+      <p class="schema-note">Adds the AML office domain (structuring/mule-ring detection, SAR drafting) to this run's root agent. Set domain to <code>aml_office</code> above to target it directly. find_mule_rings_for_customer requires <code>pip install -e ".[aml]"</code>.</p>
+    </fieldset>
+
+    <fieldset>
       <legend>Observability</legend>
       <label>Mode</label>
       <select id="o-mode"><option>full</option><option>selective</option><option>off</option></select>
@@ -189,6 +197,9 @@ function buildConfig() {
       enabled: true,
       pdp_url: document.getElementById("zt-pdp-url").value || "http://127.0.0.1:8600",
     };
+  }
+  if (document.getElementById("aml-enabled").checked) {
+    cfg.aml_office = { enabled: true };
   }
   const exportList = Array.from(document.querySelectorAll("#editor .checks input:checked")).map(c => c.value);
   cfg.observability = { mode: document.getElementById("o-mode").value, export: exportList };

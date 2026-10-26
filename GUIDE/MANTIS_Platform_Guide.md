@@ -29,10 +29,15 @@ system is organized the way a bank is organized:
   makes loan pre-approval decisions.
 - **Back office** — runs end-of-day reconciliation (validate a batch, post the
   ledger, write the audit report) and escalates suspicious exceptions.
+- **AML office** (toggleable 4th domain, §7.2) — investigates customers for
+  structuring, mule-ring patterns, and identity mismatches, and drafts
+  Suspicious Activity Reports. Off by default; every experiment above runs
+  identically whether or not it is enabled.
 
-Across the three domains there are **34 agents and 27 tools** ("look up a
-customer", "execute a transfer", "post a ledger entry", "file a Suspicious
-Activity Report"), backed by a real banking web service and a database. **All
+Across the three always-on domains there are **34 agents and 27 tools** ("look
+up a customer", "execute a transfer", "post a ledger entry", "file a
+Suspicious Activity Report"), backed by a real banking web service and a
+database -- **38 agents and 34 tools** with the AML office enabled. **All
 data is synthetic.** A second, smaller *institution profile* (a regional credit
 union) runs the same agents and code against its own data and stricter policy
 thresholds.
@@ -476,6 +481,58 @@ domain; anything else is denied by the PDP's own default) in the real
 project's schema -- see `extensions/zero_trust/README.md` for the full
 picture, including what this integration does not yet cover.
 
+## 7.2 AML Office (toggleable 4th domain, ported from Citi_P3)
+
+A 4th banking domain, toggleable the same way Zero Trust is, but ported
+MANTIS-side code rather than an external service call: the legacy
+[`Citi_P3`](https://github.com/smartsystemslab-uf/Citi_P3) monorepo's
+`citi_banking_adk/bank_adk/agents/aml_office.py` and `tools/aml_tools.py`
+had a working AML office (an investigator agent, a SAR drafting agent, and
+real structuring/threshold/mule-ring/identity-verification detection logic)
+that never got carried over when the rest of that codebase was translated
+into MANTIS across WP1-WP8. This brings it over, adapted to MANTIS's
+repository and tool-wrapper conventions, with the detection math itself
+unchanged.
+
+**Turning it on:**
+
+```yaml
+experiment:
+  domain: aml_office                        # only if you want to target it directly
+  workflow: aml_office_structuring_investigation
+  scenario: aml_office_structuring_investigation
+aml_office:
+  enabled: true
+```
+
+(The UI's Experiment Editor has the same thing as a checkbox, next to the
+Zero Trust fieldset.) Without this block -- every config written before
+this domain existed -- the root agent is byte-identical to before: same
+`sub_agents`, same instruction, same description.
+
+**What's ported, what's new.** `detect_structuring` (sliding-window
+cumulative-deposit detection), `check_threshold_anomaly`,
+`find_mule_rings_for_customer` (closed-loop graph traversal), and
+`verify_identity_document` (Levenshtein name scoring) are Citi_P3's own
+logic, unchanged. `get_aml_alert`/`list_aml_alerts`/
+`transition_aml_alert_status` port the alert-lifecycle state machine
+(`open` → `in-investigation` → `cleared`/`escalated-to-sar`) from Citi_P3's
+separate `citi_banking_backend/app/aml_alert_repository.py` into
+`BankingRepository`, the same data-access layer every other banking tool
+already uses.
+
+**Optional dependency.** `find_mule_rings_for_customer` needs `networkx`
+(`pip install -e ".[aml]"`); it is imported lazily inside that one
+function, so every other AML tool, and `mantis --inventory`/`--validate`,
+work without it. Calling it without the dependency installed raises a
+clear `ImportError` naming the install command, rather than failing
+silently.
+
+`configs/extensions/aml_office_demo.yaml` runs a real positive detection:
+CUST-001's seeded transaction history has three inbound wires from the
+same counterparty within a 7-day window summing to $12,000, past the
+$10,000 structuring threshold.
+
 # 8. Workloads and Institution Profiles
 
 Beyond the original workflows, three new banking processes were added, each
@@ -621,8 +678,8 @@ The scorecard reports `attack_fired: true` and the trace holds one `ATTACK_INJEC
 # 10. Testing and Release Validation
 
 ```bash
-pytest tests/unit                 # 823 passing offline tests (846 with the optional
-                                   # zero_trust dependency installed); 168 skip by design
+pytest tests/unit                 # 853 passing offline tests (880 with both optional
+                                   # dependencies, zero_trust and aml, installed); 178 skip by design
 pytest refactor_guard_tests       # 49 regression guards against frozen golden runs
 ./scripts/release_validation.sh   # live end-to-end check of WP0-WP7
 ```
@@ -647,12 +704,22 @@ published Paper 1 evidence.
   results are influenced by accumulated history.
 - **Synthetic and sandboxed.** No production systems and no customer data.
 - **Defenses are illustrative.** See Section 7.
+- **AML investigator judgment is model-dependent.** `detect_structuring` and
+  the other detection tools are deterministic and verified correct; the
+  *investigator agent's* own risk-score and case-facts summary on top of a
+  correct detection is an LLM judgment call, inherited unchanged from
+  Citi_P3's own prompts. A live run with `gpt-oss-20b` correctly detected a
+  real structuring pattern but scored it well under the SAR-reporter's
+  trigger threshold, and once populated `case_facts` with invented amounts/
+  dates instead of the real tool output -- a known limitation of that
+  prompt against this model, not fixed as part of the port.
 
 # 12. Summary
 
 MANTIS lets an experimenter declare a realistic adversarial or failure
 scenario in a YAML file, run it against a real, unmodified, three-domain
-banking multi-agent system, and get back an automatic, evidence-based verdict
+(plus a toggleable 4th, AML office) banking multi-agent system, and get
+back an automatic, evidence-based verdict
 on exactly what happened, not merely whether the program finished. The same
 five-control-point mechanism serves attacks, faults, and defenses, so an attack
 and a guardrail can be placed side by side in one trace and the one that

@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-10-26T18:12:16.582255Z",
+  "config_hash": "8698631591205a4c3fe58c6fdf2b96bcc451c5a05438e7fe5ee00b5366bee264",
+  "seed": 200,
+  "config": {
+    "experiment": {
+      "name": "aml_office_routine_clear_demo",
+      "seed": 200,
+      "domain": "aml_office",
+      "workflow": "aml_office_routine_customer_clear",
+      "scenario": "aml_office_routine_customer_clear"
+    },
+    "aml_office": {
+      "enabled": true
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "detect_structuring"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.13.4"
+    },
+    "git_commit": "47a8716e570628571e493c493410882be5c5724e",
+    "llm": {
+      "mock": false,
+      "model": "gpt-oss-20b",
+      "endpoint_host": "api.ai.it.ufl.edu"
+    }
+  }
+}

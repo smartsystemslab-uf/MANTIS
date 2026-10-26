@@ -1,0 +1,73 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "aml_office_alert_triage": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "aml_office_router"
+    },
+    {
+      "agent": "aml_office_router",
+      "event": "transfer",
+      "to": "aml_investigation_workflow"
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "tool_call",
+      "tool": "transition_aml_alert_status",
+      "args": {
+        "alert_id": "ALT-SEEDED01",
+        "new_status": "in-investigation"
+      }
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "tool_call",
+      "tool": "get_customer_context",
+      "args": {
+        "customer_id": "CUST-001"
+      }
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "tool_call",
+      "tool": "list_recent_transactions",
+      "args": {
+        "customer_id": "CUST-001",
+        "limit": 5
+      }
+    },
+    {
+      "agent": "aml_investigator",
+      "event": "result",
+      "key": "aml_investigation_summary",
+      "value": {
+        "investigation_status": "in-investigation",
+        "findings": "Alert ALT-SEEDED01 moved to in-investigation. Customer Ava Patel (CUST-001) flagged for structuring; recent activity shows a $9,200 wire pending review and three $4,000 wire_in transactions to Offshore Holdings LLC within 7 days, indicating a potential layering strategy. KYC verified but occupation (physician) and medium risk tier suggest attention but not high risk. Risk score set to 0.7/1.0.",
+        "risk_score": 0.7,
+        "case_facts": {
+          "names": [
+            "Ava Patel"
+          ],
+          "amounts": [
+            9200.0,
+            4000.0,
+            4000.0,
+            4000.0
+          ],
+          "dates": [
+            "2026-10-26T18:11:53.451036+00:00",
+            "2026-10-25T18:11:53.451202+00:00",
+            "2026-10-23T18:11:53.451192+00:00",
+            "2026-10-21T18:11:53.451174+00:00"
+          ],
+          "red_flags": [
+            "structuring alert",
+            "multiple wire_in within short period",
+            "transaction pending review"
+          ]
+        }
+      }
+    }
+  ]
+}

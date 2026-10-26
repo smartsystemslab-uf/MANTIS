@@ -73,7 +73,7 @@ def test_inventory_endpoint_matches_the_real_adapter():
     real = NativeBankingAdapter().inventory()
     assert set(data["agents"]) == set(real.agents)
     assert set(data["tools"]) == set(real.tools)
-    assert set(data["domains"].keys()) == {"front_office", "mid_office", "back_office"}
+    assert set(data["domains"].keys()) == {"front_office", "mid_office", "back_office", "aml_office"}
 
 
 def test_list_runs_includes_a_real_checked_in_run():

@@ -40,5 +40,5 @@ This checklist verifies that the repository meets all acceptance criteria define
 - [x] Minimal UI (`mantis --ui`) with trace, evaluation, hook-coverage and campaign views.
 - [x] Extended scenario library: 19 baselines and 26 attack/fault variants (`configs/extended/`, `results/extended_*.json`).
 - [x] Starter campaigns (`configs/campaigns/`) and the platform guide (`GUIDE/`, rebuilt on every push via `scripts/publish.sh`).
-- [x] 823 offline tests passing (846 with the optional Zero Trust dependency installed), 168 skip by design without a live backend or model.
+- [x] 853 offline tests passing (880 with both optional dependencies -- Zero Trust and AML -- installed), 178 skip by design without a live backend or model.
 

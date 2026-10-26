@@ -31,7 +31,7 @@ from mantis.runtime.adapter import NativeBankingAdapter
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-ID_PATTERN = re.compile(r"\b(?:CUST|TXN|EOD|EX|SAR|LOAN|DSP)-[A-Z0-9-]+\b|\b\d{4}-\d{2}-\d{2}\b")
+ID_PATTERN = re.compile(r"\b(?:CUST|TXN|EOD|EX|SAR|LOAN|DSP|ALT)-[A-Z0-9-]+\b|\b\d{4}-\d{2}-\d{2}\b")
 # The FAQ chatbot scenario is a general question, not a record lookup.
 NO_IDENTIFIER_NEEDED = {"front_office_chatbot"}
 # Identifiers a scenario names *on purpose* though nothing is seeded for them
@@ -110,7 +110,7 @@ def test_scenario_library_covers_every_domain_with_multiple_scenarios():
     per_domain = {}
     for domain in WORKFLOW_DOMAINS.values():
         per_domain[domain] = per_domain.get(domain, 0) + 1
-    assert set(per_domain) == {"front_office", "mid_office", "back_office"}
+    assert set(per_domain) == {"front_office", "mid_office", "back_office", "aml_office"}
     assert all(n >= 5 for n in per_domain.values()), per_domain
 
 

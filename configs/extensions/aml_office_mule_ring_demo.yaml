@@ -1,0 +1,20 @@
+# AML Office mule-ring detection, negative control: CUST-001's seeded
+# transaction history (CHK-001/SVG-001 <-> EXT-998/EXT-777) contains no
+# closed loop, so find_mule_rings_for_customer should report none found.
+experiment:
+  name: aml_office_mule_ring_demo
+  seed: 201
+  domain: aml_office
+  workflow: aml_office_mule_ring_screen
+  scenario: aml_office_mule_ring_screen
+
+aml_office:
+  enabled: true
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - find_mule_rings_for_customer
