@@ -1,0 +1,20 @@
+# Starter campaign 5_aml_office. Copy of
+# configs/extensions/aml_office_mule_ring_demo.yaml under a camp_ name,
+# so a campaign never overwrites recorded paper evidence.
+experiment:
+  name: camp_5_mule_ring_screen
+  seed: 201
+  domain: aml_office
+  workflow: aml_office_mule_ring_screen
+  scenario: aml_office_mule_ring_screen
+
+aml_office:
+  enabled: true
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - find_mule_rings_for_customer

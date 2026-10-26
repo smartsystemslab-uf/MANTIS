@@ -1,0 +1,20 @@
+# Starter campaign 5_aml_office. Copy of
+# configs/extensions/aml_office_alert_triage_demo.yaml under a camp_
+# name, so a campaign never overwrites recorded paper evidence.
+experiment:
+  name: camp_5_alert_triage
+  seed: 203
+  domain: aml_office
+  workflow: aml_office_alert_triage
+  scenario: aml_office_alert_triage
+
+aml_office:
+  enabled: true
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - transition_aml_alert_status

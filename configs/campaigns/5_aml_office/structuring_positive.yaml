@@ -1,0 +1,22 @@
+# Starter campaign 5_aml_office: the toggleable AML office, ported from
+# Citi_P3 -- structuring detection, mule-ring detection, identity
+# verification, and alert triage, no attack configured.
+# Copy of configs/extensions/aml_office_demo.yaml under a camp_ name, so
+# a campaign never overwrites recorded paper evidence.
+experiment:
+  name: camp_5_structuring_positive
+  seed: 120
+  domain: aml_office
+  workflow: aml_office_structuring_investigation
+  scenario: aml_office_structuring_investigation
+
+aml_office:
+  enabled: true
+
+observability:
+  mode: full
+  export: [jsonl]
+
+evaluation:
+  expected_tools:
+    - detect_structuring

@@ -8,6 +8,7 @@ Four small, themed sets of experiments. Each is a folder you sweep with one comm
 | `2_defenses` | The six defenses, each against the attack it is built to stop | 6 |
 | `3_workloads` | The workflows added after the original paper, no attack: dispute, SAR, loan, a second institution | 4 |
 | `4_new_attack_surfaces` | Extended-library attacks on the newer workflows, including data-level effects | 5 |
+| `5_aml_office` | The toggleable AML office (ported from Citi_P3), no attack: structuring detection (positive and routine-clear cases), mule-ring screening, identity verification, and alert triage | 5 |
 
 ## Run one
 
