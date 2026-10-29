@@ -1,0 +1,68 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "front_office_transaction_execution": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "front_office_router"
+    },
+    {
+      "agent": "front_office_router",
+      "event": "transfer",
+      "to": "customer_service_chatbot_workflow"
+    },
+    {
+      "agent": "transaction_processing_agent",
+      "event": "tool_call",
+      "tool": "execute_transfer",
+      "args": {
+        "source_account": "CHK-002",
+        "destination_account": "EXT-998",
+        "amount": 125.5,
+        "memo": "Utility backup payment",
+        "customer_id": "CUST-002"
+      }
+    },
+    {
+      "agent": "transaction_processing_agent",
+      "event": "tool_result",
+      "tool": "execute_transfer",
+      "result": {
+        "transaction_id": "TX-9CDCBEB40991",
+        "status": "completed",
+        "source_account": "CHK-002",
+        "destination_account": "EXT-998",
+        "amount": 125.5,
+        "currency": "USD",
+        "risk_score": 35,
+        "decision_reason": "High daily transaction frequency: The source account has many transfers within the last 24 hours.",
+        "memo": "Utility backup payment",
+        "customer_id": "CUST-002",
+        "raw_backend_result": {
+          "transaction_id": "TX-9CDCBEB40991",
+          "from_account_id": "CHK-002",
+          "to_account_id": "EXT-998",
+          "amount": 125.5,
+          "currency": "USD",
+          "tx_type": "transfer",
+          "status": "completed",
+          "risk_score": 35,
+          "decision_reason": "High daily transaction frequency: The source account has many transfers within the last 24 hours.",
+          "created_at": "2026-09-24T15:32:08.993259"
+        }
+      }
+    },
+    {
+      "agent": "transaction_processing_agent",
+      "event": "result",
+      "key": "fo_transaction_execution",
+      "value": {
+        "status": "completed",
+        "execution_performed": true,
+        "transaction_id": "TX-9CDCBEB40991",
+        "outcome": "Transfer completed successfully.",
+        "customer_message": "Your transfer of $125.50 from CHK-002 to EXT-998 has been completed successfully. Memo: Utility backup payment."
+      }
+    }
+  ]
+}

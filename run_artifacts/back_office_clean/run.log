@@ -1,0 +1,58 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "back_office_clean": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "back_office_router"
+    },
+    {
+      "agent": "back_office_router",
+      "event": "transfer",
+      "to": "back_office_eod_workflow"
+    },
+    {
+      "agent": "validation_checkpoint_agent",
+      "event": "tool_call",
+      "tool": "validate_eod_readiness",
+      "args": {
+        "batch_id": "EOD-2026-04-21-CLEAN"
+      }
+    },
+    {
+      "agent": "eod_processing_agent",
+      "event": "tool_call",
+      "tool": "get_eod_batch",
+      "args": {
+        "batch_id": "EOD-2026-04-21-CLEAN"
+      }
+    },
+    {
+      "agent": "ledger_update_agent",
+      "event": "tool_call",
+      "tool": "apply_ledger_updates",
+      "args": {
+        "batch_id": "EOD-2026-04-21-CLEAN",
+        "posting_instructions": "{\"batch_id\":\"EOD-2026-04-21-CLEAN\",\"business_date\":\"2026-04-21\",\"total_amount\":18250.55,\"entries_count\":43,\"source_system\":\"core_banking_system\"}"
+      }
+    },
+    {
+      "agent": "reconciliation_agent",
+      "event": "tool_call",
+      "tool": "get_reconciliation_data",
+      "args": {
+        "batch_id": "EOD-2026-04-21-CLEAN"
+      }
+    },
+    {
+      "agent": "report_writing_agent",
+      "event": "result",
+      "key": "bo_report_output",
+      "value": {
+        "report_summary": "End-of-Day Report: Batch EOD-2026-04-21-CLEAN\nBusiness Date: 2026-04-21\nTotal Amount: 18,250.55\nEntries: 43\nSource System: core_banking_system\nLedger Status: Updated\nReconciliation: Matched\nDifference: 0.00\nConfidence: 1.0\nRecommendation: Finalize, publish, archive, trigger downstream workflows.",
+        "report_id": "EOD-2026-04-21-CLEAN",
+        "downstream_notes": "Finalize and publish the reconciliation report, archive the batch, and trigger any downstream post‑reconciliation workflows."
+      }
+    }
+  ]
+}

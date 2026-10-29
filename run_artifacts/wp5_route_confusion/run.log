@@ -1,0 +1,27 @@
+$ mantis --run configs/attacks/wp5_route_confusion.yaml
+exit code: 0
+
+--- stdout ---
+{
+  "front_office_monitoring": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "front_office_router"
+    },
+    {
+      "agent": "front_office_router",
+      "event": "transfer",
+      "to": "customer_service_chatbot_workflow"
+    }
+  ]
+}
+
+--- stderr ---
+Run manifest saved to run_artifacts/wp5_route_confusion/run_manifest.json
+/Users/rohithkumarballem/Desktop/MANTIS/.venv/lib/python3.12/site-packages/pydantic_settings/sources/utils.py:47: IncompleteFieldDefinitionWarning: Field 'lifespan' has an incomplete definition: its annotation contains an unresolved forward reference, so settings sources may fail to correctly resolve its value. Call `model_rebuild()` on the model where the field is defined, once all the referenced types are defined.
+  warnings.warn(
+[09/24/26 08:32:59] INFO     Processing request of type            server.py:733
+                             ListToolsRequest                                   
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+

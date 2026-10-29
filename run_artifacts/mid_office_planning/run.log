@@ -1,0 +1,45 @@
+App "citi_banking_adk" can transfer between agents but has no context_cache_config. Every transfer swaps the system instruction and the tool set, so the request prefix changes and the whole prompt is re-sent uncached after each transfer. Set context_cache_config on the app to give each agent its own cache.
+{
+  "mid_office_planning": [
+    {
+      "agent": "user_proxy_agent",
+      "event": "transfer",
+      "to": "mid_office_router"
+    },
+    {
+      "agent": "mid_office_router",
+      "event": "transfer",
+      "to": "mid_office_planning_workflow"
+    },
+    {
+      "agent": "data_analysis_agent",
+      "event": "tool_call",
+      "tool": "get_operations_snapshot",
+      "args": {
+        "date": "2026-04-21"
+      }
+    },
+    {
+      "agent": "data_analysis_agent",
+      "event": "tool_call",
+      "tool": "get_operations_snapshot",
+      "args": {
+        "date": "2026-04-21"
+      }
+    },
+    {
+      "agent": "support_guidance_agent",
+      "event": "tool_call",
+      "tool": "get_support_playbooks",
+      "args": {
+        "query": "East peak interval congestion AHT >8 minutes backlog growth; Central early morning backlog; chat specialist role; cross‑training"
+      }
+    },
+    {
+      "agent": "planning_summary_agent",
+      "event": "result",
+      "key": "mid_office_planning_result",
+      "value": "## 2026‑04‑21 – Mid‑Office Planning Summary  \n\n| Section | Key Take‑aways |\n|---|---|\n| **Workload Prediction** | East ≈ 1400 calls, 950 chats, 135 backlog cases → 200 agent‑hrs; Central ≈ 1120 calls, 770 chats, 96 backlog cases → 160 agent‑hrs. |\n| **Forecast (next day)** | 2 % volume growth from mortgage campaign, stable AHT (8.6 / 7.9 min), chat ≈ 5 min. |\n| **Schedule Validation** | Original 4‑hour block plan short‑circuited agent‑hours; new 8‑hour shift distribution restores required headcount and hours. |\n| **Support Guidance** | • Deploy 8‑h shifts as outlined. <br>• Cross–train call/chat, trigger short‑wave, playbook roll‑out. <br>• Escalation triggers provided. |\n\n---\n\n### 1. Workload Prediction & Forecast\n\n| Region | Calls | Chats | Peak | Backlog Growth | Agent‑hrs Needed |\n|--------|-------|-------|------|----------------|------------------|\n| **East** | 1400 | 950 | 11:00‑14:00 | +10 % (≈135 cases) | 200 |\n| **Central** | 1120 | 770 | 10:00‑13:00 | +5 % (≈96 cases) | 160 |\n\n- **Assumptions** – 8‑hour shifts only, 5 full‑time agents/day, 0.5 hr per backlog case, 2 % daily volume growth from mortgage‑campaign launch.  \n- **Key Driver** – Mortgage‑inquiry spike (post‑holiday) & card‑replacement traffic in Central.  \n\n---\n\n### 2. Staffing Recommendation & Shift Structure\n\n| Region | Total Agents | 8‑h Shift Breakdown | Chat Specialists |\n|--------|--------------|---------------------|------------------|\n| **East** | **25 agents** | 08‑12: 6 agents<br>12‑16: **8 agents**<br>16‑20: 6 agents<br>20‑00: 5 agents | 2 specialists (integrated as part of the 25 count; 1–2 may be dedicated chat‑only). |\n| **Central** | **20 agents** | 08‑12: 5 agents<br>12‑16: **6 agents**<br>16‑20: 4 agents<br>20‑00: 5 agents | 1 specialist (integrated into the 20). |\n\n- **Rationale** – 200 agent‑hrs/8h = 25 agents; 160 agent‑hrs/8h = 20 agents.  \n- **Peak coverage** – 8 agents on 12‑16h in East (covers 11‑14 h peak and back‑log buffer), 6 agents on 12‑16h in Central (covers 10‑13 h peak & card‑replacement traffic).  \n- **Chat capacity** – Specialists absorb ≈ 30 % of forecasted chat volume, providing a safety margin for the 5 min AHT.  \n\n---\n\n### 3. Schedule Validation\n\n| Issue | Fix |\n|-------|-----|\n| **8‑hour shift mis‑calculated** – original plan had 4 h blocks, only 98 / 80 agent‑hrs. | Re‑defined each agent’s work period as a full 8‑h shift; total agents × 8 h = required headcount. |\n| **Under‑utilised shift distribution** – each agent set to a single 4‑h slot. | Agents now work one continuous 8‑h block; distribution of 25 / 20 across the four time windows guarantees 200 / 160 hrs. |\n| **Chat specialists not scheduled** – separate listing. | Specified that chat specialists count within total agents and are scheduled in the same 8‑h shifts (e.g., 12‑16h East, 08‑12h Central) to match chat surge times. |\n\n**Validation result:** ✅ The updated schedule satisfies all staffing targets and adheres to the 8‑hour shift assumption.\n\n---\n\n### 4. Support Guidance & Playbooks\n\n| Action | Details |\n|--------|---------|\n| **Real‑time Queue Dashboard** | Continuous visibility of AHT, backlog, and chat queue. Deploy alerts for SLA <80 % or backlog above thresholds. |\n| **Short‑wave Triggers** | Auto‑activate standby agents (e.g., part‑time or LOB agents) when peak volume exceeds forecasted level. |\n| **Cross‑Training** | Call agents trained for chat; chat agents covered for simple calls to balance load. |\n| **Playbooks** | • **Mortgage Inquiry Overflow** – route uncomplicated rate/doc questions to specialists and schedule callbacks for complex queries. <br>• **Dispute Queue Surge** – senior reps triage disputes, reserve overflow for chargebacks, enforce tight callback SLAs. |\n| **Priority Actions** | 1. Confirm agent‑hour coverage each day; adjust if AHT >8 min.<br>2. Shift 08‑12 agents to early mornings if Central backlog >110 cases.<br>3. Activate chat specialists when chat > 1150 East or > 845 Central.<br>4. Trigger short‑wave if SLA drops <80 %. |\n| **Escalation Points** | SLA <80 % in any shift; backlog > 159 East / > 109 Central; chat > 1150 East / > 845 Central; AHT >9 min during peak. Escalate immediately to SR Ops & Head of Quality. |\n| **Service Risk** | Peak congestion and backlog can drive SLA drift; no overtime/part‑time buffer leaves exposure to unexpected spikes. |\n\n---\n\n### 5. Summary & Next Steps\n\n| Item | Action |\n|------|--------|\n| **Validate Daily** | At 10 min intervals, redraw queue dashboard, confirm AHT, backlog, chat counts. |\n| **Adjust Staffing** | If forecasted AHT >8 min or backlog >±5 %, shift 1–2 agents from off‑peak to peak or call a short‑wave. |\n| **Monitor Chat Flow** | If chat volume > 1150 East or > 845 Central, deploy additional chat specialist or shift more chat‑trained agents into the afternoon shift. |\n| **Playbook Execution** | Mortgage overflow and dispute surge playbooks must be activated immediately when respective surges are detected. |\n| **Documentation** | Update the central ops repo with the validated schedule and escalation matrix; feed into the nightly Post‑Mortem. |\n\nThis unified plan aligns workload forecast, validated staffing, and operational playbooks to keep SLA ≥ 80 % while managing backlog and chat surges for both East and Central regions on 2026‑04‑22."
+    }
+  ]
+}
