@@ -106,11 +106,12 @@ def eyebrow(slide_, x, y, w, txt, color=UF_ORANGE):
 
 # =============================================================== 1. Title
 s = slide(UF_BLUE, "MANTIS -- This Week", (
-    "Quick update, not a full re-introduction: three things landed since the last deck. "
-    "A real, toggleable integration of the independent Zero Trust Backplane project. "
-    "A minimal browser UI over the same CLI. "
-    "And new this week: a toggleable AML office, ported from the legacy codebase MANTIS's banking agents were originally extracted from. "
-    "Everything is off by default and verified live, not just unit-tested."), 0.5)
+    "This is a quick update, not a full re-introduction -- you've seen MANTIS before. "
+    "Three things changed since the last time we talked. We wired in a real Zero Trust Backplane. "
+    "We built a minimal UI on top of the same CLI. And new this week, we added a fourth banking domain: "
+    "an anti-money-laundering office, ported straight out of the legacy codebase our banking agents originally came from. "
+    "All of it is off by default, and all of it has been verified against a live run, not just a passing test suite. "
+    "Let's get into it."), 0.6)
 rect(s, 0.0, 0.0, 13.333, 7.5, fill=UF_BLUE)
 # Text-based college mark (placeholder for the real UF wordmark/crest asset).
 rect(s, 0.55, 0.45, 0.62, 0.62, fill=WHITE)
@@ -128,10 +129,12 @@ rect(s, 10.35, 6.95, 2.2, 0.012, fill=WHITE)
 
 # =============================================================== 2. MANTIS in brief
 s = slide(WHITE, "MANTIS in brief", (
-    "One-slide refresher. MANTIS is a configuration-driven security testbed built on a real, unmodified banking multi-agent system. "
-    "Five fixed control points -- input, agent, interaction, tool, output -- let an attack, failure, or defense plugin declare itself entirely in YAML. "
-    "Front, mid, and back office are always on: 34 agents, 27 tools. "
-    "Everything we're covering today -- Zero Trust, the AML office -- is a toggle on top of that unchanged core."), 0.75)
+    "Quick refresher before we get into what's new. MANTIS is a security testbed built on top of a real, "
+    "unmodified banking multi-agent system -- front office, mid office, back office, all always running: "
+    "thirty-four agents, twenty-seven tools. The trick is five fixed control points -- input, agent, interaction, "
+    "tool, output -- so an attack, a failure, or a defense is never a code change. It's just a YAML file that plugs "
+    "into one of those five points. Keep that in mind, because everything I'm about to show you -- Zero Trust, the "
+    "AML office -- is just a toggle sitting on top of that same unchanged core."), 0.8)
 uf_title(s, "MANTIS in brief")
 eyebrow(s, 0.55, 1.1, 8, "THE TESTBED")
 cols = [("A real system under test", "Unmodified banking multi-agent system. Front / mid / back office: 34 agents, 27 tools, a real backend.", "secondary"),
@@ -155,12 +158,15 @@ uf_footer(s)
 
 # =============================================================== 3. Zero Trust Backplane
 s = slide(WHITE, "Zero Trust Backplane (toggleable)", (
-    "A real integration of the independent Citi_P3_Zero_Trust_Backplane project's signed Policy Decision Point -- not a reimplementation. "
-    "A stock install never imports it; it's an optional dependency, guarded by a try/except so it's genuinely unregistered rather than registered-but-broken when absent. "
-    "Toggle it with a dedicated zero_trust block in any config, or the same checkbox in the UI. "
-    "The policy itself is generated from MANTIS's own live inventory: an agent may act on a tool in its own domain, everything else is denied by the PDP's own default. "
-    "Live-verified: same-domain allow, cross-domain deny, an unrecognized agent denied before a challenge is even issued, and two full legitimate runs through the real PDP completing identically to the undefended baseline. "
-    "Eleven regression tests guard it against future drift."), 1.1)
+    "So, first, Zero Trust. This isn't something we built from scratch -- it's a real integration of an independent "
+    "project, the Citi_P3 Zero Trust Backplane, and its actual signed policy decision point. We didn't reimplement it, "
+    "we wired the real thing in. By default it isn't even imported -- it's an optional dependency behind a try/except, "
+    "so a normal install never touches it. You turn it on with one block in the config, or one checkbox in the UI. "
+    "The policy itself comes straight from MANTIS's own live inventory: an agent can act on a tool in its own domain, "
+    "and the PDP denies everything else by default. And we didn't just trust that it works, we verified it live. "
+    "Same-domain requests get allowed. Cross-domain requests get denied. An agent the system doesn't recognize gets "
+    "denied before it's even challenged. And we ran two full legitimate campaigns through the real PDP and got results "
+    "identical to the undefended baseline. Eleven regression tests sit on top of that to catch any future drift."), 1.3)
 uf_title(s, "Zero Trust Backplane: real PDP, toggled per run")
 eyebrow(s, 0.55, 1.1, 6, "POLICY DECISION")
 uf_box_label(s, 0.55, 1.5, 2.6, 0.75, "Agent request", "secondary", size=13.5)
@@ -192,11 +198,13 @@ uf_footer(s)
 
 # =============================================================== 4. Minimal UI
 s = slide(WHITE, "The minimal UI", (
-    "A schema-driven experiment editor and trace viewer over the same mantis CLI -- no separate business logic. "
-    "Validate and Run shell out to the exact same subprocess a terminal user would invoke. "
-    "Domain, workflow, scenario, and plugin dropdowns are populated live from the running registries, not hardcoded, so they can never drift from the real system. "
-    "Verified directly: a deliberately invalid config submitted through the UI comes back with the real CLI's own error text, not a UI-side check. "
-    "Dedicated toggle fieldsets for Zero Trust and, new this week, the AML office sit right next to the generic attack and policy dropdowns -- this is a real screenshot of it running against a real AML office run, not a mockup."), 1.0)
+    "Next, the UI. This is deliberately thin -- there's no separate business logic hiding behind it. Validate and Run "
+    "literally shell out to the same mantis CLI command you'd type in a terminal yourself. The dropdowns -- domain, "
+    "workflow, scenario, plugin -- are populated live from the real running registries, so they can never drift out "
+    "of sync with the actual system. We proved that by deliberately submitting a broken config through the UI, and it "
+    "came back with the exact same error text the CLI itself gives you. What you're looking at on the left is a real "
+    "screenshot, not a mockup. It's the UI running an actual AML office campaign, with dedicated toggles for Zero Trust "
+    "and the AML office sitting right next to the existing attack and policy options."), 1.0)
 uf_title(s, "The minimal UI: a thin layer over the real CLI")
 img_path = IMAGES / "ui_editor_zt_crop.png"
 rect(s, 0.5, 1.25, 4.6, 5.15, fill=LIGHT_TINT)
@@ -219,13 +227,15 @@ uf_footer(s)
 
 # =============================================================== 5. AML Office
 s = slide(WHITE, "The AML office (toggleable, new this week)", (
-    "MANTIS's banking agents were extracted from a larger legacy codebase, Citi_P3. That legacy codebase had a working AML investigation office "
-    "-- an investigator agent, a SAR drafting agent, four real detection functions -- that never made the transition when the rest was translated into MANTIS. "
-    "This week we ported it. Four detection functions are unchanged from the source: structuring detection is a real sliding-window cumulative-deposit analysis, "
-    "threshold-anomaly flags anything over five times a customer's baseline, mule-ring detection is real closed-loop graph traversal over a customer's transaction history, "
-    "and identity verification is Levenshtein name scoring weighted thirty-thirty-forty against date of birth and ID number. "
-    "Plus a real alert lifecycle: open, in-investigation, cleared or escalated to SAR. "
-    "It's a fourth banking domain, off by default, toggled exactly like Zero Trust."), 1.1)
+    "Now, the new piece: the AML office. Quick backstory -- MANTIS's banking agents were originally pulled out of a "
+    "bigger legacy codebase called Citi_P3. That codebase had a working anti-money-laundering investigation office "
+    "that never made the move over. This week, we ported it. Four detectors, and we kept the logic exactly as it was "
+    "in the source -- we didn't reinvent any of it. Structuring detection is a real sliding-window analysis of "
+    "cumulative deposits. Threshold anomaly flags anything over five times a customer's normal baseline. Mule-ring "
+    "detection walks the actual transaction graph looking for closed loops. Identity verification scores name "
+    "similarity against date of birth and ID number, weighted thirty, thirty, forty. On top of all that, there's a "
+    "real alert lifecycle -- open, under investigation, cleared, or escalated to a SAR filing. It's a fourth banking "
+    "domain, off by default, and you turn it on exactly the same way you turn on Zero Trust."), 1.2)
 uf_title(s, "AML office: four real detectors, ported from Citi_P3")
 eyebrow(s, 0.55, 1.1, 10, "PORTED, NOT REINVENTED")
 dets = [("Structuring detection", "Sliding-window cumulative deposits; default $10,000 / 7 days", "primary"),
@@ -250,13 +260,16 @@ uf_footer(s)
 
 # =============================================================== 6. Live verification found 2 bugs
 s = slide(WHITE, "Live verification found 2 real bugs", (
-    "The whole point of verifying against the real trace, not a clean exit code: live verification against five new AML scenarios found two real integration defects "
-    "before we could honestly call the extension complete. First, a routing gap -- the identity-verification scenario was misrouted to the front office instead of the AML office, "
-    "because the root agent's own routing instruction never mentioned identity verification by name. Second, an unreachable capability -- the alert-triage tool existed, "
-    "was correctly implemented, was unit-tested directly as a function -- but no agent in the actual built tree had it on its toolset at all, so it could never be called live. "
-    "Neither was caught by the unit test suite, because both are properties of the live agent tree, not of any single ported function in isolation. "
-    "Both fixed and re-verified live, including one effect confirmed by reading the real database state back afterward, not just trusting the model's own report. "
-    "All five scenarios now score 1.0 on tool-use correctness and workflow outcome, every time."), 1.25)
+    "Here's the part I actually want to spend time on, because it's the whole point of verifying against a live trace "
+    "instead of a clean exit code. When we ran five new AML scenarios live, we found two real bugs -- not in the "
+    "ported logic itself, but in how it was wired into the agent tree. First, a routing gap. Identity-verification "
+    "requests were going to the front office instead of the AML office, because the root agent's own instructions "
+    "never mentioned identity verification by name. Second, an unreachable capability. The alert-triage tool was "
+    "implemented correctly, and it even passed its own unit test as a standalone function. But no agent in the "
+    "actual built tree had it on its toolset, so in a real run it could never be called. Neither one would have "
+    "shown up in the unit suite, because both are bugs in the live agent tree, not in any one function. We fixed "
+    "both, and re-verified live, including reading the actual database state back afterward to confirm the fix -- "
+    "not just trusting what the model reported. All five scenarios now score perfectly, every time."), 1.3)
 uf_title(s, "Live verification found 2 real bugs")
 eyebrow(s, 0.55, 1.1, 10, "...BEFORE WE CALLED THE AML OFFICE “DONE”")
 for i, (bug, desc, fix) in enumerate([
@@ -277,9 +290,12 @@ uf_footer(s)
 
 # =============================================================== 7. Where things stand
 s = slide(WHITE, "Where things stand", (
-    "Both toggles follow the identical discipline: opt-in, off by default, byte-identical existing behavior when absent, live-verified rather than just unit-tested. "
-    f"The full offline test suite stands at {TESTS_OFFLINE} passing with neither optional dependency installed, {TESTS_BOTH} with both Zero Trust and AML installed, zero failures either way. "
-    "Every capability here -- Zero Trust, the AML office, the UI -- is reproducible from a committed configuration file against the real backend and a real model, not a one-off claim."), 0.9)
+    "So, where does that leave us. Both toggles follow the exact same discipline: opt-in, off by default, "
+    "byte-identical behavior when they're not turned on, and verified live rather than just unit-tested. Right now "
+    f"the full suite stands at {TESTS_OFFLINE} tests passing with neither optional dependency installed, and "
+    f"{TESTS_BOTH} passing with both Zero Trust and the AML office installed -- zero failures, either way. And every "
+    "single thing I've shown you today is reproducible. Pick up the committed config file, run it against the real "
+    "backend and a real model, and you get the same result."), 0.8)
 uf_title(s, "Where things stand")
 eyebrow(s, 0.55, 1.1, 10, "BY THE NUMBERS")
 for i, (n, l) in enumerate([(TESTS_OFFLINE, "tests passing offline"), (TESTS_BOTH, "with both toggles' deps installed"),
@@ -302,8 +318,10 @@ uf_footer(s)
 
 # =============================================================== 8. Discussion
 s = slide(WHITE, "Discussion", (
-    "That's the update: a real Zero Trust Backplane integration, a minimal UI over the same CLI, and this week's AML office, ported faithfully from Citi_P3 and "
-    "live-verified hard enough to find and fix two real bugs before calling it done. Code, both papers, and the platform guide are all in the repository."), 0.5)
+    "That's the update. A real Zero Trust integration, a thin UI over the same CLI, and this week's AML office -- "
+    "ported faithfully, and verified hard enough that we found and fixed two real bugs before calling it done. "
+    "Everything -- code, both papers, the platform guide -- is in the repo if you want to dig into it. "
+    "So: what should we verify live next?"), 0.5)
 uf_title(s, "Discussion")
 text(s, 0.8, 2.6, 11.5, 1.6, "What should we verify live next?", size=34, bold=True, color=UF_BLUE, font=UF_FONT, align="c")
 text(s, 0.8, 4.2, 11.5, 0.4, "Zero Trust  ·  the UI  ·  the AML Office — all toggleable, all live-verified", size=15, color=FOOTER_GRAY, font=UF_FONT, align="c")
