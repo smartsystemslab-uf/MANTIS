@@ -10,6 +10,10 @@ COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
 DATE="$(date +"%B %d, %Y")"
 TMP="$(mktemp -t mantis_guide.XXXXXX).md"
 sed -e "s/@@DATE@@/${DATE}/" -e "s/@@COMMIT@@/${COMMIT}/" GUIDE/MANTIS_Platform_Guide.md > "$TMP"
-pandoc "$TMP" -o GUIDE/MANTIS_Platform_Guide.pdf --pdf-engine=tectonic
+# --resource-path: the guide's own image refs (images/*.png) are relative to
+# GUIDE/, but $TMP (pandoc's actual input) lives in a tempdir -- without this,
+# pandoc silently can't find them and replaces each with alt text instead of
+# failing loudly (see GUIDE/images/).
+pandoc "$TMP" -o GUIDE/MANTIS_Platform_Guide.pdf --pdf-engine=tectonic --resource-path=GUIDE
 rm -f "$TMP"
 echo "Built GUIDE/MANTIS_Platform_Guide.pdf (${DATE}, on top of ${COMMIT})"

@@ -96,6 +96,8 @@ The *runtime adapter* inspects the live system and reports the real inventory
 on demand (`mantis --inventory`). Configuration validation and defenses rely on
 it, so a typo in a tool name is caught before a run starts.
 
+![Agents and tools per banking domain, from the live `mantis --inventory`. The AML office (toggleable, Section 7.2) is the only domain whose tool count exceeds its agent count -- most of its tools are read-only detection/lookup functions on a single investigator agent.](images/chart_domain_composition.png)
+
 ## 2.3 The observability pipeline
 
 Every event at every control point is written down as a structured record:
@@ -279,6 +281,16 @@ A config editor and trace viewer, plus campaign, report, and hook-coverage
 views. Every action shells out to the same `mantis` command; the UI contains no
 separate business logic.
 
+![The real running UI's experiment editor, with a Zero Trust Backplane run configured. Domain/workflow/scenario and the toggle fieldsets are populated live from the same registries `mantis --validate` reads, not hardcoded.](images/ui_editor_zt_crop.png)
+
+The Trace Viewer and Evaluation Scores panels work the same way for any run,
+including the toggleable AML office -- here against a real `aml_office_demo`
+run (Section 7.2):
+
+![Trace Viewer rendering a real AML office run: the root agent's hand-offs into the AML office, then the investigator's own `detect_structuring` call and result.](images/ui_trace_crop.png)
+
+![The same run's Evaluation Scores view: `tool_use_correctness` and `workflow_outcome` both 1.0, read from the same `mantis --evaluate` output the CLI itself produces.](images/ui_eval_crop.png)
+
 # 5. Tracing an Attack and Verifying Whether It Worked
 
 A run is never judged by whether the program exited without crashing. It is
@@ -381,6 +393,8 @@ configs over the existing plugins (nothing new was added to the framework):
   SAR-suppression, and loan-override.
 
 Each attack config is scored against the *recorded baseline* of its scenario.
+
+![Live trial outcomes by attack family: fired rate vs. effect-vs-baseline rate. Nearly every family fires close to 100% of the time; whether that fires turns into a detected effect varies sharply by family, and by where in the workflow it's aimed (6.3).](images/chart_attack_library.png)
 
 ## 6.3 What the extended campaign found
 
