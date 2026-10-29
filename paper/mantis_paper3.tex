@@ -106,12 +106,26 @@ Figure~\ref{fig:architecture} shows the complete MANTIS pipeline as it stands to
 \label{fig:architecture}
 \end{figure}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/chart_domain_composition.png}
+\caption{Agents and tools per banking domain (from the live \texttt{NativeBankingAdapter().inventory()}). The AML office is the only domain whose tool count exceeds its agent count -- most of its tools are read-only detection/lookup functions on a single investigator agent, rather than one tool per specialist agent as in the other three domains.}
+\label{fig:domain-composition}
+\end{figure}
+
 Every hook dispatch is mapped to one of seven typed event families (experiment, workflow, agent, interaction, tool, security, evaluation), exported as portable JSONL, OpenTelemetry spans, and an MLflow run sharing the same configuration hash and seed, with four additional OTLP-compatible exporters (Jaeger, Grafana Tempo, Phoenix, Langfuse) added as one-line configuration changes that fail silently rather than aborting a run when no collector is reachable. An automated evaluator reads a run's trace and reports trace completeness, tool-use correctness, workflow outcome, hook-point coverage, banking-domain coverage, artifact integrity, and attack ground truth -- the last distinguishing a plugin that merely fired from one whose effect is corroborated against the configuration's own expected-tools/terminal-state baseline. Every run manifest records a SHA-256 configuration hash, the seed, the Python interpreter and dependency versions, the source commit, and -- newly tracked -- whether the run used a mock or live model and which model served it, so a reported result always traces back to the exact code, environment, and model that produced it.
 
 \section{Attack and Failure Plugin Library}
 \label{sec:attacks}
 
-Five attack and failure configurations span all three always-on domains, registered through the identical plugin interface: prompt injection and message spoofing both intercept the interaction control point (an agent's outgoing call to the underlying model); route confusion intercepts a routing tool call and forces execution to a different downstream agent than the one the orchestration logic selected; tool-parameter mutation intercepts a tool call directly and rewrites its arguments, shipped against both a front-office funds transfer and a back-office ledger post; and a reliability-failure family (delay, timeout, malformed result) emits an \texttt{ANOMALY} security event rather than \texttt{ATTACK\_INJECTED}, so an evaluator separates a security-caused anomaly from a routine fault by event type rather than inference. Live re-verification across five repeated trials each found route confusion unambiguous and total (5/5 fired, 5/5 ground-truth effect: the router's real transfer diverted to the chatbot workflow every trial, compliance never reached); tool mutation (front) genuinely reached and altered the real call every trial, with the banking backend's own destination-account validation independently catching it every time (a defense-in-depth result, not a plugin failure); message spoofing, prompt injection, and the malformed-failure control show a genuine, verified mutation reaching the real model and the model consistently declining to act on it, 5/5 for each. The extended scenario library (Section~\ref{sec:workloads}) widens this evidence to 123 scored live trials across 26 attack and fault variants without changing the architecture.
+Five attack and failure configurations span all three always-on domains, registered through the identical plugin interface: prompt injection and message spoofing both intercept the interaction control point (an agent's outgoing call to the underlying model); route confusion intercepts a routing tool call and forces execution to a different downstream agent than the one the orchestration logic selected; tool-parameter mutation intercepts a tool call directly and rewrites its arguments, shipped against both a front-office funds transfer and a back-office ledger post; and a reliability-failure family (delay, timeout, malformed result) emits an \texttt{ANOMALY} security event rather than \texttt{ATTACK\_INJECTED}, so an evaluator separates a security-caused anomaly from a routine fault by event type rather than inference. Live re-verification across five repeated trials each found route confusion unambiguous and total (5/5 fired, 5/5 ground-truth effect: the router's real transfer diverted to the chatbot workflow every trial, compliance never reached); tool mutation (front) genuinely reached and altered the real call every trial, with the banking backend's own destination-account validation independently catching it every time (a defense-in-depth result, not a plugin failure); message spoofing, prompt injection, and the malformed-failure control show a genuine, verified mutation reaching the real model and the model consistently declining to act on it, 5/5 for each. The extended scenario library (Section~\ref{sec:workloads}) widens this evidence to 123 scored live trials across 26 attack and fault variants without changing the architecture (Figure~\ref{fig:library-chart}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/chart_attack_library.png}
+\caption{The extended attack library's live trial outcomes by family (Section~\ref{sec:workloads}). Nearly every family fires close to 100\% of the time; whether that translates into a ground-truth-detected effect varies sharply -- route confusion is unambiguous and total, while prompt injection, message spoofing, and tool mutation show the model/backend resisting most attempts.}
+\label{fig:library-chart}
+\end{figure}
 
 \section{Defenses: Security Mechanism Plugins and Zero Trust}
 \label{sec:defenses}
@@ -145,6 +159,20 @@ Five scenarios exercise the AML office end to end against the live backend and a
 \textbf{Unreachable capability.} The alert-triage scenario asked to transition a seeded alert's status; \texttt{transition\_aml\_alert\_status} existed, was correctly implemented, and was unit-tested directly as a function -- but no agent in the built tree had it, or its sibling read tools, on its toolset at all. The three alert-lifecycle tools were wired into the existing \texttt{aml\_investigator} agent's toolset, the single tool-using agent in this domain, and its instruction extended to describe the triage capability.
 
 Both fixes verified live after correction: the identity-verification scenario now routes correctly to \texttt{aml\_office\_router} $\rightarrow$ \texttt{aml\_investigation\_workflow}, calls \texttt{verify\_identity\_document} with the exact submitted/reference values from the prompt, and reports 100\% match confidence. The alert-triage scenario now calls \texttt{transition\_aml\_alert\_status}, and we confirmed the effect directly against the database rather than trusting the model's own report: reading the alert back afterward shows its status genuinely changed from \texttt{open} to \texttt{in-investigation}. All five scenarios were then run officially from committed configuration files (\texttt{configs/extensions/aml\_office\_*\_demo.yaml}) and scored by \texttt{mantis --evaluate}: \texttt{tool\_use\_correctness} 1.0 and \texttt{workflow\_outcome} 1.0 (\texttt{completed}) for every one of the five, with zero missing expected tools and zero forbidden tools used. Table~\ref{tab:aml-live} summarizes all five after both fixes.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/ui_trace_crop.png}
+\caption{The minimal UI's Trace Viewer (Section~\ref{sec:workloads}) rendering the real \texttt{aml\_office\_demo} trace -- every event is real, from this run, not illustrative: the root agent's two \texttt{transfer\_to\_agent} hops into the AML office, then \texttt{aml\_investigator}'s own \texttt{detect\_structuring} call and result.}
+\label{fig:ui-trace}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/ui_eval_crop.png}
+\caption{The same UI, scoring the same run: \texttt{tool\_use\_correctness} and \texttt{workflow\_outcome} both 1.0, matching the \texttt{mantis --evaluate} CLI output reported above exactly, since both call the identical evaluator -- the UI has no separate scoring logic of its own. \texttt{banking\_workflow\_coverage} is 0 here, correctly: an AML-office-only run exercises none of the other three domains.}
+\label{fig:ui-eval}
+\end{figure}
 
 \begin{table}[t]
 \centering

@@ -115,6 +115,13 @@ The coding plan's final named extension is deliberately constrained: "a schema-d
 
 We verified the "no separate business logic" property directly rather than assuming it from the implementation's structure: submitting a configuration with a deliberately invalid domain through the UI's validate endpoint returns the real CLI's own \texttt{"Unknown domain"} error text, produced by the same subprocess a terminal invocation of \texttt{mantis --validate} would produce, not a UI-side check reproducing that logic. The application was also confirmed running as a real server, not only through an in-process test client: launched via \texttt{mantis --ui}, it correctly reported the current live inventory (34 agents, 27 tools, reflecting the two additional workloads in Section~III) over real HTTP requests.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/ui_editor_zt_crop.png}
+\caption{The real running UI (\texttt{mantis --ui}), not a mockup: the experiment editor with a Zero Trust Backplane run configured. Domain/workflow/scenario are populated live from \texttt{/api/registries}, not hardcoded.}
+\label{fig:ui-editor}
+\end{figure}
+
 We added three further endpoints, symmetric with the existing read-only pattern and the CLI-subprocess pattern respectively. \texttt{GET /api/runs/\{name\}/hook-coverage} reads \texttt{hook\_coverage.json} directly, the same file the trace and evaluation endpoints already expose. \texttt{POST /api/campaign} shells out to \texttt{mantis --campaign <dir>}, parses the output directory from that command's own stdout, and chains a second real CLI invocation -- \texttt{mantis --report <dir>} -- against it, rather than reimplementing campaign aggregation as UI-side logic; \texttt{GET /api/campaign/\{name\}/report} then reads the resulting \texttt{report.md} directly. The front-end's trace and evaluation views were also changed from a raw JSON dump to a rendered table, kept intentionally thin -- generic across whichever evaluator dimensions a run happens to report, rather than a hardcoded per-dimension layout -- consistent with the coding plan's own "no separate business logic" framing for this extension.
 
 \section{Scenario Library, Starter Campaigns, and Onboarding}
@@ -142,6 +149,13 @@ Reliability faults & 5 & 23 & 18/23 & 5/23 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/chart_attack_library.png}
+\caption{Table~\ref{tab:library}'s fired and effect-vs-baseline rates, by family. Fired is near-total across every family; effect varies sharply by family and by where within a workflow the attack is aimed (see below).}
+\label{fig:library-chart}
+\end{figure}
 
 \textbf{What the library revealed.} Placement matters: the same authority-impersonation payload changed the outcome in 1 of 5 trials aimed at the upstream monitoring agent but bypassed manual review in 5 of 5 when aimed at the decision agent. Some attacks succeed by making an agent do nothing: injected into the SAR agent, it never looked up the case and filed nothing in 5 of 5 trials, and a forged ``closed as routine'' message suppressed the filing in 4 of 5. Data-level effects are invisible to tool-use scoring: in 20 of 20 trials of four tool-mutation configurations the database changed (a loan filed under the wrong customer, an inflated amount that flipped a decision, a SAR against the wrong case, a report under the wrong batch) while those scores reported no effect, which is why every trial records the database. Faults propagate: a corrupted ledger-tool response halted the end-of-day workflow in 5 of 9 attempts, and hijacking the root hand-off halted it in 10 of 10, a run the rate limit described earlier contains (5 of 5 runs complete versus 0 of 10 without it). Two limits apply: the external banking backend keeps its own state across trials, so front-office transfer results reflect accumulated history, and workflow outcome is inferred from which terminal tool was invoked, so a tool that was called and returned an error still counts.
 
