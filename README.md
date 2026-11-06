@@ -95,7 +95,7 @@ MANTIS/
 ├── GUIDE/                             # Platform guide (Markdown + PDF, rebuilt on every push)
 ├── presentations/                     # Decks and read-aloud scripts, one per date, with an index
 ├── paper/                             # Paper 1 (frozen) and the post-paper extensions paper
-├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events, config/scenario consistency) -- 879 passing offline (896 with both optional dependencies, zero_trust and aml, installed; 201 more skip by design without a live backend or model)
+├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events, config/scenario consistency) -- 879 passing offline (900 with both optional dependencies, zero_trust and aml, installed; the rest skip by design without a live backend or model -- 205 skip with neither extra installed, 190 with both)
 ├── golden_runs/                       # WP0: Immutable Frozen LLM execution traces
 ├── banking_baseline_inventory.yaml    # WP0: Full system inventory
 ├── baseline_metrics.json              # WP0: Performance and behavioral metrics
@@ -347,7 +347,7 @@ There are four layers of automated tests, plus a fifth layer of live validation 
 
 | Layer | Location | Count | Command | Needs backend? | Needs LLM key? |
 |---|---|---|---|---|---|
-| MANTIS unit tests | `tests/unit/` | 879 passing, 201 skipped by design (896 passing with both the optional `zero_trust` and `aml` dependencies installed) | `pytest tests/unit/` | Two tests exercise the real CLI/ADK/MCP pipeline under a mock model (see below); the rest are pure offline | No |
+| MANTIS unit tests | `tests/unit/` | 879 passing, 205 skipped by design with neither optional dependency installed (900 passing, 190 skipped with both `zero_trust` and `aml` installed) | `pytest tests/unit/` | Two tests exercise the real CLI/ADK/MCP pipeline under a mock model (see below); the rest are pure offline | No |
 | WP0 regression guard | `refactor_guard_tests/` | 49 | `pytest refactor_guard_tests/` | No | No |
 | Banking backend | `citi_banking_backend/tests/` | 15 | `cd citi_banking_backend && pytest tests/` | No (uses an in-process test DB) | No |
 | MCP tool server | `citi_banking_mcp_server/tests/` | 3 | `cd citi_banking_mcp_server && pytest tests/` | No | No |

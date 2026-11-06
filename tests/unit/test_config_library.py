@@ -17,7 +17,7 @@ import yaml
 from mantis.banking.tool_semantics import TERMINAL_TOOL_OUTCOMES
 from mantis.cli.main import validate_config
 from mantis.config.models import ExperimentConfig
-from mantis.core.registry import plugin_registry, workflow_registry
+from mantis.core.registry import ZERO_TRUST_AVAILABLE, plugin_registry, workflow_registry
 from mantis.runtime.adapter import NativeBankingAdapter
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -42,17 +42,20 @@ def _load(path: Path) -> ExperimentConfig:
 
 
 def _skip_if_plugin_unavailable(cfg: ExperimentConfig) -> None:
-    """Some plugins (currently only zero_trust_enforcement) are registered
-    only when an optional dependency is installed -- see core/registry.py's
-    try/except around that import. A config that uses one is a real,
-    runnable config when that dependency is present, but this offline
-    suite doesn't assume it is; skip rather than fail so CI without the
-    extra installed isn't a false negative, while still catching a config
-    that references a plugin not registered at all."""
+    """Attack/policy plugins are registered unconditionally in plugin_registry,
+    so a name missing from it means the config references a plugin that does
+    not exist at all -- a real failure, not a skip. Zero Trust is different
+    since the migration: it is never registered in plugin_registry (it is
+    built dynamically by build_zero_trust_plugin()), and its availability is
+    ZERO_TRUST_AVAILABLE (core/registry.py's try/except around the optional
+    zt_adk import) -- the same flag cli/main.py's own validate_config() checks.
+    Skip only when that flag says the optional dependency is genuinely absent,
+    so CI without the extra installed isn't a false negative, while a run with
+    it installed actually exercises these configs instead of skipping forever."""
     names = ([cfg.attack.plugin] if cfg.attack and cfg.attack.plugin else []) + [p.plugin for p in (cfg.policies or [])]
-    if cfg.zero_trust and cfg.zero_trust.enabled:
-        names.append("zero_trust_enforcement")
     missing = [n for n in names if n not in plugin_registry.all()]
+    if cfg.zero_trust and cfg.zero_trust.enabled and not ZERO_TRUST_AVAILABLE:
+        missing.append("zero_trust_enforcement")
     if missing:
         pytest.skip(f"plugin(s) {missing} not registered -- optional dependency not installed")
 
