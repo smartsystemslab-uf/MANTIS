@@ -174,7 +174,20 @@ class MantisHookPlugin(BasePlugin):
             "tool", source=tool.name, target=agent_name, payload=payload,
             extra_metadata={"tool_call_id": tool_call_id},
         )
-        res = self.hook_bus.dispatch("after_tool", ctx)
+        # ZeroTrustPlugin denies at the ADK layer, outside HookBus entirely
+        # (see runner.py's plugin-ordering comment), so its action never
+        # goes through HookBus.dispatch()'s own security_actions tracking
+        # the way every HookBus-registered policy's DENY/MUTATE does.
+        # Without this, ObservabilityPlugin (src/mantis/observability/
+        # plugin.py) would record a Zero Trust denial as a bare tool
+        # result, not a SecurityEvent -- seed dispatch() with the same
+        # security_actions shape so it's still classified POLICY_EVENT
+        # ("zero_trust_enforcement" is already in _POLICY_PLUGIN_NAMES).
+        initial_security_actions = (
+            [{"plugin": "zero_trust_enforcement", "action": "deny"}]
+            if payload.get("status") == "zero_trust_denied" else None
+        )
+        res = self.hook_bus.dispatch("after_tool", ctx, initial_security_actions=initial_security_actions)
 
         if res.action == HookAction.MUTATE and res.payload is not None:
             return res.payload

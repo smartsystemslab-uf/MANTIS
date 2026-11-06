@@ -79,7 +79,8 @@ class HookBus:
                 self.coverage_stats[stage][p] = 0
             self.coverage_stats[stage][p] += 1
 
-    def dispatch(self, specific_hook: str, ctx: HookContext) -> HookResult:
+    def dispatch(self, specific_hook: str, ctx: HookContext,
+                 initial_security_actions: Optional[List[Dict[str, str]]] = None) -> HookResult:
         """
         Dispatches the event to all registered plugins that support the context stage.
         If a plugin mutates the payload, the mutated payload is passed to the next plugin.
@@ -87,6 +88,15 @@ class HookBus:
         e.g. ObservabilityPlugin, always registered last, can still observe
         and record the blocked action), but the dispatch's own aggregate
         result reports that first blocking action rather than CONTINUE/MUTATE.
+
+        initial_security_actions: a security action a plugin *outside* this
+        bus already took before this dispatch (e.g. the Zero Trust Backplane
+        plugin, which enforces at the ADK layer, not through HookBus at all
+        -- see mantis.runtime.plugin's after_tool_callback). Seeds the same
+        list every HookBus-registered plugin's own actions get appended to,
+        so ObservabilityPlugin classifies it identically to a HookBus
+        plugin's DENY, without this bus needing to know anything happened
+        outside it beyond this one call.
         """
         plugins_applied = []
         current_payload = dict(ctx.payload)
@@ -97,7 +107,7 @@ class HookBus:
         # attack plugin (e.g. the observability plugin) know a mutation
         # actually happened, instead of just seeing an already-mutated payload
         # indistinguishable from a normal one.
-        security_actions: List[Dict[str, str]] = []
+        security_actions: List[Dict[str, str]] = list(initial_security_actions or [])
 
         for plugin in self._plugins:
             if ctx.stage in plugin.supported_stages:

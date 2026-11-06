@@ -35,15 +35,15 @@ class AttackConfig(BaseModel):
 class ZeroTrustConfig(BaseModel):
     """A dedicated toggle for the Zero Trust Backplane extension
     (extensions/zero_trust/, src/mantis/plugins/policies/
-    zero_trust_enforcement.py), separate from the generic `policies:` list
-    so attaching it to an attack config is one clear switch rather than
-    remembering the plugin name and its parameters by hand. Requires the
-    optional `zero_trust` dependency installed (`pip install -e
-    ".[zero_trust]"`) and the real PDP service running (`./extensions/
-    zero_trust/run_pdp.sh`) -- a clear error is raised at run time if
-    either is missing, rather than a silent no-op."""
-    enabled: bool = Field(default=True, description="Turn the Zero Trust Backplane PEP on for this run; the config key's presence already implies intent, this lets it be toggled without deleting the block")
-    pdp_url: str = Field(default="http://127.0.0.1:8600", description="The real Zero Trust Backplane PDP service's URL")
+    zero_trust_enforcement.py). Unlike the generic `policies:` list, this
+    doesn't go through the plugin registry: the real Backplane plugin is
+    an ADK-level plugin (mantis.banking.runner.run_message appends it to
+    the App's own plugins list, after MantisHookPlugin), constructed from
+    a committed, signed bundle rather than a separately-running service.
+    Requires the editable packages extensions/zero_trust/setup.sh installs
+    -- a clear error is raised at run time if they're missing, rather than
+    a silent no-op."""
+    enabled: bool = Field(default=True, description="Turn the Zero Trust Backplane enforcement plugin on for this run; the config key's presence already implies intent, this lets it be toggled without deleting the block")
 
 
 class AMLConfig(BaseModel):

@@ -2,113 +2,164 @@
 
 A real, toggleable integration of the independently-developed
 [`Citi_P3_Zero_Trust_Backplane`](https://github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane)
-project with MANTIS -- specifically its Task 4 signed Policy Decision Point
-(PDP). Per a team decision, this now lives in the MANTIS repo (reversing an
-earlier decision to keep it local-only; see `CHANGELOG.md`), but strictly as
-an **opt-in extension**: a stock `pip install -e .` never installs or
-imports anything here, and every existing config, test, and run behaves
-exactly as it does without this folder.
+project with MANTIS. Strictly an **opt-in extension**: a stock
+`pip install -e .` never installs or imports anything here, and every
+existing config, test, and run behaves exactly as it does without this
+folder.
+
+## Which version this tracks
+
+The Backplane's 2026-10 rewrite (tags `v1.0.0`/`v1.0.1`) replaced its
+earlier task-specific PDP microservice entirely with a generic Zero Trust
+system for *any* Google ADK application: a real `ZeroTrustPlugin` (an ADK
+plugin) registered directly on the application's own `App`/`Runner`, built
+from a signed protection bundle that `zt-adk` generates by importing and
+introspecting the live agent graph -- not from a hand-written policy file.
+This integration tracks that current architecture. The repo is vendored as
+a git submodule at `extensions/zero_trust/backplane`, pinned to `v1.0.1`,
+the same way every other dependency in this repo is pinned rather than
+tracking a moving branch.
+
+(An earlier revision of this integration targeted the superseded
+task-specific PDP; see `CHANGELOG.md` for the migration.)
 
 ## How the toggle works
 
-Add `zero_trust_enforcement` to any config's `policies:` list and it is on
-for that run; leave it out and it is off, with zero code-path difference
-from a stock MANTIS run -- the same opt-in mechanism every other MANTIS
-defense already uses. See `../../configs/extensions/zero_trust_demo.yaml`.
+`zero_trust: {enabled: true}` in any config turns it on for that run; leave
+it out and it is off, with zero code-path difference from a stock MANTIS
+run. Unlike every other MANTIS defense, this one is **not** a `PolicyPlugin`
+dispatched through `mantis.hooks.HookBus` -- the real Backplane plugin
+intercepts at the ADK layer directly, the same layer
+`mantis.runtime.plugin.MantisHookPlugin` (MANTIS's own hook bus) is
+implemented at. `mantis.banking.runner.run_message` appends it to the ADK
+`App`'s own `plugins` list, deliberately *after* `MantisHookPlugin` -- see
+the comment there for why that order (not the reverse the Backplane's own
+`protected_runner()` helper would use) is the right one for this testbed:
+it keeps every attack/policy/observability plugin's dispatch through the
+hook bus unconditional, so Zero Trust is a final, independent layer on top
+rather than something that can silently prevent MANTIS's own trace from
+seeing a call. See `../../configs/extensions/zero_trust_demo.yaml`.
 
 ## What's real here, and what's ours
 
-The actual authorization decision, request/response signing, signature
-verification, replay protection, and audit trail are **the real project's
-own code**, pip-installed from its repo and run as its own process (its
-Task 4 PDP, `zt_backplane.pdp_service`) -- nothing here reimplements that
-logic. What's new in this folder and in
+The actual discovery, authorization decision, PSL policy engine, signing,
+and audit trail are **the real project's own code** -- nothing here
+reimplements that logic. What's new in this folder and in
 `src/mantis/plugins/policies/zero_trust_enforcement.py` is the glue:
 
-- `generate_policy.py` -- reads MANTIS's own live inventory
-  (`DOMAIN_AGENTS`, `_DOMAIN_TOOL_NAMES`, `TOOL_SEMANTICS`) and writes
-  `config/identities.yaml`, `config/resources.yaml`, and
-  `policy_store/mantis_default_deny_by_domain.yaml` in the real project's
-  own schema. The real project's own scanner (Tasks 1-2) targets an older,
-  no-longer-present checkout layout, so this generates the policy *input*
-  from MANTIS's current system instead of running that scanner.
-- The generated policy is deliberately simple and auditable: an agent may
-  act on a tool in its own domain; everything else -- cross-domain, or an
-  unrecognized agent/tool -- is denied by the real PDP's own default
-  (`default_deny_no_matching_policy`). This is the same guarantee an
-  earlier local-only representative slice validated exhaustively (770
-  agent/tool pairs, 100% correctly enforced) before this real integration
-  replaced it.
-- `bootstrap_keys.py` -- generates local Ed25519 dev signing keys (never
-  committed) and signs the generated policy bundle, adapted from the real
-  project's own `scripts/bootstrap_dev_crypto.py`.
-- `run_pdp.sh` -- starts the real PDP service
-  (`zt_backplane.pdp_service:app`) with `ZT_PROJECT_ROOT` pointed at this
-  directory, so it reads MANTIS-generated identities/resources/policy
-  instead of the real project's own sample data.
-- `src/mantis/plugins/policies/zero_trust_enforcement.py` -- the MANTIS
-  side: a `PolicyPlugin` that, at the `tool` control point, builds and
-  signs a real authorization request using the real project's own
-  `zt_backplane.dev_evidence.build_signed_request`, calls the real PDP's
-  `/v1/challenge` then `/v1/authorize`, and maps its real decision onto a
-  MANTIS `HookResult` (ALLOW/ALLOW_WITH_OBLIGATIONS -> continue; anything
-  else, including an unreachable PDP -> deny -- fail closed).
+- `zt_adk.yaml` -- the profile `zt-adk` reads to protect MANTIS. Points
+  `app` at `mantis.banking.app:create_app()` (MANTIS's real ADK `App`
+  factory, unmodified) so the Backplane's own scanner discovers MANTIS's
+  *actual* live agent/tool graph itself, rather than anything hand-written
+  here. Two scoping decisions worth being explicit about, both preserving
+  the original integration's deliberate choices:
+  - `policies.deny_cross_domain_routes: false` -- the build's own warnings
+    showed MANTIS's agent tree uses legitimate cross-domain *routing*
+    (e.g. `back_office_router` handing off directly to
+    `front_office_router`) as normal behavior. This toggle enforces
+    domain-scoped *tool* access, not routing; `transfer_to_agent` stays
+    unconstrained by it, same as before --
+    `risk_aware_routing_guard` already covers routing decisions.
+  - `approvals.critical: none` -- the Backplane's human-approval workflow
+    for critical tools (e.g. `execute_transfer`) is a real capability this
+    profile does not enable, because MANTIS's evaluation is fully
+    automated and no paper or test ever put a human in the loop for a
+    critical call; enabling it would turn every zero_trust-on critical-tool
+    run into a 120s hang waiting for an approval nothing will supply.
+- `.zt/bundle/` -- the generated, signed protection bundle (`zt-adk build`
+  against the profile above). Committed, like the old integration's
+  generated policy files, so a fresh clone doesn't need to rebuild it --
+  only after an agent/tool change (`ZeroTrustPlugin.from_profile` checks
+  the bundle's fingerprint against the live graph and raises
+  `StaleBundleError` if they no longer match; see
+  `tests/unit/test_zero_trust_regression_guard.py`).
+- `src/mantis/plugins/policies/zero_trust_enforcement.py` -- `ZERO_TRUST_AVAILABLE`
+  (the single source of truth for whether the optional dependency is
+  installed) and `build_zero_trust_plugin(root_agent)`, which loads the
+  committed bundle and constructs the real `ZeroTrustPlugin` against this
+  run's actual root agent.
 
-`transfer_to_agent` (MANTIS's routing tool) is intentionally out of scope:
-it isn't a domain-owned resource in this policy model, and MANTIS's own
-`risk_aware_routing_guard` already covers routing decisions.
+**A finding worth stating plainly, not glossing over**: the new generic
+scanner's placements are *per-agent* (which agent's own `tools=[]` list a
+tool is actually wired into), not per-domain the way the earlier
+integration's own hand-written policy was. That's *stricter*, not looser --
+an agent in the same domain as a tool's real owner, but never wired to call
+it, is denied too (`tests/unit/test_zero_trust_enforcement.py`'s
+`test_same_domain_sibling_agent_without_the_tool_is_still_denied`).
+Cross-domain denial (the original claim) still holds, as a strict
+consequence of per-agent placement rather than the only boundary enforced.
+
+**A real bug the unit suite didn't catch, a live run did**: the first
+version of this migration built the bundle against a bare `create_app()`
+(no MCP session). Every live `mantis --run`, though, gives
+`build_root_agent` a real session, which attaches one extra passthrough
+tool per MCP tool directly onto `user_proxy_agent` -- a structurally
+different graph. The unit suite made the identical mistake (it also called
+bare `create_app()`), so it passed while every real run would have raised
+`StaleBundleError`. Only running `configs/extensions/zero_trust_demo.yaml`
+live surfaced it. Fixed by building the bundle against
+`create_app_for_scan()` (`src/mantis/banking/app.py`), which spawns the
+real MCP server the same way the CLI does; the tests were then corrected
+to match. Both `configs/extensions/zero_trust_demo.yaml` and the combined
+`configs/extensions/zero_trust_aml_combined_demo.yaml` now run live end to
+end with tool-use correctness 1.0.
 
 ## Setup
 
 ```bash
 cd /path/to/MANTIS
-pip install -e ".[zero_trust]"            # pulls the real repo's Task 4 PDP package
-python extensions/zero_trust/bootstrap_keys.py    # once; regenerate after a --force rotate
-./extensions/zero_trust/run_pdp.sh                # leave running, in its own terminal (port 8600)
+extensions/zero_trust/setup.sh                    # once: editable-installs the 7 packages from the pinned submodule
+cd extensions/zero_trust
+zt-adk keys init --approver ops_lead --secondary risk_officer   # once; local dev keys, never committed
+zt-adk build                                       # regenerates .zt/bundle/ -- already committed, re-run after an agent/tool change
+zt-adk --profile zt_adk_aml.yaml keys init --approver ops_lead --secondary risk_officer   # once, for the AML-inclusive bundle
+zt-adk --profile zt_adk_aml.yaml build              # regenerates .zt_aml/bundle/ -- for aml_office: + zero_trust: together
 ```
 
-Then, in any config -- a dedicated toggle, so turning it on or off when configuring an attack is one clear switch rather than remembering the plugin name and its parameters by hand:
+Then, in any config:
 
 ```yaml
 zero_trust:
-  enabled: true                         # flip to false (or delete the block) to run the same config without it
-  pdp_url: http://127.0.0.1:8600        # default; override if you ran run_pdp.sh on a different port
+  enabled: true     # flip to false (or delete the block) to run the same config without it
 ```
 
-(This is sugar over the generic `policies:` list every other defense uses -- `policies: [{plugin: zero_trust_enforcement, parameters: {pdp_url: ...}}]` works identically, if you prefer that form. The UI's Experiment Editor has the same toggle as a checkbox.)
+(The UI's Experiment Editor has the same toggle as a checkbox.)
 
 `mantis --run configs/extensions/zero_trust_demo.yaml` runs a full,
 undefended-equivalent legitimate workflow with the toggle on -- every real
-tool call is checked by the real PDP, and the run completes identically to
-the undefended baseline (`run_artifacts/front_office_monitoring`), which is
-the point: a real, independent security layer that is a no-op for
+tool call is checked by the real plugin, and the run completes identically
+to the undefended baseline (`run_artifacts/front_office_monitoring`), which
+is the point: a real, independent security layer that is a no-op for
 legitimate traffic and fails closed for anything it doesn't recognize.
+`configs/extensions/zero_trust_aml_combined_demo.yaml` runs the same check
+with `aml_office:` also enabled, against the second bundle below.
 
-## Regenerating the policy
+## Regenerating the bundle
 
 Re-run after MANTIS's agents, tools, or domains change:
 
 ```bash
-python extensions/zero_trust/generate_policy.py
-python extensions/zero_trust/bootstrap_keys.py   # re-signs the updated bundle
+cd extensions/zero_trust
+zt-adk build                                       # the base bundle (zt_adk.yaml)
+zt-adk --profile zt_adk_aml.yaml build              # the AML-inclusive bundle (zt_adk_aml.yaml)
 ```
 
-`config/identities.yaml`, `config/resources.yaml`, and
-`policy_store/*.yaml` are committed (generated, reviewable, reproducible
-from MANTIS's own inventory). `security/dev_keys/`, `runtime/` (audit log,
-replay/nonce state), and `policy_store/*.sig.json` (signatures tied to the
-local dev keys) are git-ignored and regenerated locally, the same as
-`.env`.
+`zt_adk.yaml` and `.zt/bundle/` are committed (generated, signed,
+reproducible from MANTIS's own live agent/tool graph). `.zt/keys/`,
+`.zt/approver-keys/`, and `.zt/state/` (dev signing keys, audit log) are
+git-ignored and regenerated locally, the same as `.env`.
 
 ## Known limits
 
 - Dev signing keys only -- never meant to secure anything beyond a local
-  demo (see the real project's own `trusted_issuers.yaml` TODO comment).
-- The generated policy is a single default-deny-by-domain rule, not the
-  real project's full workflow/risk-aware policy model it's capable of
-  (see its own `policy_store/front_office.yaml` for an example of the
-  richer kind of policy it supports) -- that would need per-agent domain
-  knowledge well beyond this integration's current scope.
-- Only the `tool` control point is enforced. The real project's own PEP
-  placement (Task 3) covers input/output boundaries too; this integration
-  doesn't yet.
+  demo.
+- `approvals.critical: none` -- the Backplane's human-approval workflow for
+  critical operations is a real capability this profile deliberately
+  doesn't enable here (see above). `content.prompt_injection` and the other
+  input/output-boundary checks the profile leaves at their defaults are a
+  real additional surface this integration hasn't separately live-verified
+  beyond the `tool`-boundary claims above.
+- The distributed runtime (`zt-distributed`, one container per agent,
+  SPIFFE identities) is a real capability of the upstream project this
+  integration doesn't use -- MANTIS registers the plugin in-process, the
+  same way `MantisHookPlugin` itself runs.

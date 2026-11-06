@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-10-12T19:48:04.416317Z",
-  "config_hash": "2a1592752e60321f2067b53e60d96fb2882c6a7d39c8ee0c0312f0666e3e90cd",
+  "timestamp": "2026-11-06T00:48:19.714636Z",
+  "config_hash": "e35c9a79043f04926ffc1f81d1dfa52e86f7f90fa85e3a10bcede7d64e337ff8",
   "seed": 110,
   "config": {
     "experiment": {
@@ -11,8 +11,7 @@
       "scenario": "front_office_monitoring"
     },
     "zero_trust": {
-      "enabled": false,
-      "pdp_url": "http://127.0.0.1:8600"
+      "enabled": true
     },
     "observability": {
       "mode": "full",
@@ -37,9 +36,9 @@
       "google-adk": "2.7.1",
       "litellm": "1.97.0",
       "mcp": "1.29.0",
-      "pydantic": "2.13.4"
+      "pydantic": "2.14.3"
     },
-    "git_commit": "0d6dcdc59a660bd9dbe08c460e1c9f12e5b89483",
+    "git_commit": "e957b10a3dc34cc022e606fd5b7a37e7f2e72293",
     "llm": {
       "mock": false,
       "model": "gpt-oss-20b",

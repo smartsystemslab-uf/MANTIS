@@ -1,0 +1,62 @@
+# Zero Trust Backplane profile for a run with BOTH zero_trust and
+# aml_office enabled together. The AML office router adds a 4th sub_agent
+# to the root agent, which changes the live agent/tool graph's fingerprint
+# -- a bundle built against create_app() (no AML) is rejected as stale by
+# ZeroTrustPlugin.from_profile's own check if the running app has AML on,
+# and vice versa. Two profiles, two bundles, same enforcement logic;
+# build_zero_trust_plugin(root_agent, enable_aml=...) in
+# src/mantis/plugins/policies/zero_trust_enforcement.py picks this one
+# when the run's aml_office: block is also enabled. Keep every other
+# setting identical to zt_adk.yaml -- diff the two files after editing
+# either one.
+
+version: 1
+
+# create_app_with_aml_for_scan(), not create_app_with_aml() -- see
+# zt_adk.yaml's comment on why a real MCP session at scan time is required
+# for the bundle to match what any real run actually has.
+app: "mantis.banking.app:create_app_with_aml_for_scan()"
+python_paths: ["../../src"]
+source_root: "../../src/mantis/banking"
+
+environment: dev
+mode: enforce
+strict: true
+
+bundle_dir: .zt_aml/bundle
+keys_dir: .zt_aml/keys
+approver_keys_dir: .zt_aml/approver-keys
+state_dir: .zt_aml/state
+
+domains:
+  mode: subtree
+  default: core
+  agents: {}
+
+tools: {}
+
+toolsets: {}
+
+approvals:
+  critical: none
+  wait_seconds: 120
+  lifetime_seconds: 300
+  poll_seconds: 1.0
+
+content:
+  prompt_injection: {input: deny, tool_result: flag, agent_message: flag, extra_patterns: []}
+  max_input_chars: 100000
+  taint_on_flag: true
+
+session:
+  require_session: false
+  roles: []
+
+policies:
+  overlays: []
+  workflow_order: true
+  deny_cross_domain_routes: false   # same reasoning as zt_adk.yaml -- AML office routes cross-domain too
+  cross_domain_callers: []
+
+identity:
+  trust_domain: zt-adk.local

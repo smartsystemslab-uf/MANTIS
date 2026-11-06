@@ -1,0 +1,171 @@
+# Logical-to-Physical PEP Map
+
+## `physical_pep.agent_route_enforce_closed_boundary_agent_agent`
+- Type: `agent_route`
+- Generated adapter: `adapters/agent_route_middleware.py`
+- Mode / failure: `enforce` / `closed`
+- Logical placements:
+  - `pep.orchestrate.back_office_eod_workflow__eod_processing_agent`
+  - `pep.orchestrate.back_office_eod_workflow__exception_agent`
+  - `pep.orchestrate.back_office_eod_workflow__ledger_update_agent`
+  - `pep.orchestrate.back_office_eod_workflow__reconciliation_agent`
+  - `pep.orchestrate.back_office_eod_workflow__report_writing_agent`
+  - `pep.orchestrate.back_office_eod_workflow__validation_checkpoint_agent`
+  - `pep.orchestrate.customer_service_chatbot_workflow__chatbot_intent_agent`
+  - `pep.orchestrate.customer_service_chatbot_workflow__customer_service_agent`
+  - `pep.orchestrate.customer_service_chatbot_workflow__knowledge_base_agent`
+  - `pep.orchestrate.customer_service_chatbot_workflow__transaction_processing_agent`
+  - `pep.orchestrate.front_office_transaction_workflow__compliance_agent`
+  - `pep.orchestrate.front_office_transaction_workflow__decision_making_agent`
+  - `pep.orchestrate.front_office_transaction_workflow__fraud_detection_agent`
+  - `pep.orchestrate.front_office_transaction_workflow__transaction_monitoring_agent`
+  - `pep.orchestrate.mid_office_planning_parallel__support_guidance_agent`
+  - `pep.orchestrate.mid_office_planning_parallel__validation_agent`
+  - `pep.orchestrate.mid_office_planning_workflow__data_analysis_agent`
+  - `pep.orchestrate.mid_office_planning_workflow__forecasting_agent`
+  - `pep.orchestrate.mid_office_planning_workflow__mid_office_planning_parallel`
+  - `pep.orchestrate.mid_office_planning_workflow__planning_summary_agent`
+  - `pep.orchestrate.mid_office_planning_workflow__staff_scheduling_agent`
+  - `pep.orchestrate.representative_assist_parallel__financial_data_agent`
+  - `pep.orchestrate.representative_assist_parallel__loan_agent`
+  - `pep.orchestrate.representative_assist_parallel__recommender_agent`
+  - `pep.orchestrate.representative_assist_parallel__risk_compliance_agent`
+  - `pep.orchestrate.representative_assistant_workflow__representative_assist_parallel`
+  - `pep.orchestrate.representative_assistant_workflow__representative_merge_agent`
+  - `pep.transfer.back_office_router__back_office_eod_workflow`
+  - `pep.transfer.back_office_router__front_office_router`
+  - `pep.transfer.back_office_router__mid_office_router`
+  - `pep.transfer.back_office_router__sar_escalation_agent`
+  - `pep.transfer.back_office_router__user_proxy_agent`
+  - `pep.transfer.dispute_resolution_agent__customer_service_chatbot_workflow`
+  - `pep.transfer.dispute_resolution_agent__front_office_router`
+  - `pep.transfer.dispute_resolution_agent__front_office_transaction_workflow`
+  - `pep.transfer.front_office_router__back_office_router`
+  - `pep.transfer.front_office_router__customer_service_chatbot_workflow`
+  - `pep.transfer.front_office_router__dispute_resolution_agent`
+  - `pep.transfer.front_office_router__front_office_transaction_workflow`
+  - `pep.transfer.front_office_router__mid_office_router`
+  - `pep.transfer.front_office_router__user_proxy_agent`
+  - `pep.transfer.loan_preapproval_agent__mid_office_planning_workflow`
+  - `pep.transfer.loan_preapproval_agent__mid_office_router`
+  - `pep.transfer.loan_preapproval_agent__representative_assistant_workflow`
+  - `pep.transfer.mid_office_router__back_office_router`
+  - `pep.transfer.mid_office_router__front_office_router`
+  - `pep.transfer.mid_office_router__loan_preapproval_agent`
+  - `pep.transfer.mid_office_router__mid_office_planning_workflow`
+  - `pep.transfer.mid_office_router__representative_assistant_workflow`
+  - `pep.transfer.mid_office_router__user_proxy_agent`
+  - `pep.transfer.sar_escalation_agent__back_office_eod_workflow`
+  - `pep.transfer.sar_escalation_agent__back_office_router`
+  - `pep.transfer.user_proxy_agent__back_office_router`
+  - `pep.transfer.user_proxy_agent__front_office_router`
+  - `pep.transfer.user_proxy_agent__mid_office_router`
+
+## `physical_pep.agent_route_enforce_closed_boundary_ingress_agents`
+- Type: `agent_route`
+- Generated adapter: `adapters/agent_route_middleware.py`
+- Mode / failure: `enforce` / `closed`
+- Logical placements:
+  - `pep.entry.ingress__back_office_router`
+  - `pep.entry.ingress__dispute_resolution_agent`
+  - `pep.entry.ingress__front_office_router`
+  - `pep.entry.ingress__loan_preapproval_agent`
+  - `pep.entry.ingress__mid_office_router`
+  - `pep.entry.ingress__sar_escalation_agent`
+  - `pep.entry.ingress__user_proxy_agent`
+
+## `physical_pep.input_enforce_closed_boundary_user_input`
+- Type: `input`
+- Generated adapter: `adapters/input_output_pep.py`
+- Mode / failure: `enforce` / `closed`
+- Logical placements:
+  - `pep.input.ingress`
+
+## `physical_pep.output_enforce_closed_boundary_output_external`
+- Type: `output`
+- Generated adapter: `adapters/input_output_pep.py`
+- Mode / failure: `enforce` / `closed`
+- Logical placements:
+  - `pep.output.back_office_eod_workflow`
+  - `pep.output.back_office_router`
+  - `pep.output.chatbot_intent_agent`
+  - `pep.output.compliance_agent`
+  - `pep.output.customer_service_agent`
+  - `pep.output.customer_service_chatbot_workflow`
+  - `pep.output.data_analysis_agent`
+  - `pep.output.decision_making_agent`
+  - `pep.output.dispute_resolution_agent`
+  - `pep.output.eod_processing_agent`
+  - `pep.output.exception_agent`
+  - `pep.output.financial_data_agent`
+  - `pep.output.forecasting_agent`
+  - `pep.output.fraud_detection_agent`
+  - `pep.output.front_office_router`
+  - `pep.output.front_office_transaction_workflow`
+  - `pep.output.knowledge_base_agent`
+  - `pep.output.ledger_update_agent`
+  - `pep.output.loan_agent`
+  - `pep.output.loan_preapproval_agent`
+  - `pep.output.mid_office_router`
+  - `pep.output.planning_summary_agent`
+  - `pep.output.recommender_agent`
+  - `pep.output.reconciliation_agent`
+  - `pep.output.report_writing_agent`
+  - `pep.output.representative_merge_agent`
+  - `pep.output.risk_compliance_agent`
+  - `pep.output.sar_escalation_agent`
+  - `pep.output.staff_scheduling_agent`
+  - `pep.output.support_guidance_agent`
+  - `pep.output.transaction_monitoring_agent`
+  - `pep.output.transaction_processing_agent`
+  - `pep.output.user_proxy_agent`
+  - `pep.output.validation_agent`
+  - `pep.output.validation_checkpoint_agent`
+
+## `physical_pep.tool_enforce_closed_python_function`
+- Type: `tool`
+- Generated adapter: `adapters/tool_wrappers.py`
+- Mode / failure: `enforce` / `closed`
+- Logical placements:
+  - `pep.tool.compliance_agent__get_customer_context`
+  - `pep.tool.compliance_agent__get_transaction_context`
+  - `pep.tool.compliance_agent__search_policies`
+  - `pep.tool.data_analysis_agent__get_operations_snapshot`
+  - `pep.tool.decision_making_agent__submit_manual_review`
+  - `pep.tool.dispute_resolution_agent__file_dispute`
+  - `pep.tool.dispute_resolution_agent__get_dispute_status`
+  - `pep.tool.eod_processing_agent__get_eod_batch`
+  - `pep.tool.exception_agent__create_exception_case`
+  - `pep.tool.financial_data_agent__get_customer_financial_profile`
+  - `pep.tool.forecasting_agent__get_operations_snapshot`
+  - `pep.tool.fraud_detection_agent__get_customer_context`
+  - `pep.tool.fraud_detection_agent__get_transaction_context`
+  - `pep.tool.fraud_detection_agent__list_recent_transactions`
+  - `pep.tool.knowledge_base_agent__search_faqs`
+  - `pep.tool.ledger_update_agent__apply_ledger_updates`
+  - `pep.tool.loan_agent__search_loan_playbooks`
+  - `pep.tool.loan_preapproval_agent__get_loan_application_status`
+  - `pep.tool.loan_preapproval_agent__submit_loan_application`
+  - `pep.tool.recommender_agent__search_product_catalog`
+  - `pep.tool.reconciliation_agent__get_reconciliation_data`
+  - `pep.tool.report_writing_agent__store_report`
+  - `pep.tool.risk_compliance_agent__search_policies`
+  - `pep.tool.sar_escalation_agent__file_sar_report`
+  - `pep.tool.sar_escalation_agent__get_exception_case`
+  - `pep.tool.sar_escalation_agent__get_sar_status`
+  - `pep.tool.support_guidance_agent__get_support_playbooks`
+  - `pep.tool.transaction_monitoring_agent__get_customer_context`
+  - `pep.tool.transaction_monitoring_agent__get_transaction_context`
+  - `pep.tool.transaction_monitoring_agent__list_recent_transactions`
+  - `pep.tool.transaction_processing_agent__execute_transfer`
+  - `pep.tool.user_proxy_agent__get_branch_workload`
+  - `pep.tool.user_proxy_agent__get_customer_product_affinity`
+  - `pep.tool.user_proxy_agent__get_reconciliation_mismatches`
+  - `pep.tool.user_proxy_agent__get_transaction`
+  - `pep.tool.user_proxy_agent__propose_staffing_adjustment`
+  - `pep.tool.user_proxy_agent__resolve_ledger_entry`
+  - `pep.tool.user_proxy_agent__run_fraud_and_compliance_workflow`
+  - `pep.tool.user_proxy_agent__trigger_eod_reconciliation`
+  - `pep.tool.user_proxy_agent__update_transaction_status`
+  - `pep.tool.validation_agent__persist_validated_schedule`
+  - `pep.tool.validation_checkpoint_agent__validate_eod_readiness`

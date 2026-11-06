@@ -1,0 +1,1663 @@
+resources:
+- id: agent:back_office_eod_workflow
+  canonical_id: resource.back_office_router.agent_back_office_eod_workflow
+  actions:
+  - invoke
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: back_office_eod_workflow
+- id: agent:back_office_router
+  canonical_id: resource.back_office_router.agent_back_office_router
+  actions:
+  - invoke
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: back_office_router
+- id: agent:chatbot_intent_agent
+  canonical_id: resource.front_office_router.agent_chatbot_intent_agent
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: chatbot_intent_agent
+- id: agent:compliance_agent
+  canonical_id: resource.front_office_router.agent_compliance_agent
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: compliance_agent
+- id: agent:customer_service_agent
+  canonical_id: resource.front_office_router.agent_customer_service_agent
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: customer_service_agent
+- id: agent:customer_service_chatbot_workflow
+  canonical_id: resource.front_office_router.agent_customer_service_chatbot_workflow
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: customer_service_chatbot_workflow
+- id: agent:data_analysis_agent
+  canonical_id: resource.mid_office_router.agent_data_analysis_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: data_analysis_agent
+- id: agent:decision_making_agent
+  canonical_id: resource.front_office_router.agent_decision_making_agent
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: decision_making_agent
+- id: agent:dispute_resolution_agent
+  canonical_id: resource.front_office_router.agent_dispute_resolution_agent
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: dispute_resolution_agent
+- id: agent:eod_processing_agent
+  canonical_id: resource.back_office_router.agent_eod_processing_agent
+  actions:
+  - invoke
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: eod_processing_agent
+- id: agent:exception_agent
+  canonical_id: resource.back_office_router.agent_exception_agent
+  actions:
+  - invoke
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: exception_agent
+- id: agent:financial_data_agent
+  canonical_id: resource.mid_office_router.agent_financial_data_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: financial_data_agent
+- id: agent:forecasting_agent
+  canonical_id: resource.mid_office_router.agent_forecasting_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: forecasting_agent
+- id: agent:fraud_detection_agent
+  canonical_id: resource.front_office_router.agent_fraud_detection_agent
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: fraud_detection_agent
+- id: agent:front_office_router
+  canonical_id: resource.front_office_router.agent_front_office_router
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: front_office_router
+- id: agent:front_office_transaction_workflow
+  canonical_id: resource.front_office_router.agent_front_office_transaction_workflow
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: front_office_transaction_workflow
+- id: agent:knowledge_base_agent
+  canonical_id: resource.front_office_router.agent_knowledge_base_agent
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: knowledge_base_agent
+- id: agent:ledger_update_agent
+  canonical_id: resource.back_office_router.agent_ledger_update_agent
+  actions:
+  - invoke
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: ledger_update_agent
+- id: agent:loan_agent
+  canonical_id: resource.mid_office_router.agent_loan_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: loan_agent
+- id: agent:loan_preapproval_agent
+  canonical_id: resource.mid_office_router.agent_loan_preapproval_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: loan_preapproval_agent
+- id: agent:mid_office_planning_parallel
+  canonical_id: resource.mid_office_router.agent_mid_office_planning_parallel
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: mid_office_planning_parallel
+- id: agent:mid_office_planning_workflow
+  canonical_id: resource.mid_office_router.agent_mid_office_planning_workflow
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: mid_office_planning_workflow
+- id: agent:mid_office_router
+  canonical_id: resource.mid_office_router.agent_mid_office_router
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: mid_office_router
+- id: agent:planning_summary_agent
+  canonical_id: resource.mid_office_router.agent_planning_summary_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: planning_summary_agent
+- id: agent:recommender_agent
+  canonical_id: resource.mid_office_router.agent_recommender_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: recommender_agent
+- id: agent:reconciliation_agent
+  canonical_id: resource.back_office_router.agent_reconciliation_agent
+  actions:
+  - invoke
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: reconciliation_agent
+- id: agent:report_writing_agent
+  canonical_id: resource.back_office_router.agent_report_writing_agent
+  actions:
+  - invoke
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: report_writing_agent
+- id: agent:representative_assist_parallel
+  canonical_id: resource.mid_office_router.agent_representative_assist_parallel
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: representative_assist_parallel
+- id: agent:representative_assistant_workflow
+  canonical_id: resource.mid_office_router.agent_representative_assistant_workflow
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: representative_assistant_workflow
+- id: agent:representative_merge_agent
+  canonical_id: resource.mid_office_router.agent_representative_merge_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: representative_merge_agent
+- id: agent:risk_compliance_agent
+  canonical_id: resource.mid_office_router.agent_risk_compliance_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: risk_compliance_agent
+- id: agent:sar_escalation_agent
+  canonical_id: resource.back_office_router.agent_sar_escalation_agent
+  actions:
+  - invoke
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: sar_escalation_agent
+- id: agent:staff_scheduling_agent
+  canonical_id: resource.mid_office_router.agent_staff_scheduling_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: staff_scheduling_agent
+- id: agent:support_guidance_agent
+  canonical_id: resource.mid_office_router.agent_support_guidance_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: support_guidance_agent
+- id: agent:transaction_monitoring_agent
+  canonical_id: resource.front_office_router.agent_transaction_monitoring_agent
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: transaction_monitoring_agent
+- id: agent:transaction_processing_agent
+  canonical_id: resource.front_office_router.agent_transaction_processing_agent
+  actions:
+  - invoke
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: transaction_processing_agent
+- id: agent:user_proxy_agent
+  canonical_id: resource.core.agent_user_proxy_agent
+  actions:
+  - invoke
+  domain: core
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: user_proxy_agent
+- id: agent:validation_agent
+  canonical_id: resource.mid_office_router.agent_validation_agent
+  actions:
+  - invoke
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: validation_agent
+- id: agent:validation_checkpoint_agent
+  canonical_id: resource.back_office_router.agent_validation_checkpoint_agent
+  actions:
+  - invoke
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    resource_kind: agent
+    scanner_target_type: subject
+    agent: validation_checkpoint_agent
+- id: mas_input_channel
+  canonical_id: resource.external.mas_input
+  actions:
+  - invoke
+  domain: external
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    zt_adk_boundary: input
+- id: mas_output_channel
+  canonical_id: resource.external.mas_output
+  actions:
+  - emit
+  domain: external
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    zt_adk_boundary: output
+- id: compliance_agent/get_customer_context
+  canonical_id: resource.front_office_router.tool_compliance_agent__get_customer_context
+  actions:
+  - read
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: compliance_agent
+    tool: get_customer_context
+    implementation: mantis.banking.tools.customer_tools:get_customer_context
+    toolset: null
+    parameters:
+      properties:
+        customer_id:
+          type: string
+      required:
+      - customer_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._all'', ''self._one'', ''self._request'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: compliance_agent/get_transaction_context
+  canonical_id: resource.front_office_router.tool_compliance_agent__get_transaction_context
+  actions:
+  - read
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: compliance_agent
+    tool: get_transaction_context
+    implementation: mantis.banking.tools.customer_tools:get_transaction_context
+    toolset: null
+    parameters:
+      properties:
+        transaction_id:
+          type: string
+      required:
+      - transaction_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._one'', ''self._request'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: compliance_agent/search_policies
+  canonical_id: resource.front_office_router.tool_compliance_agent__search_policies
+  actions:
+  - read
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: compliance_agent
+    tool: search_policies
+    implementation: mantis.banking.tools.knowledge_tools:search_policies
+    toolset: null
+    parameters:
+      properties:
+        query:
+          type: string
+      required:
+      - query
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._request'']'
+    - no conclusive code evidence; name verb 'search' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: data_analysis_agent/get_operations_snapshot
+  canonical_id: resource.mid_office_router.tool_data_analysis_agent__get_operations_snapshot
+  actions:
+  - read
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: data_analysis_agent
+    tool: get_operations_snapshot
+    implementation: mantis.banking.tools.ops_tools:get_operations_snapshot
+    toolset: null
+    parameters:
+      properties:
+        date:
+          default: ''
+          type: string
+      type: object
+    classification_evidence:
+    - code only reads (SQL SELECT, HTTP GET, file reads)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: decision_making_agent/submit_manual_review
+  canonical_id: resource.front_office_router.tool_decision_making_agent__submit_manual_review
+  actions:
+  - create
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: decision_making_agent
+    tool: submit_manual_review
+    implementation: mantis.banking.tools.customer_tools:submit_manual_review
+    toolset: null
+    parameters:
+      properties:
+        case_type:
+          type: string
+        payload:
+          type: string
+      required:
+      - case_type
+      - payload
+      type: object
+    classification_evidence:
+    - code writes (SQL INSERT/UPDATE, HTTP POST/PUT/PATCH, ORM/file writes)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: dispute_resolution_agent/file_dispute
+  canonical_id: resource.front_office_router.tool_dispute_resolution_agent__file_dispute
+  actions:
+  - create
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: dispute_resolution_agent
+    tool: file_dispute
+    implementation: mantis.banking.tools.dispute_tools:file_dispute
+    toolset: null
+    parameters:
+      properties:
+        customer_id:
+          type: string
+        transaction_id:
+          type: string
+        reason:
+          type: string
+      required:
+      - customer_id
+      - transaction_id
+      - reason
+      type: object
+    classification_evidence:
+    - code writes (SQL INSERT/UPDATE, HTTP POST/PUT/PATCH, ORM/file writes)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: dispute_resolution_agent/get_dispute_status
+  canonical_id: resource.front_office_router.tool_dispute_resolution_agent__get_dispute_status
+  actions:
+  - read
+  domain: front_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: dispute_resolution_agent
+    tool: get_dispute_status
+    implementation: mantis.banking.tools.dispute_tools:get_dispute_status
+    toolset: null
+    parameters:
+      properties:
+        dispute_id:
+          type: string
+      required:
+      - dispute_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''conn.execute'', ''conn.execute().fetchone'',
+      ''self.connect'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: eod_processing_agent/get_eod_batch
+  canonical_id: resource.back_office_router.tool_eod_processing_agent__get_eod_batch
+  actions:
+  - read
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: eod_processing_agent
+    tool: get_eod_batch
+    implementation: mantis.banking.tools.back_office_tools:get_eod_batch
+    toolset: null
+    parameters:
+      properties:
+        batch_id:
+          type: string
+      required:
+      - batch_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._one'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: exception_agent/create_exception_case
+  canonical_id: resource.back_office_router.tool_exception_agent__create_exception_case
+  actions:
+  - create
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: exception_agent
+    tool: create_exception_case
+    implementation: mantis.banking.tools.back_office_tools:create_exception_case
+    toolset: null
+    parameters:
+      properties:
+        batch_id:
+          type: string
+        mismatch_summary:
+          type: string
+      required:
+      - batch_id
+      - mismatch_summary
+      type: object
+    classification_evidence:
+    - code writes (SQL INSERT/UPDATE, HTTP POST/PUT/PATCH, ORM/file writes)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: financial_data_agent/get_customer_financial_profile
+  canonical_id: resource.mid_office_router.tool_financial_data_agent__get_customer_financial_profile
+  actions:
+  - read
+  domain: mid_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: financial_data_agent
+    tool: get_customer_financial_profile
+    implementation: mantis.banking.tools.csr_tools:get_customer_financial_profile
+    toolset: null
+    parameters:
+      properties:
+        customer_id:
+          type: string
+      required:
+      - customer_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._all'', ''self._one'', ''self._request'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: forecasting_agent/get_operations_snapshot
+  canonical_id: resource.mid_office_router.tool_forecasting_agent__get_operations_snapshot
+  actions:
+  - read
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: forecasting_agent
+    tool: get_operations_snapshot
+    implementation: mantis.banking.tools.ops_tools:get_operations_snapshot
+    toolset: null
+    parameters:
+      properties:
+        date:
+          default: ''
+          type: string
+      type: object
+    classification_evidence:
+    - code only reads (SQL SELECT, HTTP GET, file reads)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: fraud_detection_agent/get_customer_context
+  canonical_id: resource.front_office_router.tool_fraud_detection_agent__get_customer_context
+  actions:
+  - read
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: fraud_detection_agent
+    tool: get_customer_context
+    implementation: mantis.banking.tools.customer_tools:get_customer_context
+    toolset: null
+    parameters:
+      properties:
+        customer_id:
+          type: string
+      required:
+      - customer_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._all'', ''self._one'', ''self._request'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: fraud_detection_agent/get_transaction_context
+  canonical_id: resource.front_office_router.tool_fraud_detection_agent__get_transaction_context
+  actions:
+  - read
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: fraud_detection_agent
+    tool: get_transaction_context
+    implementation: mantis.banking.tools.customer_tools:get_transaction_context
+    toolset: null
+    parameters:
+      properties:
+        transaction_id:
+          type: string
+      required:
+      - transaction_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._one'', ''self._request'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: fraud_detection_agent/list_recent_transactions
+  canonical_id: resource.front_office_router.tool_fraud_detection_agent__list_recent_transactions
+  actions:
+  - read
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: fraud_detection_agent
+    tool: list_recent_transactions
+    implementation: mantis.banking.tools.customer_tools:list_recent_transactions
+    toolset: null
+    parameters:
+      properties:
+        customer_id:
+          type: string
+        limit:
+          default: 5
+          type: integer
+      required:
+      - customer_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._all'', ''self._request'']'
+    - no conclusive code evidence; name verb 'list' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: knowledge_base_agent/search_faqs
+  canonical_id: resource.front_office_router.tool_knowledge_base_agent__search_faqs
+  actions:
+  - read
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: knowledge_base_agent
+    tool: search_faqs
+    implementation: mantis.banking.tools.knowledge_tools:search_faqs
+    toolset: null
+    parameters:
+      properties:
+        query:
+          type: string
+      required:
+      - query
+      type: object
+    classification_evidence:
+    - code only reads (SQL SELECT, HTTP GET, file reads)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: ledger_update_agent/apply_ledger_updates
+  canonical_id: resource.back_office_router.tool_ledger_update_agent__apply_ledger_updates
+  actions:
+  - update
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: ledger_update_agent
+    tool: apply_ledger_updates
+    implementation: mantis.banking.tools.back_office_tools:apply_ledger_updates
+    toolset: null
+    parameters:
+      properties:
+        batch_id:
+          type: string
+        posting_instructions:
+          type: string
+      required:
+      - batch_id
+      - posting_instructions
+      type: object
+    classification_evidence:
+    - code writes (SQL INSERT/UPDATE, HTTP POST/PUT/PATCH, ORM/file writes)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: loan_agent/search_loan_playbooks
+  canonical_id: resource.mid_office_router.tool_loan_agent__search_loan_playbooks
+  actions:
+  - read
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: loan_agent
+    tool: search_loan_playbooks
+    implementation: mantis.banking.tools.csr_tools:search_loan_playbooks
+    toolset: null
+    parameters:
+      properties:
+        query:
+          type: string
+      required:
+      - query
+      type: object
+    classification_evidence:
+    - code only reads (SQL SELECT, HTTP GET, file reads)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: loan_preapproval_agent/get_loan_application_status
+  canonical_id: resource.mid_office_router.tool_loan_preapproval_agent__get_loan_application_status
+  actions:
+  - read
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: loan_preapproval_agent
+    tool: get_loan_application_status
+    implementation: mantis.banking.tools.loan_tools:get_loan_application_status
+    toolset: null
+    parameters:
+      properties:
+        application_id:
+          type: string
+      required:
+      - application_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._one'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: loan_preapproval_agent/submit_loan_application
+  canonical_id: resource.mid_office_router.tool_loan_preapproval_agent__submit_loan_application
+  actions:
+  - create
+  domain: mid_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: loan_preapproval_agent
+    tool: submit_loan_application
+    implementation: mantis.banking.tools.loan_tools:submit_loan_application
+    toolset: null
+    parameters:
+      properties:
+        customer_id:
+          type: string
+        amount:
+          type: number
+        purpose:
+          type: string
+      required:
+      - customer_id
+      - amount
+      - purpose
+      type: object
+    classification_evidence:
+    - code writes (SQL INSERT/UPDATE, HTTP POST/PUT/PATCH, ORM/file writes)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: recommender_agent/search_product_catalog
+  canonical_id: resource.mid_office_router.tool_recommender_agent__search_product_catalog
+  actions:
+  - read
+  domain: mid_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: recommender_agent
+    tool: search_product_catalog
+    implementation: mantis.banking.tools.csr_tools:search_product_catalog
+    toolset: null
+    parameters:
+      properties:
+        query:
+          type: string
+      required:
+      - query
+      type: object
+    classification_evidence:
+    - code only reads (SQL SELECT, HTTP GET, file reads)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: reconciliation_agent/get_reconciliation_data
+  canonical_id: resource.back_office_router.tool_reconciliation_agent__get_reconciliation_data
+  actions:
+  - read
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: reconciliation_agent
+    tool: get_reconciliation_data
+    implementation: mantis.banking.tools.back_office_tools:get_reconciliation_data
+    toolset: null
+    parameters:
+      properties:
+        batch_id:
+          type: string
+      required:
+      - batch_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._one'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: report_writing_agent/store_report
+  canonical_id: resource.back_office_router.tool_report_writing_agent__store_report
+  actions:
+  - create
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: report_writing_agent
+    tool: store_report
+    implementation: mantis.banking.tools.back_office_tools:store_report
+    toolset: null
+    parameters:
+      properties:
+        batch_id:
+          type: string
+        report_body:
+          type: string
+      required:
+      - batch_id
+      - report_body
+      type: object
+    classification_evidence:
+    - code writes (SQL INSERT/UPDATE, HTTP POST/PUT/PATCH, ORM/file writes)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: risk_compliance_agent/search_policies
+  canonical_id: resource.mid_office_router.tool_risk_compliance_agent__search_policies
+  actions:
+  - read
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: risk_compliance_agent
+    tool: search_policies
+    implementation: mantis.banking.tools.knowledge_tools:search_policies
+    toolset: null
+    parameters:
+      properties:
+        query:
+          type: string
+      required:
+      - query
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._request'']'
+    - no conclusive code evidence; name verb 'search' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: sar_escalation_agent/file_sar_report
+  canonical_id: resource.back_office_router.tool_sar_escalation_agent__file_sar_report
+  actions:
+  - create
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: sar_escalation_agent
+    tool: file_sar_report
+    implementation: mantis.banking.tools.sar_tools:file_sar_report
+    toolset: null
+    parameters:
+      properties:
+        exception_id:
+          type: string
+        reason:
+          type: string
+        filed_by:
+          default: ''
+          type: string
+      required:
+      - exception_id
+      - reason
+      type: object
+    classification_evidence:
+    - code writes (SQL INSERT/UPDATE, HTTP POST/PUT/PATCH, ORM/file writes)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: sar_escalation_agent/get_exception_case
+  canonical_id: resource.back_office_router.tool_sar_escalation_agent__get_exception_case
+  actions:
+  - read
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: sar_escalation_agent
+    tool: get_exception_case
+    implementation: mantis.banking.tools.sar_tools:get_exception_case
+    toolset: null
+    parameters:
+      properties:
+        exception_id:
+          type: string
+      required:
+      - exception_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._one'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: sar_escalation_agent/get_sar_status
+  canonical_id: resource.back_office_router.tool_sar_escalation_agent__get_sar_status
+  actions:
+  - read
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: sar_escalation_agent
+    tool: get_sar_status
+    implementation: mantis.banking.tools.sar_tools:get_sar_status
+    toolset: null
+    parameters:
+      properties:
+        sar_id:
+          type: string
+      required:
+      - sar_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._one'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: support_guidance_agent/get_support_playbooks
+  canonical_id: resource.mid_office_router.tool_support_guidance_agent__get_support_playbooks
+  actions:
+  - read
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: support_guidance_agent
+    tool: get_support_playbooks
+    implementation: mantis.banking.tools.ops_tools:get_support_playbooks
+    toolset: null
+    parameters:
+      properties:
+        query:
+          type: string
+      required:
+      - query
+      type: object
+    classification_evidence:
+    - code only reads (SQL SELECT, HTTP GET, file reads)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: transaction_monitoring_agent/get_customer_context
+  canonical_id: resource.front_office_router.tool_transaction_monitoring_agent__get_customer_context
+  actions:
+  - read
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: transaction_monitoring_agent
+    tool: get_customer_context
+    implementation: mantis.banking.tools.customer_tools:get_customer_context
+    toolset: null
+    parameters:
+      properties:
+        customer_id:
+          type: string
+      required:
+      - customer_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._all'', ''self._one'', ''self._request'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: transaction_monitoring_agent/get_transaction_context
+  canonical_id: resource.front_office_router.tool_transaction_monitoring_agent__get_transaction_context
+  actions:
+  - read
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: transaction_monitoring_agent
+    tool: get_transaction_context
+    implementation: mantis.banking.tools.customer_tools:get_transaction_context
+    toolset: null
+    parameters:
+      properties:
+        transaction_id:
+          type: string
+      required:
+      - transaction_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._one'', ''self._request'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: transaction_monitoring_agent/list_recent_transactions
+  canonical_id: resource.front_office_router.tool_transaction_monitoring_agent__list_recent_transactions
+  actions:
+  - read
+  domain: front_office_router
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: transaction_monitoring_agent
+    tool: list_recent_transactions
+    implementation: mantis.banking.tools.customer_tools:list_recent_transactions
+    toolset: null
+    parameters:
+      properties:
+        customer_id:
+          type: string
+        limit:
+          default: 5
+          type: integer
+      required:
+      - customer_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._all'', ''self._request'']'
+    - no conclusive code evidence; name verb 'list' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: transaction_processing_agent/execute_transfer
+  canonical_id: resource.front_office_router.tool_transaction_processing_agent__execute_transfer
+  actions:
+  - execute
+  domain: front_office_router
+  classification: confidential
+  critical: true
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: transaction_processing_agent
+    tool: execute_transfer
+    implementation: mantis.banking.tools.customer_tools:execute_transfer
+    toolset: null
+    parameters:
+      properties:
+        source_account:
+          type: string
+        destination_account:
+          type: string
+        amount:
+          type: number
+        memo:
+          default: ''
+          type: string
+        customer_id:
+          default: ''
+          type: string
+      required:
+      - source_account
+      - destination_account
+      - amount
+      type: object
+    classification_evidence:
+    - code writes (SQL INSERT/UPDATE, HTTP POST/PUT/PATCH, ORM/file writes)
+    - 'critical term in name/description: [''transfer'']'
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: user_proxy_agent/get_branch_workload
+  canonical_id: resource.core.tool_user_proxy_agent__get_branch_workload
+  actions:
+  - read
+  domain: core
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: user_proxy_agent
+    tool: get_branch_workload
+    implementation: mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper
+    toolset: null
+    parameters:
+      type: object
+      properties: {}
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''mcp_session.call_tool'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: user_proxy_agent/get_customer_product_affinity
+  canonical_id: resource.core.tool_user_proxy_agent__get_customer_product_affinity
+  actions:
+  - read
+  domain: core
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: user_proxy_agent
+    tool: get_customer_product_affinity
+    implementation: mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper
+    toolset: null
+    parameters:
+      type: object
+      properties: {}
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''mcp_session.call_tool'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: user_proxy_agent/get_reconciliation_mismatches
+  canonical_id: resource.core.tool_user_proxy_agent__get_reconciliation_mismatches
+  actions:
+  - read
+  domain: core
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: user_proxy_agent
+    tool: get_reconciliation_mismatches
+    implementation: mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper
+    toolset: null
+    parameters:
+      type: object
+      properties: {}
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''mcp_session.call_tool'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: user_proxy_agent/get_transaction
+  canonical_id: resource.core.tool_user_proxy_agent__get_transaction
+  actions:
+  - read
+  domain: core
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: user_proxy_agent
+    tool: get_transaction
+    implementation: mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper
+    toolset: null
+    parameters:
+      type: object
+      properties: {}
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''mcp_session.call_tool'']'
+    - no conclusive code evidence; name verb 'get' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: user_proxy_agent/propose_staffing_adjustment
+  canonical_id: resource.core.tool_user_proxy_agent__propose_staffing_adjustment
+  actions:
+  - execute
+  domain: core
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: user_proxy_agent
+    tool: propose_staffing_adjustment
+    implementation: mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper
+    toolset: null
+    parameters:
+      type: object
+      properties: {}
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''mcp_session.call_tool'']'
+    - 'unclassified: no code evidence and no known verb -> treated as a side effect
+      (declare it in zt_adk.yaml)'
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: user_proxy_agent/resolve_ledger_entry
+  canonical_id: resource.core.tool_user_proxy_agent__resolve_ledger_entry
+  actions:
+  - update
+  domain: core
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: user_proxy_agent
+    tool: resolve_ledger_entry
+    implementation: mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper
+    toolset: null
+    parameters:
+      type: object
+      properties: {}
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''mcp_session.call_tool'']'
+    - no conclusive code evidence; name verb 'resolve' -> update
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: user_proxy_agent/run_fraud_and_compliance_workflow
+  canonical_id: resource.core.tool_user_proxy_agent__run_fraud_and_compliance_workflow
+  actions:
+  - execute
+  domain: core
+  classification: confidential
+  critical: true
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: user_proxy_agent
+    tool: run_fraud_and_compliance_workflow
+    implementation: mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper
+    toolset: null
+    parameters:
+      type: object
+      properties: {}
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''mcp_session.call_tool'']'
+    - no conclusive code evidence; name verb 'run' -> execute
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: user_proxy_agent/trigger_eod_reconciliation
+  canonical_id: resource.core.tool_user_proxy_agent__trigger_eod_reconciliation
+  actions:
+  - execute
+  domain: core
+  classification: internal
+  critical: true
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: user_proxy_agent
+    tool: trigger_eod_reconciliation
+    implementation: mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper
+    toolset: null
+    parameters:
+      type: object
+      properties: {}
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''mcp_session.call_tool'']'
+    - no conclusive code evidence; name verb 'trigger' -> execute
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: user_proxy_agent/update_transaction_status
+  canonical_id: resource.core.tool_user_proxy_agent__update_transaction_status
+  actions:
+  - update
+  domain: core
+  classification: confidential
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: user_proxy_agent
+    tool: update_transaction_status
+    implementation: mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper
+    toolset: null
+    parameters:
+      type: object
+      properties: {}
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''mcp_session.call_tool'']'
+    - no conclusive code evidence; name verb 'update' -> update
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: validation_agent/persist_validated_schedule
+  canonical_id: resource.mid_office_router.tool_validation_agent__persist_validated_schedule
+  actions:
+  - write
+  domain: mid_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: validation_agent
+    tool: persist_validated_schedule
+    implementation: mantis.banking.tools.ops_tools:persist_validated_schedule
+    toolset: null
+    parameters:
+      properties:
+        schedule_json:
+          type: string
+      required:
+      - schedule_json
+      type: object
+    classification_evidence:
+    - code writes (SQL INSERT/UPDATE, HTTP POST/PUT/PATCH, ORM/file writes)
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []
+- id: validation_checkpoint_agent/validate_eod_readiness
+  canonical_id: resource.back_office_router.tool_validation_checkpoint_agent__validate_eod_readiness
+  actions:
+  - read
+  domain: back_office_router
+  classification: internal
+  critical: false
+  attributes:
+    manifest_status: confirmed
+    tool_kind: function
+    agent: validation_checkpoint_agent
+    tool: validate_eod_readiness
+    implementation: mantis.banking.tools.back_office_tools:validate_eod_readiness
+    toolset: null
+    parameters:
+      properties:
+        batch_id:
+          type: string
+      required:
+      - batch_id
+      type: object
+    classification_evidence:
+    - 'calls the analysis cannot see into: [''self._one'']'
+    - no conclusive code evidence; name verb 'validate' -> read
+    declared: false
+    secondary_approval: false
+    allowed_roles: null
+    mask_fields: []

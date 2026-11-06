@@ -1,0 +1,4418 @@
+{
+  "adk_version": "2.7.1",
+  "agents": {
+    "back_office_eod_workflow": {
+      "callbacks": [],
+      "child_fields": {
+        "exception_agent": [
+          "exception_agent"
+        ],
+        "ledger_update_agent": [
+          "ledger_update_agent"
+        ],
+        "processing_agent": [
+          "eod_processing_agent"
+        ],
+        "reconciliation_agent": [
+          "reconciliation_agent"
+        ],
+        "report_agent": [
+          "report_writing_agent"
+        ],
+        "validation_agent": [
+          "validation_checkpoint_agent"
+        ]
+      },
+      "class_name": "mantis.banking.agents.workflow_agents.BackOfficeEodWorkflowAgent",
+      "description": "Conditionally orchestrates the EOD workflow while keeping the analytical and writing steps LLM-driven.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "custom",
+      "mode": null,
+      "model": null,
+      "name": "back_office_eod_workflow",
+      "output_key": null,
+      "parent": "back_office_router",
+      "reached_via": "tree",
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/workflow_agents.py",
+      "source_line": 153,
+      "sub_agents": [
+        "validation_checkpoint_agent",
+        "eod_processing_agent",
+        "ledger_update_agent",
+        "reconciliation_agent",
+        "report_writing_agent",
+        "exception_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "back_office_router": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Routes scheduled operational processing into the EOD reconciliation and reporting workflow, or into SAR escalation for an existing exception case.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": "chat",
+      "model": "openai/gpt-oss-20b",
+      "name": "back_office_router",
+      "output_key": "back_office_router_result",
+      "parent": "user_proxy_agent",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [
+        "back_office_eod_workflow",
+        "sar_escalation_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "chatbot_intent_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Determines whether a customer chatbot request is informational or requires service or action handling.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "chatbot_intent_agent",
+      "output_key": "fo_chatbot_intent",
+      "parent": "customer_service_chatbot_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "compliance_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Retrieves and applies compliance rules, policy, and regulatory guidance to the transaction review.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "compliance_agent",
+      "output_key": "fo_compliance_report",
+      "parent": "front_office_transaction_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "compliance_agent/search_policies",
+        "compliance_agent/get_customer_context",
+        "compliance_agent/get_transaction_context"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "customer_service_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Handles service-oriented routing and prepares requests for backend transaction execution.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "customer_service_agent",
+      "output_key": "fo_service_result",
+      "parent": "customer_service_chatbot_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "customer_service_chatbot_workflow": {
+      "callbacks": [],
+      "child_fields": {
+        "intent_agent": [
+          "chatbot_intent_agent"
+        ],
+        "knowledge_agent": [
+          "knowledge_base_agent"
+        ],
+        "processing_agent": [
+          "transaction_processing_agent"
+        ],
+        "service_agent": [
+          "customer_service_agent"
+        ]
+      },
+      "class_name": "mantis.banking.agents.workflow_agents.CustomerServiceChatbotWorkflowAgent",
+      "description": "Routes chatbot requests between informational and service/action handling without relying on nested agent tool-calls.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "custom",
+      "mode": null,
+      "model": null,
+      "name": "customer_service_chatbot_workflow",
+      "output_key": null,
+      "parent": "front_office_router",
+      "reached_via": "tree",
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/workflow_agents.py",
+      "source_line": 101,
+      "sub_agents": [
+        "chatbot_intent_agent",
+        "knowledge_base_agent",
+        "customer_service_agent",
+        "transaction_processing_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "data_analysis_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Analyzes internal operations data and extracts workload patterns.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "data_analysis_agent",
+      "output_key": "mo_workload_analysis",
+      "parent": "mid_office_planning_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "data_analysis_agent/get_operations_snapshot"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "decision_making_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Combines monitoring, fraud, and compliance outputs into a final recommendation with confidence handling.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "decision_making_agent",
+      "output_key": "fo_decision_report",
+      "parent": "front_office_transaction_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "decision_making_agent/submit_manual_review"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "dispute_resolution_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Files and tracks customer transaction dispute cases.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": "chat",
+      "model": "openai/gpt-oss-20b",
+      "name": "dispute_resolution_agent",
+      "output_key": "fo_dispute_result",
+      "parent": "front_office_router",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "dispute_resolution_agent/file_dispute",
+        "dispute_resolution_agent/get_dispute_status"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "eod_processing_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Drives the ordered end-of-day operational sequence and prepares ledger posting instructions.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "eod_processing_agent",
+      "output_key": "bo_processing_report",
+      "parent": "back_office_eod_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "eod_processing_agent/get_eod_batch"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "exception_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Creates and summarizes an exception case when reconciliation fails.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "exception_agent",
+      "output_key": "bo_exception_output",
+      "parent": "back_office_eod_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "exception_agent/create_exception_case"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "financial_data_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Retrieves customer-specific financial information for representative support.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "financial_data_agent",
+      "output_key": "mo_customer_data_report",
+      "parent": "representative_assist_parallel",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "financial_data_agent/get_customer_financial_profile"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "forecasting_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Forecasts near-term operational demand from recent workload patterns.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "forecasting_agent",
+      "output_key": "mo_forecast_report",
+      "parent": "mid_office_planning_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "forecasting_agent/get_operations_snapshot"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "fraud_detection_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Performs deeper fraud analysis on transactions that were flagged by monitoring.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "fraud_detection_agent",
+      "output_key": "fo_fraud_report",
+      "parent": "front_office_transaction_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "fraud_detection_agent/get_customer_context",
+        "fraud_detection_agent/get_transaction_context",
+        "fraud_detection_agent/list_recent_transactions"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "front_office_router": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Routes customer-facing work into the transaction risk workflow, the customer-service chatbot workflow, or dispute resolution.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": "chat",
+      "model": "openai/gpt-oss-20b",
+      "name": "front_office_router",
+      "output_key": "front_office_router_result",
+      "parent": "user_proxy_agent",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [
+        "front_office_transaction_workflow",
+        "customer_service_chatbot_workflow",
+        "dispute_resolution_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "front_office_transaction_workflow": {
+      "callbacks": [],
+      "child_fields": {
+        "compliance_agent": [
+          "compliance_agent"
+        ],
+        "decision_agent": [
+          "decision_making_agent"
+        ],
+        "fraud_agent": [
+          "fraud_detection_agent"
+        ],
+        "monitoring_agent": [
+          "transaction_monitoring_agent"
+        ]
+      },
+      "class_name": "mantis.banking.agents.workflow_agents.FrontOfficeTransactionWorkflowAgent",
+      "description": "Deterministically orchestrates the front-office risk workflow while specialist work is performed by LLM agents.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "custom",
+      "mode": null,
+      "model": null,
+      "name": "front_office_transaction_workflow",
+      "output_key": null,
+      "parent": "front_office_router",
+      "reached_via": "tree",
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/workflow_agents.py",
+      "source_line": 49,
+      "sub_agents": [
+        "transaction_monitoring_agent",
+        "fraud_detection_agent",
+        "compliance_agent",
+        "decision_making_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "knowledge_base_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Answers informational customer questions by retrieving FAQs and customer-facing policies.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "knowledge_base_agent",
+      "output_key": "fo_knowledge_answer",
+      "parent": "customer_service_chatbot_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "knowledge_base_agent/search_faqs"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "ledger_update_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Applies the actual ledger updates prepared during EOD processing.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "ledger_update_agent",
+      "output_key": "bo_ledger_update_report",
+      "parent": "back_office_eod_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "ledger_update_agent/apply_ledger_updates"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "loan_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Supports loan process guidance for internal representatives.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "loan_agent",
+      "output_key": "mo_loan_report",
+      "parent": "representative_assist_parallel",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "loan_agent/search_loan_playbooks"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "loan_preapproval_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Submits a real loan/credit-line pre-approval application for a customer and reports the computed decision.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": "chat",
+      "model": "openai/gpt-oss-20b",
+      "name": "loan_preapproval_agent",
+      "output_key": "mo_loan_preapproval_result",
+      "parent": "mid_office_router",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "loan_preapproval_agent/submit_loan_application",
+        "loan_preapproval_agent/get_loan_application_status"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "mid_office_planning_parallel": {
+      "callbacks": [],
+      "child_fields": {},
+      "class_name": "google.adk.agents.parallel_agent.ParallelAgent",
+      "description": "Runs schedule validation and support guidance in parallel after the schedule draft exists.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "parallel",
+      "mode": null,
+      "model": null,
+      "name": "mid_office_planning_parallel",
+      "output_key": null,
+      "parent": "mid_office_planning_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [
+        "validation_agent",
+        "support_guidance_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "mid_office_planning_workflow": {
+      "callbacks": [],
+      "child_fields": {},
+      "class_name": "google.adk.agents.sequential_agent.SequentialAgent",
+      "description": "Strict planning pipeline with deterministic execution order and LLM specialists.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "sequential",
+      "mode": null,
+      "model": null,
+      "name": "mid_office_planning_workflow",
+      "output_key": null,
+      "parent": "mid_office_router",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [
+        "data_analysis_agent",
+        "forecasting_agent",
+        "staff_scheduling_agent",
+        "mid_office_planning_parallel",
+        "planning_summary_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "mid_office_router": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Routes internal operational work into planning/support, representative-assist, or loan pre-approval workflows.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": "chat",
+      "model": "openai/gpt-oss-20b",
+      "name": "mid_office_router",
+      "output_key": "mid_office_router_result",
+      "parent": "user_proxy_agent",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [
+        "mid_office_planning_workflow",
+        "representative_assistant_workflow",
+        "loan_preapproval_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "planning_summary_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Merges the planning workflow outputs into one final mid-office planning response.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "planning_summary_agent",
+      "output_key": "mid_office_planning_result",
+      "parent": "mid_office_planning_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "recommender_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Finds relevant product suggestions and next-best actions for the representative.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "recommender_agent",
+      "output_key": "mo_recommender_report",
+      "parent": "representative_assist_parallel",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "recommender_agent/search_product_catalog"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "reconciliation_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Verifies whether ledger results and expected totals are consistent after EOD processing.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "reconciliation_agent",
+      "output_key": "bo_reconciliation_report",
+      "parent": "back_office_eod_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "reconciliation_agent/get_reconciliation_data"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "report_writing_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Generates and stores the final end-of-day report for clean batches.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "report_writing_agent",
+      "output_key": "bo_report_output",
+      "parent": "back_office_eod_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "report_writing_agent/store_report"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "representative_assist_parallel": {
+      "callbacks": [],
+      "child_fields": {},
+      "class_name": "google.adk.agents.parallel_agent.ParallelAgent",
+      "description": "Runs representative-assist specialists in parallel.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "parallel",
+      "mode": null,
+      "model": null,
+      "name": "representative_assist_parallel",
+      "output_key": null,
+      "parent": "representative_assistant_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [
+        "financial_data_agent",
+        "recommender_agent",
+        "loan_agent",
+        "risk_compliance_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "representative_assistant_workflow": {
+      "callbacks": [],
+      "child_fields": {},
+      "class_name": "google.adk.agents.sequential_agent.SequentialAgent",
+      "description": "Fan-out/fan-in representative assist workflow.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "sequential",
+      "mode": null,
+      "model": null,
+      "name": "representative_assistant_workflow",
+      "output_key": null,
+      "parent": "mid_office_router",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [
+        "representative_assist_parallel",
+        "representative_merge_agent"
+      ],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "representative_merge_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Merges all representative-assist specialist outputs into one CSR-facing answer.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "representative_merge_agent",
+      "output_key": "mid_office_representative_result",
+      "parent": "representative_assistant_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "risk_compliance_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Checks policy and risk constraints before recommendations are shown to representatives.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "risk_compliance_agent",
+      "output_key": "mo_risk_compliance_report",
+      "parent": "representative_assist_parallel",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "risk_compliance_agent/search_policies"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "sar_escalation_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Reviews an existing reconciliation exception case and, if it looks like potential misconduct rather than a routine mismatch, files a formal Suspicious Activity Report.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": "chat",
+      "model": "openai/gpt-oss-20b",
+      "name": "sar_escalation_agent",
+      "output_key": "bo_sar_result",
+      "parent": "back_office_router",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "sar_escalation_agent/get_exception_case",
+        "sar_escalation_agent/file_sar_report",
+        "sar_escalation_agent/get_sar_status"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "staff_scheduling_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Translates forecasted demand into staffing and allocation proposals.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "staff_scheduling_agent",
+      "output_key": "mo_schedule_draft",
+      "parent": "mid_office_planning_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [],
+      "tree_root": "user_proxy_agent"
+    },
+    "support_guidance_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Generates internal support guidance for operational teams.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "support_guidance_agent",
+      "output_key": "mo_support_guidance",
+      "parent": "mid_office_planning_parallel",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "support_guidance_agent/get_support_playbooks"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "transaction_monitoring_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Performs first-pass anomaly screening using customer context, transaction details, and recent activity.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "transaction_monitoring_agent",
+      "output_key": "fo_monitoring_report",
+      "parent": "front_office_transaction_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "transaction_monitoring_agent/get_customer_context",
+        "transaction_monitoring_agent/get_transaction_context",
+        "transaction_monitoring_agent/list_recent_transactions"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "transaction_processing_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Executes approved customer transactions through the banking API layer.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "transaction_processing_agent",
+      "output_key": "fo_transaction_execution",
+      "parent": "customer_service_chatbot_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "transaction_processing_agent/execute_transfer"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "user_proxy_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Primary entry-point agent that routes requests into front office, mid office, or back office banking workflows.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "user_proxy_agent",
+      "output_key": "root_routing_result",
+      "parent": null,
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [
+        "front_office_router",
+        "mid_office_router",
+        "back_office_router"
+      ],
+      "tools": [
+        "user_proxy_agent/get_transaction",
+        "user_proxy_agent/run_fraud_and_compliance_workflow",
+        "user_proxy_agent/update_transaction_status",
+        "user_proxy_agent/get_branch_workload",
+        "user_proxy_agent/propose_staffing_adjustment",
+        "user_proxy_agent/get_customer_product_affinity",
+        "user_proxy_agent/trigger_eod_reconciliation",
+        "user_proxy_agent/get_reconciliation_mismatches",
+        "user_proxy_agent/resolve_ledger_entry"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "validation_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Validates schedules and plans before they are released to operations.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "validation_agent",
+      "output_key": "mo_validation_report",
+      "parent": "mid_office_planning_parallel",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "validation_agent/persist_validated_schedule"
+      ],
+      "tree_root": "user_proxy_agent"
+    },
+    "validation_checkpoint_agent": {
+      "callbacks": [
+        "after_model_callback"
+      ],
+      "child_fields": {},
+      "class_name": "google.adk.agents.llm_agent.LlmAgent",
+      "description": "Checks readiness before the batch enters ordered end-of-day processing.",
+      "disallow_transfer_to_parent": false,
+      "disallow_transfer_to_peers": false,
+      "graph": {},
+      "kind": "llm",
+      "mode": null,
+      "model": "openai/gpt-oss-20b",
+      "name": "validation_checkpoint_agent",
+      "output_key": "bo_validation_report",
+      "parent": "back_office_eod_workflow",
+      "reached_via": "tree",
+      "source_file": null,
+      "source_line": null,
+      "sub_agents": [],
+      "tools": [
+        "validation_checkpoint_agent/validate_eod_readiness"
+      ],
+      "tree_root": "user_proxy_agent"
+    }
+  },
+  "app_name": "citi_banking_adk",
+  "edges": [
+    {
+      "caller": "ingress",
+      "kind": "entry",
+      "target": "user_proxy_agent",
+      "workflow": null
+    },
+    {
+      "caller": "ingress",
+      "kind": "entry",
+      "target": "front_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "ingress",
+      "kind": "entry",
+      "target": "dispute_resolution_agent",
+      "workflow": null
+    },
+    {
+      "caller": "ingress",
+      "kind": "entry",
+      "target": "mid_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "ingress",
+      "kind": "entry",
+      "target": "loan_preapproval_agent",
+      "workflow": null
+    },
+    {
+      "caller": "ingress",
+      "kind": "entry",
+      "target": "back_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "ingress",
+      "kind": "entry",
+      "target": "sar_escalation_agent",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "transfer",
+      "target": "front_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "transfer",
+      "target": "mid_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "transfer",
+      "target": "back_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "tool",
+      "target": "user_proxy_agent/get_transaction",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "tool",
+      "target": "user_proxy_agent/run_fraud_and_compliance_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "tool",
+      "target": "user_proxy_agent/update_transaction_status",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "tool",
+      "target": "user_proxy_agent/get_branch_workload",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "tool",
+      "target": "user_proxy_agent/propose_staffing_adjustment",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "tool",
+      "target": "user_proxy_agent/get_customer_product_affinity",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "tool",
+      "target": "user_proxy_agent/trigger_eod_reconciliation",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "tool",
+      "target": "user_proxy_agent/get_reconciliation_mismatches",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "tool",
+      "target": "user_proxy_agent/resolve_ledger_entry",
+      "workflow": null
+    },
+    {
+      "caller": "user_proxy_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    },
+    {
+      "caller": "front_office_router",
+      "kind": "transfer",
+      "target": "front_office_transaction_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "front_office_router",
+      "kind": "transfer",
+      "target": "customer_service_chatbot_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "front_office_router",
+      "kind": "transfer",
+      "target": "dispute_resolution_agent",
+      "workflow": null
+    },
+    {
+      "caller": "front_office_router",
+      "kind": "transfer",
+      "target": "user_proxy_agent",
+      "workflow": null
+    },
+    {
+      "caller": "front_office_router",
+      "kind": "transfer",
+      "target": "mid_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "front_office_router",
+      "kind": "transfer",
+      "target": "back_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "front_office_router",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    },
+    {
+      "caller": "front_office_transaction_workflow",
+      "kind": "orchestrate",
+      "target": "transaction_monitoring_agent",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "front_office_transaction_workflow",
+      "kind": "orchestrate",
+      "target": "fraud_detection_agent",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "front_office_transaction_workflow",
+      "kind": "orchestrate",
+      "target": "compliance_agent",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "front_office_transaction_workflow",
+      "kind": "orchestrate",
+      "target": "decision_making_agent",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "front_office_transaction_workflow",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    },
+    {
+      "caller": "transaction_monitoring_agent",
+      "kind": "tool",
+      "target": "transaction_monitoring_agent/get_customer_context",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "transaction_monitoring_agent",
+      "kind": "tool",
+      "target": "transaction_monitoring_agent/get_transaction_context",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "transaction_monitoring_agent",
+      "kind": "tool",
+      "target": "transaction_monitoring_agent/list_recent_transactions",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "transaction_monitoring_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "fraud_detection_agent",
+      "kind": "tool",
+      "target": "fraud_detection_agent/get_customer_context",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "fraud_detection_agent",
+      "kind": "tool",
+      "target": "fraud_detection_agent/get_transaction_context",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "fraud_detection_agent",
+      "kind": "tool",
+      "target": "fraud_detection_agent/list_recent_transactions",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "fraud_detection_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "compliance_agent",
+      "kind": "tool",
+      "target": "compliance_agent/search_policies",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "compliance_agent",
+      "kind": "tool",
+      "target": "compliance_agent/get_customer_context",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "compliance_agent",
+      "kind": "tool",
+      "target": "compliance_agent/get_transaction_context",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "compliance_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "decision_making_agent",
+      "kind": "tool",
+      "target": "decision_making_agent/submit_manual_review",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "decision_making_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "front_office_transaction_workflow"
+    },
+    {
+      "caller": "customer_service_chatbot_workflow",
+      "kind": "orchestrate",
+      "target": "chatbot_intent_agent",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "customer_service_chatbot_workflow",
+      "kind": "orchestrate",
+      "target": "knowledge_base_agent",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "customer_service_chatbot_workflow",
+      "kind": "orchestrate",
+      "target": "customer_service_agent",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "customer_service_chatbot_workflow",
+      "kind": "orchestrate",
+      "target": "transaction_processing_agent",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "customer_service_chatbot_workflow",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    },
+    {
+      "caller": "chatbot_intent_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "knowledge_base_agent",
+      "kind": "tool",
+      "target": "knowledge_base_agent/search_faqs",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "knowledge_base_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "customer_service_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "transaction_processing_agent",
+      "kind": "tool",
+      "target": "transaction_processing_agent/execute_transfer",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "transaction_processing_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "customer_service_chatbot_workflow"
+    },
+    {
+      "caller": "dispute_resolution_agent",
+      "kind": "transfer",
+      "target": "front_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "dispute_resolution_agent",
+      "kind": "transfer",
+      "target": "front_office_transaction_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "dispute_resolution_agent",
+      "kind": "transfer",
+      "target": "customer_service_chatbot_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "dispute_resolution_agent",
+      "kind": "tool",
+      "target": "dispute_resolution_agent/file_dispute",
+      "workflow": null
+    },
+    {
+      "caller": "dispute_resolution_agent",
+      "kind": "tool",
+      "target": "dispute_resolution_agent/get_dispute_status",
+      "workflow": null
+    },
+    {
+      "caller": "dispute_resolution_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    },
+    {
+      "caller": "mid_office_router",
+      "kind": "transfer",
+      "target": "mid_office_planning_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "mid_office_router",
+      "kind": "transfer",
+      "target": "representative_assistant_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "mid_office_router",
+      "kind": "transfer",
+      "target": "loan_preapproval_agent",
+      "workflow": null
+    },
+    {
+      "caller": "mid_office_router",
+      "kind": "transfer",
+      "target": "user_proxy_agent",
+      "workflow": null
+    },
+    {
+      "caller": "mid_office_router",
+      "kind": "transfer",
+      "target": "front_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "mid_office_router",
+      "kind": "transfer",
+      "target": "back_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "mid_office_router",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    },
+    {
+      "caller": "mid_office_planning_workflow",
+      "kind": "orchestrate",
+      "target": "data_analysis_agent",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "mid_office_planning_workflow",
+      "kind": "orchestrate",
+      "target": "forecasting_agent",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "mid_office_planning_workflow",
+      "kind": "orchestrate",
+      "target": "staff_scheduling_agent",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "mid_office_planning_workflow",
+      "kind": "orchestrate",
+      "target": "mid_office_planning_parallel",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "mid_office_planning_workflow",
+      "kind": "orchestrate",
+      "target": "planning_summary_agent",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "data_analysis_agent",
+      "kind": "tool",
+      "target": "data_analysis_agent/get_operations_snapshot",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "data_analysis_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "forecasting_agent",
+      "kind": "tool",
+      "target": "forecasting_agent/get_operations_snapshot",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "forecasting_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "staff_scheduling_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "mid_office_planning_parallel",
+      "kind": "orchestrate",
+      "target": "validation_agent",
+      "workflow": "mid_office_planning_parallel"
+    },
+    {
+      "caller": "mid_office_planning_parallel",
+      "kind": "orchestrate",
+      "target": "support_guidance_agent",
+      "workflow": "mid_office_planning_parallel"
+    },
+    {
+      "caller": "validation_agent",
+      "kind": "tool",
+      "target": "validation_agent/persist_validated_schedule",
+      "workflow": "mid_office_planning_parallel"
+    },
+    {
+      "caller": "validation_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "mid_office_planning_parallel"
+    },
+    {
+      "caller": "support_guidance_agent",
+      "kind": "tool",
+      "target": "support_guidance_agent/get_support_playbooks",
+      "workflow": "mid_office_planning_parallel"
+    },
+    {
+      "caller": "support_guidance_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "mid_office_planning_parallel"
+    },
+    {
+      "caller": "planning_summary_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "mid_office_planning_workflow"
+    },
+    {
+      "caller": "representative_assistant_workflow",
+      "kind": "orchestrate",
+      "target": "representative_assist_parallel",
+      "workflow": "representative_assistant_workflow"
+    },
+    {
+      "caller": "representative_assistant_workflow",
+      "kind": "orchestrate",
+      "target": "representative_merge_agent",
+      "workflow": "representative_assistant_workflow"
+    },
+    {
+      "caller": "representative_assist_parallel",
+      "kind": "orchestrate",
+      "target": "financial_data_agent",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "representative_assist_parallel",
+      "kind": "orchestrate",
+      "target": "recommender_agent",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "representative_assist_parallel",
+      "kind": "orchestrate",
+      "target": "loan_agent",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "representative_assist_parallel",
+      "kind": "orchestrate",
+      "target": "risk_compliance_agent",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "financial_data_agent",
+      "kind": "tool",
+      "target": "financial_data_agent/get_customer_financial_profile",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "financial_data_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "recommender_agent",
+      "kind": "tool",
+      "target": "recommender_agent/search_product_catalog",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "recommender_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "loan_agent",
+      "kind": "tool",
+      "target": "loan_agent/search_loan_playbooks",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "loan_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "risk_compliance_agent",
+      "kind": "tool",
+      "target": "risk_compliance_agent/search_policies",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "risk_compliance_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "representative_assist_parallel"
+    },
+    {
+      "caller": "representative_merge_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "representative_assistant_workflow"
+    },
+    {
+      "caller": "loan_preapproval_agent",
+      "kind": "transfer",
+      "target": "mid_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "loan_preapproval_agent",
+      "kind": "transfer",
+      "target": "mid_office_planning_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "loan_preapproval_agent",
+      "kind": "transfer",
+      "target": "representative_assistant_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "loan_preapproval_agent",
+      "kind": "tool",
+      "target": "loan_preapproval_agent/submit_loan_application",
+      "workflow": null
+    },
+    {
+      "caller": "loan_preapproval_agent",
+      "kind": "tool",
+      "target": "loan_preapproval_agent/get_loan_application_status",
+      "workflow": null
+    },
+    {
+      "caller": "loan_preapproval_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    },
+    {
+      "caller": "back_office_router",
+      "kind": "transfer",
+      "target": "back_office_eod_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "back_office_router",
+      "kind": "transfer",
+      "target": "sar_escalation_agent",
+      "workflow": null
+    },
+    {
+      "caller": "back_office_router",
+      "kind": "transfer",
+      "target": "user_proxy_agent",
+      "workflow": null
+    },
+    {
+      "caller": "back_office_router",
+      "kind": "transfer",
+      "target": "front_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "back_office_router",
+      "kind": "transfer",
+      "target": "mid_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "back_office_router",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    },
+    {
+      "caller": "back_office_eod_workflow",
+      "kind": "orchestrate",
+      "target": "validation_checkpoint_agent",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "back_office_eod_workflow",
+      "kind": "orchestrate",
+      "target": "eod_processing_agent",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "back_office_eod_workflow",
+      "kind": "orchestrate",
+      "target": "ledger_update_agent",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "back_office_eod_workflow",
+      "kind": "orchestrate",
+      "target": "reconciliation_agent",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "back_office_eod_workflow",
+      "kind": "orchestrate",
+      "target": "report_writing_agent",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "back_office_eod_workflow",
+      "kind": "orchestrate",
+      "target": "exception_agent",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "back_office_eod_workflow",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    },
+    {
+      "caller": "validation_checkpoint_agent",
+      "kind": "tool",
+      "target": "validation_checkpoint_agent/validate_eod_readiness",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "validation_checkpoint_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "eod_processing_agent",
+      "kind": "tool",
+      "target": "eod_processing_agent/get_eod_batch",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "eod_processing_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "ledger_update_agent",
+      "kind": "tool",
+      "target": "ledger_update_agent/apply_ledger_updates",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "ledger_update_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "reconciliation_agent",
+      "kind": "tool",
+      "target": "reconciliation_agent/get_reconciliation_data",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "reconciliation_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "report_writing_agent",
+      "kind": "tool",
+      "target": "report_writing_agent/store_report",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "report_writing_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "exception_agent",
+      "kind": "tool",
+      "target": "exception_agent/create_exception_case",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "exception_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": "back_office_eod_workflow"
+    },
+    {
+      "caller": "sar_escalation_agent",
+      "kind": "transfer",
+      "target": "back_office_router",
+      "workflow": null
+    },
+    {
+      "caller": "sar_escalation_agent",
+      "kind": "transfer",
+      "target": "back_office_eod_workflow",
+      "workflow": null
+    },
+    {
+      "caller": "sar_escalation_agent",
+      "kind": "tool",
+      "target": "sar_escalation_agent/get_exception_case",
+      "workflow": null
+    },
+    {
+      "caller": "sar_escalation_agent",
+      "kind": "tool",
+      "target": "sar_escalation_agent/file_sar_report",
+      "workflow": null
+    },
+    {
+      "caller": "sar_escalation_agent",
+      "kind": "tool",
+      "target": "sar_escalation_agent/get_sar_status",
+      "workflow": null
+    },
+    {
+      "caller": "sar_escalation_agent",
+      "kind": "output",
+      "target": "output",
+      "workflow": null
+    }
+  ],
+  "errors": [],
+  "fingerprint": "260394169246061af76383780923ef3eaff91a6337ca55a5018cb9fefb8123cd",
+  "root_agent": "user_proxy_agent",
+  "tools": {
+    "compliance_agent/get_customer_context": {
+      "agent": "compliance_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:get_customer_context",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.repository:BankingRepository.get_customer",
+          "mantis.banking.infra.api_client:BankingApiClient.get_customer_context"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._all",
+          "self._one",
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return full customer context, profile, linked accounts, and recent transactions for a customer id.",
+      "implementation": "mantis.banking.tools.customer_tools:get_customer_context",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "compliance_agent/get_customer_context",
+      "kind": "function",
+      "name": "get_customer_context",
+      "parameters": {
+        "properties": {
+          "customer_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 8,
+      "target_agent": null,
+      "toolset": null
+    },
+    "compliance_agent/get_transaction_context": {
+      "agent": "compliance_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:get_transaction_context",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.repository:BankingRepository.get_transaction",
+          "mantis.banking.infra.api_client:BankingApiClient.get_transaction"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._one",
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return transaction details, metadata, channel, current status, and decision context for a transaction id.",
+      "implementation": "mantis.banking.tools.customer_tools:get_transaction_context",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "compliance_agent/get_transaction_context",
+      "kind": "function",
+      "name": "get_transaction_context",
+      "parameters": {
+        "properties": {
+          "transaction_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 23,
+      "target_agent": null,
+      "toolset": null
+    },
+    "compliance_agent/search_policies": {
+      "agent": "compliance_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": true,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.knowledge_tools:search_policies",
+          "mantis.banking.tools.search:rank_records",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.tools.knowledge_tools:_load",
+          "mantis.banking.infra.api_client:BankingApiClient.search_policies"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Search the banking policy and compliance knowledge base for rules relevant to the current case.",
+      "implementation": "mantis.banking.tools.knowledge_tools:search_policies",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "compliance_agent/search_policies",
+      "kind": "function",
+      "name": "search_policies",
+      "parameters": {
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/knowledge_tools.py",
+      "source_line": 13,
+      "target_agent": null,
+      "toolset": null
+    },
+    "data_analysis_agent/get_operations_snapshot": {
+      "agent": "data_analysis_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": true,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.ops_tools:get_operations_snapshot",
+          "mantis.banking.tools.ops_tools:_load"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return internal operations, queue, and workload data for planning and forecasting.",
+      "implementation": "mantis.banking.tools.ops_tools:get_operations_snapshot",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "data_analysis_agent/get_operations_snapshot",
+      "kind": "function",
+      "name": "get_operations_snapshot",
+      "parameters": {
+        "properties": {
+          "date": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/ops_tools.py",
+      "source_line": 10,
+      "target_agent": null,
+      "toolset": null
+    },
+    "decision_making_agent/submit_manual_review": {
+      "agent": "decision_making_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": true,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:submit_manual_review",
+          "mantis.banking.infra.repository:BankingRepository.create_manual_review"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "self.connect"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": true,
+        "sql": [
+          "INSERT"
+        ],
+        "state_write": false,
+        "unresolved_calls": [
+          "datetime.now().isoformat"
+        ]
+      },
+      "description": "Open a manual review case when an automated decision is low-confidence or high-risk.",
+      "implementation": "mantis.banking.tools.customer_tools:submit_manual_review",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "decision_making_agent/submit_manual_review",
+      "kind": "function",
+      "name": "submit_manual_review",
+      "parameters": {
+        "properties": {
+          "case_type": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_type",
+          "payload"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 50,
+      "target_agent": null,
+      "toolset": null
+    },
+    "dispute_resolution_agent/file_dispute": {
+      "agent": "dispute_resolution_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": true,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.dispute_tools:file_dispute",
+          "mantis.banking.infra.repository:BankingRepository.get_customer",
+          "mantis.banking.tools.dispute_tools:_transaction_exists",
+          "mantis.banking.infra.repository:BankingRepository.get_transaction",
+          "mantis.banking.infra.api_client:BankingApiClient.get_transaction",
+          "mantis.banking.infra.repository:BankingRepository.create_dispute"
+        ],
+        "http_methods": [],
+        "indirect": {
+          "destructive": false,
+          "http_methods": [],
+          "side_effect": false,
+          "sql": [
+            "SELECT"
+          ]
+        },
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "self._all",
+          "self._one",
+          "self._request",
+          "self.connect"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": true,
+        "sql": [
+          "INSERT",
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": [
+          "datetime.now().isoformat"
+        ]
+      },
+      "description": "File a new transaction dispute case for a customer and return the assigned dispute id.\n\nRequires a real customer id and a real transaction id; a request that\ncannot name them (for example a general question about how disputes work)\nis rejected rather than recorded as a case.",
+      "implementation": "mantis.banking.tools.dispute_tools:file_dispute",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "dispute_resolution_agent/file_dispute",
+      "kind": "function",
+      "name": "file_dispute",
+      "parameters": {
+        "properties": {
+          "customer_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "transaction_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "customer_id",
+          "transaction_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/dispute_tools.py",
+      "source_line": 25,
+      "target_agent": null,
+      "toolset": null
+    },
+    "dispute_resolution_agent/get_dispute_status": {
+      "agent": "dispute_resolution_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.dispute_tools:get_dispute_status",
+          "mantis.banking.infra.repository:BankingRepository.get_dispute"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "conn.execute().fetchone",
+          "self.connect"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Look up the current status of a previously filed dispute case.",
+      "implementation": "mantis.banking.tools.dispute_tools:get_dispute_status",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "dispute_resolution_agent/get_dispute_status",
+      "kind": "function",
+      "name": "get_dispute_status",
+      "parameters": {
+        "properties": {
+          "dispute_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dispute_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/dispute_tools.py",
+      "source_line": 41,
+      "target_agent": null,
+      "toolset": null
+    },
+    "eod_processing_agent/get_eod_batch": {
+      "agent": "eod_processing_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.back_office_tools:get_eod_batch",
+          "mantis.banking.infra.repository:BankingRepository.get_eod_batch"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._one"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return the batch payload and expected totals for EOD processing.",
+      "implementation": "mantis.banking.tools.back_office_tools:get_eod_batch",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "eod_processing_agent/get_eod_batch",
+      "kind": "function",
+      "name": "get_eod_batch",
+      "parameters": {
+        "properties": {
+          "batch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/back_office_tools.py",
+      "source_line": 11,
+      "target_agent": null,
+      "toolset": null
+    },
+    "exception_agent/create_exception_case": {
+      "agent": "exception_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": true,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.back_office_tools:create_exception_case",
+          "mantis.banking.infra.repository:BankingRepository.create_exception"
+        ],
+        "http_methods": [],
+        "indirect": {
+          "destructive": false,
+          "http_methods": [],
+          "side_effect": true,
+          "sql": [
+            "INSERT",
+            "UPDATE"
+          ]
+        },
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "self.connect"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": true,
+        "sql": [
+          "CREATE"
+        ],
+        "state_write": false,
+        "unresolved_calls": [
+          "datetime.now().isoformat"
+        ]
+      },
+      "description": "Create an exception case for reconciliation mismatches and abnormal EOD outcomes.",
+      "implementation": "mantis.banking.tools.back_office_tools:create_exception_case",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "exception_agent/create_exception_case",
+      "kind": "function",
+      "name": "create_exception_case",
+      "parameters": {
+        "properties": {
+          "batch_id": {
+            "type": "string"
+          },
+          "mismatch_summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id",
+          "mismatch_summary"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/back_office_tools.py",
+      "source_line": 26,
+      "target_agent": null,
+      "toolset": null
+    },
+    "financial_data_agent/get_customer_financial_profile": {
+      "agent": "financial_data_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.csr_tools:get_customer_financial_profile",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.repository:BankingRepository.get_customer",
+          "mantis.banking.infra.api_client:BankingApiClient.get_customer_context"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._all",
+          "self._one",
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return the customer's financial profile, balances, risk tier, and notes for representative support.",
+      "implementation": "mantis.banking.tools.csr_tools:get_customer_financial_profile",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "financial_data_agent/get_customer_financial_profile",
+      "kind": "function",
+      "name": "get_customer_financial_profile",
+      "parameters": {
+        "properties": {
+          "customer_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/csr_tools.py",
+      "source_line": 14,
+      "target_agent": null,
+      "toolset": null
+    },
+    "forecasting_agent/get_operations_snapshot": {
+      "agent": "forecasting_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": true,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.ops_tools:get_operations_snapshot",
+          "mantis.banking.tools.ops_tools:_load"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return internal operations, queue, and workload data for planning and forecasting.",
+      "implementation": "mantis.banking.tools.ops_tools:get_operations_snapshot",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "forecasting_agent/get_operations_snapshot",
+      "kind": "function",
+      "name": "get_operations_snapshot",
+      "parameters": {
+        "properties": {
+          "date": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/ops_tools.py",
+      "source_line": 10,
+      "target_agent": null,
+      "toolset": null
+    },
+    "fraud_detection_agent/get_customer_context": {
+      "agent": "fraud_detection_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:get_customer_context",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.repository:BankingRepository.get_customer",
+          "mantis.banking.infra.api_client:BankingApiClient.get_customer_context"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._all",
+          "self._one",
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return full customer context, profile, linked accounts, and recent transactions for a customer id.",
+      "implementation": "mantis.banking.tools.customer_tools:get_customer_context",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "fraud_detection_agent/get_customer_context",
+      "kind": "function",
+      "name": "get_customer_context",
+      "parameters": {
+        "properties": {
+          "customer_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 8,
+      "target_agent": null,
+      "toolset": null
+    },
+    "fraud_detection_agent/get_transaction_context": {
+      "agent": "fraud_detection_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:get_transaction_context",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.repository:BankingRepository.get_transaction",
+          "mantis.banking.infra.api_client:BankingApiClient.get_transaction"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._one",
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return transaction details, metadata, channel, current status, and decision context for a transaction id.",
+      "implementation": "mantis.banking.tools.customer_tools:get_transaction_context",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "fraud_detection_agent/get_transaction_context",
+      "kind": "function",
+      "name": "get_transaction_context",
+      "parameters": {
+        "properties": {
+          "transaction_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 23,
+      "target_agent": null,
+      "toolset": null
+    },
+    "fraud_detection_agent/list_recent_transactions": {
+      "agent": "fraud_detection_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:list_recent_transactions",
+          "mantis.banking.infra.repository:BankingRepository.list_recent_transactions",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.api_client:BankingApiClient.list_recent_transactions"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._all",
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return recent transactions for a customer to support anomaly screening and fraud investigation.",
+      "implementation": "mantis.banking.tools.customer_tools:list_recent_transactions",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "fraud_detection_agent/list_recent_transactions",
+      "kind": "function",
+      "name": "list_recent_transactions",
+      "parameters": {
+        "properties": {
+          "customer_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 5,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 37,
+      "target_agent": null,
+      "toolset": null
+    },
+    "knowledge_base_agent/search_faqs": {
+      "agent": "knowledge_base_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": true,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.knowledge_tools:search_faqs",
+          "mantis.banking.tools.search:rank_records",
+          "mantis.banking.tools.knowledge_tools:_load"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Search customer FAQs and service policies for informational questions.",
+      "implementation": "mantis.banking.tools.knowledge_tools:search_faqs",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "knowledge_base_agent/search_faqs",
+      "kind": "function",
+      "name": "search_faqs",
+      "parameters": {
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/knowledge_tools.py",
+      "source_line": 24,
+      "target_agent": null,
+      "toolset": null
+    },
+    "ledger_update_agent/apply_ledger_updates": {
+      "agent": "ledger_update_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": true,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.back_office_tools:apply_ledger_updates",
+          "mantis.banking.infra.repository:BankingRepository.apply_ledger_updates"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "conn.execute().fetchone",
+          "self.connect"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": true,
+        "sql": [
+          "SELECT",
+          "UPDATE"
+        ],
+        "state_write": false,
+        "unresolved_calls": [
+          "datetime.now().isoformat"
+        ]
+      },
+      "description": "Apply ledger updates and mark the batch as ledger-updated in the system of record.",
+      "implementation": "mantis.banking.tools.back_office_tools:apply_ledger_updates",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "ledger_update_agent/apply_ledger_updates",
+      "kind": "function",
+      "name": "apply_ledger_updates",
+      "parameters": {
+        "properties": {
+          "batch_id": {
+            "type": "string"
+          },
+          "posting_instructions": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id",
+          "posting_instructions"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/back_office_tools.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "loan_agent/search_loan_playbooks": {
+      "agent": "loan_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": true,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.csr_tools:search_loan_playbooks",
+          "mantis.banking.tools.search:rank_records",
+          "mantis.banking.tools.csr_tools:_load"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Search loan guidance, underwriting steps, and internal process playbooks.",
+      "implementation": "mantis.banking.tools.csr_tools:search_loan_playbooks",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "loan_agent/search_loan_playbooks",
+      "kind": "function",
+      "name": "search_loan_playbooks",
+      "parameters": {
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/csr_tools.py",
+      "source_line": 33,
+      "target_agent": null,
+      "toolset": null
+    },
+    "loan_preapproval_agent/get_loan_application_status": {
+      "agent": "loan_preapproval_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.loan_tools:get_loan_application_status",
+          "mantis.banking.infra.repository:BankingRepository.get_loan_application"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._one"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Look up the current status of a previously submitted loan application.",
+      "implementation": "mantis.banking.tools.loan_tools:get_loan_application_status",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "loan_preapproval_agent/get_loan_application_status",
+      "kind": "function",
+      "name": "get_loan_application_status",
+      "parameters": {
+        "properties": {
+          "application_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "application_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/loan_tools.py",
+      "source_line": 17,
+      "target_agent": null,
+      "toolset": null
+    },
+    "loan_preapproval_agent/submit_loan_application": {
+      "agent": "loan_preapproval_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": true,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.loan_tools:submit_loan_application",
+          "mantis.banking.infra.repository:BankingRepository.create_loan_application"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "self.connect",
+          "self.get_customer"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": true,
+        "sql": [
+          "INSERT"
+        ],
+        "state_write": false,
+        "unresolved_calls": [
+          "datetime.now().isoformat"
+        ]
+      },
+      "description": "Submit a new loan/credit-line application for a customer and receive a\nreal, computed pre-approval decision based on the customer's account\nbalances and risk tier (not an informal opinion).",
+      "implementation": "mantis.banking.tools.loan_tools:submit_loan_application",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "loan_preapproval_agent/submit_loan_application",
+      "kind": "function",
+      "name": "submit_loan_application",
+      "parameters": {
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "customer_id": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "customer_id",
+          "amount",
+          "purpose"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/loan_tools.py",
+      "source_line": 6,
+      "target_agent": null,
+      "toolset": null
+    },
+    "recommender_agent/search_product_catalog": {
+      "agent": "recommender_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": true,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.csr_tools:search_product_catalog",
+          "mantis.banking.tools.search:rank_records",
+          "mantis.banking.tools.csr_tools:_load"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Search product offerings and next-best-action candidates relevant to the customer's needs.",
+      "implementation": "mantis.banking.tools.csr_tools:search_product_catalog",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "recommender_agent/search_product_catalog",
+      "kind": "function",
+      "name": "search_product_catalog",
+      "parameters": {
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/csr_tools.py",
+      "source_line": 28,
+      "target_agent": null,
+      "toolset": null
+    },
+    "reconciliation_agent/get_reconciliation_data": {
+      "agent": "reconciliation_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.back_office_tools:get_reconciliation_data",
+          "mantis.banking.infra.repository:BankingRepository.get_eod_batch"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._one"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return the expected and posted totals used by the reconciliation agent.",
+      "implementation": "mantis.banking.tools.back_office_tools:get_reconciliation_data",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "reconciliation_agent/get_reconciliation_data",
+      "kind": "function",
+      "name": "get_reconciliation_data",
+      "parameters": {
+        "properties": {
+          "batch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/back_office_tools.py",
+      "source_line": 19,
+      "target_agent": null,
+      "toolset": null
+    },
+    "report_writing_agent/store_report": {
+      "agent": "report_writing_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": true,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.back_office_tools:store_report",
+          "mantis.banking.infra.repository:BankingRepository.save_report"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "self.connect"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": true,
+        "sql": [
+          "INSERT",
+          "UPDATE"
+        ],
+        "state_write": false,
+        "unresolved_calls": [
+          "datetime.now().isoformat"
+        ]
+      },
+      "description": "Store a generated end-of-day report after reconciliation succeeds.",
+      "implementation": "mantis.banking.tools.back_office_tools:store_report",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "report_writing_agent/store_report",
+      "kind": "function",
+      "name": "store_report",
+      "parameters": {
+        "properties": {
+          "batch_id": {
+            "type": "string"
+          },
+          "report_body": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id",
+          "report_body"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/back_office_tools.py",
+      "source_line": 30,
+      "target_agent": null,
+      "toolset": null
+    },
+    "risk_compliance_agent/search_policies": {
+      "agent": "risk_compliance_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": true,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.knowledge_tools:search_policies",
+          "mantis.banking.tools.search:rank_records",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.tools.knowledge_tools:_load",
+          "mantis.banking.infra.api_client:BankingApiClient.search_policies"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Search the banking policy and compliance knowledge base for rules relevant to the current case.",
+      "implementation": "mantis.banking.tools.knowledge_tools:search_policies",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "risk_compliance_agent/search_policies",
+      "kind": "function",
+      "name": "search_policies",
+      "parameters": {
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/knowledge_tools.py",
+      "source_line": 13,
+      "target_agent": null,
+      "toolset": null
+    },
+    "sar_escalation_agent/file_sar_report": {
+      "agent": "sar_escalation_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": true,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.sar_tools:file_sar_report",
+          "mantis.banking.infra.repository:BankingRepository.get_exception",
+          "mantis.banking.infra.repository:BankingRepository.create_sar"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "self._one",
+          "self.connect"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": true,
+        "sql": [
+          "INSERT",
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": [
+          "datetime.now().isoformat"
+        ]
+      },
+      "description": "File a formal Suspicious Activity Report escalating an existing reconciliation\nexception case, and return the assigned SAR id. The exception case must exist.",
+      "implementation": "mantis.banking.tools.sar_tools:file_sar_report",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "sar_escalation_agent/file_sar_report",
+      "kind": "function",
+      "name": "file_sar_report",
+      "parameters": {
+        "properties": {
+          "exception_id": {
+            "type": "string"
+          },
+          "filed_by": {
+            "default": "",
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "exception_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/sar_tools.py",
+      "source_line": 11,
+      "target_agent": null,
+      "toolset": null
+    },
+    "sar_escalation_agent/get_exception_case": {
+      "agent": "sar_escalation_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.sar_tools:get_exception_case",
+          "mantis.banking.infra.repository:BankingRepository.get_exception"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._one"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Look up an existing end-of-day reconciliation exception case by id.",
+      "implementation": "mantis.banking.tools.sar_tools:get_exception_case",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "sar_escalation_agent/get_exception_case",
+      "kind": "function",
+      "name": "get_exception_case",
+      "parameters": {
+        "properties": {
+          "exception_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "exception_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/sar_tools.py",
+      "source_line": 6,
+      "target_agent": null,
+      "toolset": null
+    },
+    "sar_escalation_agent/get_sar_status": {
+      "agent": "sar_escalation_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.sar_tools:get_sar_status",
+          "mantis.banking.infra.repository:BankingRepository.get_sar"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._one"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Look up the current status of a previously filed SAR case.",
+      "implementation": "mantis.banking.tools.sar_tools:get_sar_status",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "sar_escalation_agent/get_sar_status",
+      "kind": "function",
+      "name": "get_sar_status",
+      "parameters": {
+        "properties": {
+          "sar_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sar_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/sar_tools.py",
+      "source_line": 19,
+      "target_agent": null,
+      "toolset": null
+    },
+    "support_guidance_agent/get_support_playbooks": {
+      "agent": "support_guidance_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": true,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.ops_tools:get_support_playbooks",
+          "mantis.banking.tools.search:rank_records",
+          "mantis.banking.tools.ops_tools:_load"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Retrieve internal support guidance playbooks and operating recommendations.",
+      "implementation": "mantis.banking.tools.ops_tools:get_support_playbooks",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "support_guidance_agent/get_support_playbooks",
+      "kind": "function",
+      "name": "get_support_playbooks",
+      "parameters": {
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/ops_tools.py",
+      "source_line": 21,
+      "target_agent": null,
+      "toolset": null
+    },
+    "transaction_monitoring_agent/get_customer_context": {
+      "agent": "transaction_monitoring_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:get_customer_context",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.repository:BankingRepository.get_customer",
+          "mantis.banking.infra.api_client:BankingApiClient.get_customer_context"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._all",
+          "self._one",
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return full customer context, profile, linked accounts, and recent transactions for a customer id.",
+      "implementation": "mantis.banking.tools.customer_tools:get_customer_context",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "transaction_monitoring_agent/get_customer_context",
+      "kind": "function",
+      "name": "get_customer_context",
+      "parameters": {
+        "properties": {
+          "customer_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 8,
+      "target_agent": null,
+      "toolset": null
+    },
+    "transaction_monitoring_agent/get_transaction_context": {
+      "agent": "transaction_monitoring_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:get_transaction_context",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.repository:BankingRepository.get_transaction",
+          "mantis.banking.infra.api_client:BankingApiClient.get_transaction"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._one",
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return transaction details, metadata, channel, current status, and decision context for a transaction id.",
+      "implementation": "mantis.banking.tools.customer_tools:get_transaction_context",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "transaction_monitoring_agent/get_transaction_context",
+      "kind": "function",
+      "name": "get_transaction_context",
+      "parameters": {
+        "properties": {
+          "transaction_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 23,
+      "target_agent": null,
+      "toolset": null
+    },
+    "transaction_monitoring_agent/list_recent_transactions": {
+      "agent": "transaction_monitoring_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:list_recent_transactions",
+          "mantis.banking.infra.repository:BankingRepository.list_recent_transactions",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.api_client:BankingApiClient.list_recent_transactions"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._all",
+          "self._request"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Return recent transactions for a customer to support anomaly screening and fraud investigation.",
+      "implementation": "mantis.banking.tools.customer_tools:list_recent_transactions",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "transaction_monitoring_agent/list_recent_transactions",
+      "kind": "function",
+      "name": "list_recent_transactions",
+      "parameters": {
+        "properties": {
+          "customer_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 5,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 37,
+      "target_agent": null,
+      "toolset": null
+    },
+    "transaction_processing_agent/execute_transfer": {
+      "agent": "transaction_processing_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": true,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.customer_tools:execute_transfer",
+          "mantis.banking.infra.repository:BankingRepository.execute_transfer",
+          "mantis.banking.infra.api_client:json_dumps",
+          "mantis.banking.infra.api_client:BankingApiClient.execute_transfer"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "conn.execute().fetchone",
+          "self._request",
+          "self.connect"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": true,
+        "sql": [
+          "INSERT",
+          "SELECT",
+          "UPDATE"
+        ],
+        "state_write": false,
+        "unresolved_calls": [
+          "datetime.now().isoformat"
+        ]
+      },
+      "description": "Execute a banking transfer through the external banking API layer and return the posting result.",
+      "implementation": "mantis.banking.tools.customer_tools:execute_transfer",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "transaction_processing_agent/execute_transfer",
+      "kind": "function",
+      "name": "execute_transfer",
+      "parameters": {
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "customer_id": {
+            "default": "",
+            "type": "string"
+          },
+          "destination_account": {
+            "type": "string"
+          },
+          "memo": {
+            "default": "",
+            "type": "string"
+          },
+          "source_account": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_account",
+          "destination_account",
+          "amount"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/customer_tools.py",
+      "source_line": 56,
+      "target_agent": null,
+      "toolset": null
+    },
+    "user_proxy_agent/get_branch_workload": {
+      "agent": "user_proxy_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "mcp_session.call_tool"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Retrieves real-time operational data for a branch, including:\n- Current queue length\n- Average wait time\n- Available tellers vs. total staff",
+      "implementation": "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "user_proxy_agent/get_branch_workload",
+      "kind": "function",
+      "name": "get_branch_workload",
+      "parameters": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/root.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "user_proxy_agent/get_customer_product_affinity": {
+      "agent": "user_proxy_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "mcp_session.call_tool"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Predictive tool that returns a JSON list of products a customer is likely to need\nbased on their spending habits (e.g., 'High-Yield Savings', 'Auto-Loan').",
+      "implementation": "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "user_proxy_agent/get_customer_product_affinity",
+      "kind": "function",
+      "name": "get_customer_product_affinity",
+      "parameters": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/root.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "user_proxy_agent/get_reconciliation_mismatches": {
+      "agent": "user_proxy_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "mcp_session.call_tool"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Retrieves a list of specific ledger mismatches found during a reconciliation run.\nEach mismatch includes the expected vs actual balance and the affected account.",
+      "implementation": "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "user_proxy_agent/get_reconciliation_mismatches",
+      "kind": "function",
+      "name": "get_reconciliation_mismatches",
+      "parameters": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/root.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "user_proxy_agent/get_transaction": {
+      "agent": "user_proxy_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "mcp_session.call_tool"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Fetches the full details of a transaction from the database.\nUse this first to gather the from_account_id, to_account_id, amount, and currency.",
+      "implementation": "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "user_proxy_agent/get_transaction",
+      "kind": "function",
+      "name": "get_transaction",
+      "parameters": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/root.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "user_proxy_agent/propose_staffing_adjustment": {
+      "agent": "user_proxy_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "mcp_session.call_tool"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Simulates the impact of moving staff between branches to reduce wait times.\nReturns a 'Workload Balance Score' (0.0 - 1.0).",
+      "implementation": "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "user_proxy_agent/propose_staffing_adjustment",
+      "kind": "function",
+      "name": "propose_staffing_adjustment",
+      "parameters": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/root.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "user_proxy_agent/resolve_ledger_entry": {
+      "agent": "user_proxy_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "mcp_session.call_tool"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Adjusts a ledger entry to fix a reconciliation mismatch. \nRequires a valid transaction_id and the precise adjustment amount.",
+      "implementation": "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "user_proxy_agent/resolve_ledger_entry",
+      "kind": "function",
+      "name": "resolve_ledger_entry",
+      "parameters": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/root.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "user_proxy_agent/run_fraud_and_compliance_workflow": {
+      "agent": "user_proxy_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "mcp_session.call_tool"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Runs the internal transaction monitoring and fraud evaluation.\nRequires account IDs and amount (obtain these via get_transaction first).\nReturns a RiskDecision including a risk_score and flagged reasons.",
+      "implementation": "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "user_proxy_agent/run_fraud_and_compliance_workflow",
+      "kind": "function",
+      "name": "run_fraud_and_compliance_workflow",
+      "parameters": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/root.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "user_proxy_agent/trigger_eod_reconciliation": {
+      "agent": "user_proxy_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "mcp_session.call_tool"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Triggers the End-of-Day reconciliation batch process for a specific date (YYYY-MM-DD).\nReturns a summary of the reconciliation run.",
+      "implementation": "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "user_proxy_agent/trigger_eod_reconciliation",
+      "kind": "function",
+      "name": "trigger_eod_reconciliation",
+      "parameters": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/root.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "user_proxy_agent/update_transaction_status": {
+      "agent": "user_proxy_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 0,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "mcp_session.call_tool"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": false,
+        "sql": [],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Updates the transaction status after review.\nValid statuses are 'APPROVED', 'REJECTED', or 'MANUAL_REVIEW'.\nYou must provide your reasoning in the rationale field.",
+      "implementation": "mantis.banking.agents.root:build_root_agent.<locals>._make_tool_wrapper.<locals>.mcp_bridge_wrapper",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "user_proxy_agent/update_transaction_status",
+      "kind": "function",
+      "name": "update_transaction_status",
+      "parameters": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/agents/root.py",
+      "source_line": 15,
+      "target_agent": null,
+      "toolset": null
+    },
+    "validation_agent/persist_validated_schedule": {
+      "agent": "validation_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": false,
+        "db_write": true,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.ops_tools:persist_validated_schedule",
+          "mantis.banking.infra.repository:BankingRepository.save_schedule"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "conn.execute",
+          "self.connect"
+        ],
+        "process_exec": false,
+        "reads": false,
+        "side_effect": true,
+        "sql": [
+          "INSERT"
+        ],
+        "state_write": false,
+        "unresolved_calls": [
+          "datetime.now().isoformat"
+        ]
+      },
+      "description": "Persist a validated staffing schedule after the validation agent approves it.",
+      "implementation": "mantis.banking.tools.ops_tools:persist_validated_schedule",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "validation_agent/persist_validated_schedule",
+      "kind": "function",
+      "name": "persist_validated_schedule",
+      "parameters": {
+        "properties": {
+          "schedule_json": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schedule_json"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/ops_tools.py",
+      "source_line": 17,
+      "target_agent": null,
+      "toolset": null
+    },
+    "validation_checkpoint_agent/validate_eod_readiness": {
+      "agent": "validation_checkpoint_agent",
+      "analysis": {
+        "analyzed": true,
+        "control_flow": [],
+        "db_delete": false,
+        "db_read": true,
+        "db_write": false,
+        "destructive": false,
+        "evidence_depth": 1,
+        "file_delete": false,
+        "file_read": false,
+        "file_write": false,
+        "functions": [
+          "mantis.banking.tools.back_office_tools:validate_eod_readiness",
+          "mantis.banking.infra.repository:BankingRepository.get_eod_batch"
+        ],
+        "http_methods": [],
+        "indirect": {},
+        "memory_write": false,
+        "messaging": false,
+        "notes": [],
+        "opaque_calls": [
+          "self._one"
+        ],
+        "process_exec": false,
+        "reads": true,
+        "side_effect": false,
+        "sql": [
+          "SELECT"
+        ],
+        "state_write": false,
+        "unresolved_calls": []
+      },
+      "description": "Check whether a batch is ready for end-of-day processing and return readiness evidence.",
+      "implementation": "mantis.banking.tools.back_office_tools:validate_eod_readiness",
+      "include_plugins": null,
+      "is_long_running": false,
+      "key": "validation_checkpoint_agent/validate_eod_readiness",
+      "kind": "function",
+      "name": "validate_eod_readiness",
+      "parameters": {
+        "properties": {
+          "batch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id"
+        ],
+        "type": "object"
+      },
+      "source_file": "/Users/rohithkumarballem/Desktop/MANTIS/src/mantis/banking/tools/back_office_tools.py",
+      "source_line": 4,
+      "target_agent": null,
+      "toolset": null
+    }
+  },
+  "toolsets": {},
+  "warnings": [],
+  "workflow_of": {
+    "back_office_eod_workflow": null,
+    "back_office_router": null,
+    "chatbot_intent_agent": "customer_service_chatbot_workflow",
+    "compliance_agent": "front_office_transaction_workflow",
+    "customer_service_agent": "customer_service_chatbot_workflow",
+    "customer_service_chatbot_workflow": null,
+    "data_analysis_agent": "mid_office_planning_workflow",
+    "decision_making_agent": "front_office_transaction_workflow",
+    "dispute_resolution_agent": null,
+    "eod_processing_agent": "back_office_eod_workflow",
+    "exception_agent": "back_office_eod_workflow",
+    "financial_data_agent": "representative_assist_parallel",
+    "forecasting_agent": "mid_office_planning_workflow",
+    "fraud_detection_agent": "front_office_transaction_workflow",
+    "front_office_router": null,
+    "front_office_transaction_workflow": null,
+    "knowledge_base_agent": "customer_service_chatbot_workflow",
+    "ledger_update_agent": "back_office_eod_workflow",
+    "loan_agent": "representative_assist_parallel",
+    "loan_preapproval_agent": null,
+    "mid_office_planning_parallel": "mid_office_planning_workflow",
+    "mid_office_planning_workflow": null,
+    "mid_office_router": null,
+    "planning_summary_agent": "mid_office_planning_workflow",
+    "recommender_agent": "representative_assist_parallel",
+    "reconciliation_agent": "back_office_eod_workflow",
+    "report_writing_agent": "back_office_eod_workflow",
+    "representative_assist_parallel": "representative_assistant_workflow",
+    "representative_assistant_workflow": null,
+    "representative_merge_agent": "representative_assistant_workflow",
+    "risk_compliance_agent": "representative_assist_parallel",
+    "sar_escalation_agent": null,
+    "staff_scheduling_agent": "mid_office_planning_workflow",
+    "support_guidance_agent": "mid_office_planning_parallel",
+    "transaction_monitoring_agent": "front_office_transaction_workflow",
+    "transaction_processing_agent": "customer_service_chatbot_workflow",
+    "user_proxy_agent": null,
+    "validation_agent": "mid_office_planning_parallel",
+    "validation_checkpoint_agent": "back_office_eod_workflow"
+  },
+  "workflows": {
+    "back_office_eod_workflow": [
+      "validation_checkpoint_agent",
+      "eod_processing_agent",
+      "ledger_update_agent",
+      "reconciliation_agent",
+      "report_writing_agent",
+      "exception_agent"
+    ],
+    "customer_service_chatbot_workflow": [
+      "chatbot_intent_agent",
+      "knowledge_base_agent",
+      "customer_service_agent",
+      "transaction_processing_agent"
+    ],
+    "front_office_transaction_workflow": [
+      "transaction_monitoring_agent",
+      "fraud_detection_agent",
+      "compliance_agent",
+      "decision_making_agent"
+    ],
+    "mid_office_planning_parallel": [
+      "validation_agent",
+      "support_guidance_agent"
+    ],
+    "mid_office_planning_workflow": [
+      "data_analysis_agent",
+      "forecasting_agent",
+      "staff_scheduling_agent",
+      "mid_office_planning_parallel",
+      "planning_summary_agent"
+    ],
+    "representative_assist_parallel": [
+      "financial_data_agent",
+      "recommender_agent",
+      "loan_agent",
+      "risk_compliance_agent"
+    ],
+    "representative_assistant_workflow": [
+      "representative_assist_parallel",
+      "representative_merge_agent"
+    ]
+  }
+}

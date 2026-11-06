@@ -1,0 +1,11 @@
+{
+  "algorithm": "Ed25519",
+  "file": "policy_fields.yaml",
+  "file_sha256": "5afa1a92bff8c621229017ddbff129a65766687e8cbf6fedeaa4c0d894a1966f",
+  "issuer": "policy.zt_adk",
+  "key_id": "policy-1",
+  "kind": "zt_psl_policy",
+  "schema_version": "1.0",
+  "signature": "VECxLztYm8ULX6th8Z58pSNafLwrV294WIIQk71LZGEgBj3k4qmEj-Mt-Kq115aJRHwMQP0ioc4siw6RDxWQAg",
+  "signed_at": "2026-11-06T00:48:08.231517+00:00"
+}

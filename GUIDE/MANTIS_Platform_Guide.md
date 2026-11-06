@@ -458,42 +458,51 @@ real transfer; that is what isolating an effect means.
 A seventh, different kind of defense: a real, toggleable integration of the
 independently-developed
 [`Citi_P3_Zero_Trust_Backplane`](https://github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane)
-project -- specifically its Task 4 signed Policy Decision Point -- not a
-plugin MANTIS implements itself. A stock `pip install -e .` never installs
-or imports it; everything above this section works exactly the same with
-or without it.
+project, pinned to its `v1.0.1` release (a git submodule at
+`extensions/zero_trust/backplane`) -- not a plugin MANTIS implements
+itself. A stock `pip install -e .` never installs or imports it;
+everything above this section works exactly the same with or without it.
+
+The real project's own generic `ZeroTrustPlugin` is registered directly on
+MANTIS's ADK `App` (not a `PolicyPlugin` dispatched through MANTIS's hook
+bus the way every other defense above is), built from a signed protection
+bundle the real project's own scanner generates by importing and
+introspecting MANTIS's actual live agent/tool graph -- not a hand-written
+policy file.
 
 **Setup** (separate from the rest of MANTIS):
 
 ```bash
-pip install -e ".[zero_trust]"                    # pulls the real project's PDP package
-python extensions/zero_trust/bootstrap_keys.py     # once: local dev signing keys
-./extensions/zero_trust/run_pdp.sh                 # leave running, its own terminal, port 8600
+extensions/zero_trust/setup.sh                     # once: editable-installs the 7 packages from the pinned submodule
+cd extensions/zero_trust
+zt-adk keys init --approver ops_lead --secondary risk_officer   # once: local dev signing keys
+zt-adk build                                        # regenerates .zt/bundle/ -- already committed, re-run after an agent/tool change
 ```
 
-**Turning it on** is the same mechanism as every other defense above --
-add it to a config's `policies:`:
+**Turning it on**:
 
 ```yaml
 zero_trust:
   enabled: true
-  pdp_url: http://127.0.0.1:8600
 ```
 
 (The UI's Experiment Editor has the same thing as a checkbox, next to the Policy fieldset.)
 
 `configs/extensions/zero_trust_demo.yaml` runs a full legitimate workflow
-with it on: every real tool call is checked by the real PDP before it
+with it on: every real tool call is checked by the real plugin before it
 executes, and the run completes identically to the undefended baseline.
 
-**What's real, what's MANTIS's.** The authorization decision, request/
-response signing, and audit trail are the real project's own code, run as
-its own process. MANTIS's own part is just the policy input: `extensions/
-zero_trust/generate_policy.py` reads MANTIS's live inventory and writes a
-default-deny-by-domain policy (an agent may act on a tool in its own
-domain; anything else is denied by the PDP's own default) in the real
-project's schema -- see `extensions/zero_trust/README.md` for the full
-picture, including what this integration does not yet cover.
+**What's real, what's MANTIS's.** The discovery, authorization decision,
+PSL policy engine, signing, and audit trail are the real project's own
+code. MANTIS's own part is `extensions/zero_trust/zt_adk.yaml` (the profile
+pointing the scanner at MANTIS's real `create_app()` factory) and
+`src/mantis/plugins/policies/zero_trust_enforcement.py`
+(`build_zero_trust_plugin`, which loads the committed bundle against this
+run's actual root agent) -- see `extensions/zero_trust/README.md` for the
+full picture, including a finding worth knowing: the real scanner's
+placements are per-agent, not per-domain, so this is *stricter* than
+"same domain allowed" -- an agent without a given tool is denied even
+inside its own domain.
 
 ## 7.2 AML Office (toggleable 4th domain, ported from Citi_P3)
 
@@ -692,8 +701,8 @@ The scorecard reports `attack_fired: true` and the trace holds one `ATTACK_INJEC
 # 10. Testing and Release Validation
 
 ```bash
-pytest tests/unit                 # 853 passing offline tests (880 with both optional
-                                   # dependencies, zero_trust and aml, installed); 178 skip by design
+pytest tests/unit                 # 879 passing offline tests (896 with both optional
+                                   # dependencies, zero_trust and aml, installed); 201 skip by design
 pytest refactor_guard_tests       # 49 regression guards against frozen golden runs
 ./scripts/release_validation.sh   # live end-to-end check of WP0-WP7
 ```

@@ -1,0 +1,91 @@
+# Zero Trust Backplane profile of an ADK application (zt-adk).
+# Everything below has a safe default; only `app` is required.
+
+version: 1
+
+# The application: an ADK App, a root agent, or a factory "module:function()".
+# create_app_for_scan(), not create_app(): a live mantis --run always gives
+# build_root_agent a real MCP session, which attaches one extra passthrough
+# tool per MCP tool directly onto user_proxy_agent -- scanning with
+# create_app() (no session) builds a structurally different graph that
+# every real run's StaleBundleError check then rejects. See
+# create_app_for_scan's own docstring in src/mantis/banking/app.py.
+app: "mantis.banking.app:create_app_for_scan()"
+# Directories added to sys.path before the import (relative to this file).
+python_paths: ["../../src"]
+# Source tree for the static cross-check scan.
+source_root: "../../src/mantis/banking"
+
+environment: dev          # example | prototype | dev | test | stage | prod
+mode: enforce             # enforce | shadow (shadow: log decisions, block only critical operations)
+strict: true              # build fails when the tools of a toolset are unknown (see toolsets)
+
+# Generated and secret material (relative to this file). Keep .zt/ out of version control.
+bundle_dir: .zt/bundle
+keys_dir: .zt/keys                    # runtime keys (the protected process reads them)
+approver_keys_dir: .zt/approver-keys  # approver keys (move them to the approvers; the runtime never reads them)
+state_dir: .zt/state                  # audit log, approval requests, policy version store
+
+# Security domains of the agents: subtree (each child of the root is a domain), single, or explicit.
+domains:
+  mode: subtree
+  default: core
+  agents: {}            # agent_name: domain
+
+# Declarations the code cannot express. Key: tool name, or "agent/tool" for one agent's tool.
+#   action: read|write|create|update|delete|send|execute     side_effect: true|false
+#   criticality: low|medium|high|critical (critical needs approval by default)
+#   classification: public|internal|confidential|restricted|regulated
+#   requires_approval / secondary_approval: true|false     allowed_roles: [..]     mask_fields: [..]
+tools: {}
+
+# MCP / OpenAPI toolsets: resolved at build time; declare the tools when the server is unreachable then.
+# Key: toolset class name or "agent/ClassName". An unknown tool of a toolset is always denied; with
+# strict: true an unresolved toolset fails the build unless it is listed here, e.g.
+#   McpToolset: {resolve: true, tools: [search, fetch]}    or    McpToolset: {resolve: false}
+toolsets: {}
+
+approvals:
+  # "none": MANTIS's own tool_semantics.py already carries its own
+  # criticality model and none of its recorded evidence (any paper, any
+  # test) ever put a human in the loop; "single"/"dual" would make a
+  # zero_trust-on run of a critical tool (e.g. execute_transfer) block for
+  # up to wait_seconds waiting for an approval that automated runs/CI can
+  # never supply. The Backplane's access-control enforcement (domain
+  # isolation, tool permissions) is what this toggle is verified against.
+  critical: none           # single (one approver) | dual (approver + independent secondary) | none
+  wait_seconds: 120       # a call waits this long for a decision, then it is held (pending_approval)
+  lifetime_seconds: 300   # validity of a signed approval
+  poll_seconds: 1.0
+
+content:
+  prompt_injection: {input: deny, tool_result: flag, agent_message: flag, extra_patterns: []}
+  # detectors: email, phone, ssn, credit_card, iban, api_key, private_key -> {input, output, tool_result}: deny|flag|off
+  # custom: {name: {pattern: "regex", output: deny}}
+  max_input_chars: 100000
+  taint_on_flag: true     # after a flagged tool result, side effects of the same run need approval
+
+session:
+  require_session: false  # require sessions registered by the trusted front end (plugin.register_session)
+  roles: []               # roles the front end may assert (empty: not checked)
+
+policies:
+  overlays: []            # your own PSL files, e.g. ["policies/*.psl"]
+  workflow_order: true    # steps of SequentialAgents must start in their declared order
+  # false, deliberately: the build's own warnings showed MANTIS's agent
+  # tree uses legitimate cross-domain *routing* (e.g. back_office_router
+  # handing off directly to front_office_router) as normal behavior --
+  # denying it here would break existing workflows this toggle was never
+  # meant to touch. The old integration's own docstring already scoped
+  # `transfer_to_agent` out for exactly this reason ("the routing tool, not
+  # a domain-owned resource... MANTIS's own risk_aware_routing_guard
+  # already covers routing decisions"). This toggle enforces domain-scoped
+  # *tool* access (the claim it was always verified against), not routing.
+  deny_cross_domain_routes: false  # agents start only agents of their own domain (root and ingress exempt)
+  cross_domain_callers: []         # further agents allowed to start agents of other domains
+
+identity:
+  trust_domain: zt-adk.local   # SPIFFE trust domain of the distributed runtime
+
+# Tests and keyless demos only: replace every model with a scripted playback.
+# model_override: {type: playback, script: playback.yaml}

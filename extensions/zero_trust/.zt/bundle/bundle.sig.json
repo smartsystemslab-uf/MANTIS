@@ -1,0 +1,7 @@
+{
+  "algorithm": "Ed25519",
+  "index_sha256": "3d73569cc45b5ee61790b912bc0b8425ff4246f1306ae90cfda2fb43ef16f75a",
+  "issuer": "policy.zt_adk",
+  "key_id": "policy-1",
+  "signature": "z-maQ9_E39cBSQlxFiBiYIEd3_165Uy_ut6KIZoqaUMBbBBsBG4sta9jGOU19pqoxFSlCHM-P7nsCQksESaKCg"
+}

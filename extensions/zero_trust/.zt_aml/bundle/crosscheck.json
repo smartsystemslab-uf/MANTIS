@@ -1,0 +1,21 @@
+{
+  "agents_only_in_source": [],
+  "agents_only_live": [],
+  "available": true,
+  "live_agents": 43,
+  "note": "The live object graph is authoritative. Agents only in the source are not reachable from the application's root (dead code, or built for another app); agents only live are constructed dynamically (factories, loops, configuration).",
+  "static_agents": 43,
+  "static_coverage_percent": 100.0,
+  "static_unresolved_findings": 0,
+  "tools_only_live": [
+    "get_branch_workload",
+    "get_customer_product_affinity",
+    "get_reconciliation_mismatches",
+    "get_transaction",
+    "propose_staffing_adjustment",
+    "resolve_ledger_entry",
+    "run_fraud_and_compliance_workflow",
+    "trigger_eod_reconciliation",
+    "update_transaction_status"
+  ]
+}

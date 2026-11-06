@@ -1,17 +1,17 @@
 """The zero_trust: toggle's error path when the optional dependency genuinely
-isn't installed -- this file deliberately does NOT importorskip zt_backplane,
-so it runs (and matters) precisely in the stock environment where the other
+isn't installed -- this file deliberately does NOT importorskip zt_adk, so
+it runs (and matters) precisely in the stock environment where the other
 zero_trust tests are skipped."""
 from pathlib import Path
 
 from mantis.cli.main import validate_config
-from mantis.core.registry import plugin_registry
+from mantis.core.registry import ZERO_TRUST_AVAILABLE
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_enabled_toggle_gives_an_actionable_error_when_the_plugin_is_unregistered(tmp_path):
-    if "zero_trust_enforcement" in plugin_registry.all():
+    if ZERO_TRUST_AVAILABLE:
         import pytest
         pytest.skip("zero_trust optional dependency is installed in this environment")
 

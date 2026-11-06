@@ -11,11 +11,11 @@
   "tool_use_correctness": {
     "score": 1.0,
     "actual_tools": [
-      "get_transaction_context",
-      "submit_manual_review",
-      "get_customer_context",
       "search_policies",
-      "transfer_to_agent"
+      "get_transaction_context",
+      "transfer_to_agent",
+      "get_customer_context",
+      "submit_manual_review"
     ],
     "missing_expected": [],
     "used_forbidden": []
@@ -28,10 +28,10 @@
   "artifact_integrity": {
     "score": 1.0,
     "trace_file": "run_artifacts/zero_trust_demo/traces.jsonl",
-    "trace_sha256": "ba60a5aae350888d4569ad52c637ee57ca04a97c3b10bbe10cb440dd38c17a16",
-    "trace_size_bytes": 19277,
+    "trace_sha256": "5b5246c6488db837159899c165a24e90599971e0b335b06d6783b0168801fb03",
+    "trace_size_bytes": 20602,
     "non_empty": true,
-    "manifest_config_hash": "2a1592752e60321f2067b53e60d96fb2882c6a7d39c8ee0c0312f0666e3e90cd",
+    "manifest_config_hash": "e35c9a79043f04926ffc1f81d1dfa52e86f7f90fa85e3a10bcede7d64e337ff8",
     "manifest_run_id_matches_trace": true
   },
   "banking_workflow_coverage": {
@@ -80,12 +80,12 @@
     "reason": "no attack configured for this run"
   },
   "instrumentation_overhead": {
-    "total_run_duration_ms": 21090.349,
+    "total_run_duration_ms": 32161.313,
     "plugin_timing_ms": {
-      "observability_plugin": 26.55548509210348
+      "observability_plugin": 25.016288999722747
     },
-    "observability_plugin_ms": 26.55548509210348,
-    "observability_overhead_pct": 0.1259129713410787,
-    "total_instrumentation_overhead_pct": 0.1259129713410787
+    "observability_plugin_ms": 25.016288999722747,
+    "observability_overhead_pct": 0.07778379259491908,
+    "total_instrumentation_overhead_pct": 0.07778379259491908
   }
 }

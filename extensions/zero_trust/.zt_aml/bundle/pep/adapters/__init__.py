@@ -1,0 +1,1 @@
+"""Generated PEP generator adapters."""

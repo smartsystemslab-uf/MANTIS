@@ -56,15 +56,16 @@ plugin_registry.register("reliability_failure", ReliabilityFailurePlugin)
 # Zero Trust Backplane enforcement -- toggleable integration of the real,
 # separate github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane
 # project (see src/mantis/plugins/policies/zero_trust_enforcement.py).
-# Registered only when its optional dependency is installed
-# (`pip install -e ".[zero_trust]"`); a stock install never imports
-# zt_backplane and this plugin simply does not appear in the registry,
-# `mantis --inventory`, or the UI's plugin dropdowns.
+# Unlike every other defense here, this one is not a PolicyPlugin dispatched
+# through HookBus -- the real Backplane plugin is an ADK-level plugin
+# (mantis.banking.runner.run_message appends it to the App's own plugins
+# list directly), so there's nothing to register in plugin_registry.
+# ZERO_TRUST_AVAILABLE is the single source of truth cli/main.py checks:
+# a stock install never imports zt_adk, and this stays False.
 try:
-    from mantis.plugins.policies.zero_trust_enforcement import ZeroTrustEnforcementPlugin
-    plugin_registry.register("zero_trust_enforcement", ZeroTrustEnforcementPlugin)
+    from mantis.plugins.policies.zero_trust_enforcement import ZERO_TRUST_AVAILABLE
 except ImportError:
-    pass
+    ZERO_TRUST_AVAILABLE = False
 
 # Banking-specific data (which agents belong to which domain, scenario
 # prompts, workflow->domain mapping) lives under mantis.banking -- this

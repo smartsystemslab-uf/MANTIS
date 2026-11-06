@@ -8,7 +8,7 @@ Currently, MANTIS focuses on banking multi-agent architectures (spanning Front, 
 
 ## Zero Trust Backplane (toggleable)
 
-A real, opt-in integration of the independent [`Citi_P3_Zero_Trust_Backplane`](https://github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane) project's signed Policy Decision Point -- not a reimplementation. A stock install never touches it; a dedicated `zero_trust: {enabled: true}` block on any config turns it on for that attack (the same checkbox exists in the minimal UI's editor), `enabled: false` or no block at all turns it off -- live-verified both ways on the identical config, including with the real PDP process killed outright to confirm the "off" state has zero dependency on it. Guarded by 11 regression tests against future drift (stale generated policy, toggle-wiring changes, the real project's own API surface changing). See [`extensions/zero_trust/README.md`](extensions/zero_trust/README.md) for setup and what's real project code versus MANTIS-side glue.
+A real, opt-in integration of the independent [`Citi_P3_Zero_Trust_Backplane`](https://github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane) project -- not a reimplementation. Pinned to its `v1.0.1` release (a git submodule, `extensions/zero_trust/backplane`): a generic `ZeroTrustPlugin` registered directly on MANTIS's own ADK `App`, built from a signed protection bundle the real project's own scanner generates by importing and introspecting MANTIS's actual live agent/tool graph. A stock install never touches it; a dedicated `zero_trust: {enabled: true}` block on any config turns it on for that attack (the same checkbox exists in the minimal UI's editor), `enabled: false` or no block at all turns it off. Enforcement is *stricter* than per-domain: the real scanner's placements are per-agent (which agent's own tools it's actually wired to call), so even a same-domain agent without a given tool is denied, not just a cross-domain one. Guarded by regression tests against future drift (a stale bundle, toggle-wiring changes, the real project's own API surface changing -- verified by deliberately building against the wrong agent graph and confirming it's rejected). See [`extensions/zero_trust/README.md`](extensions/zero_trust/README.md) for setup and what's real project code versus MANTIS-side glue.
 
 ## AML Office (toggleable)
 
@@ -95,7 +95,7 @@ MANTIS/
 ├── GUIDE/                             # Platform guide (Markdown + PDF, rebuilt on every push)
 ├── presentations/                     # Decks and read-aloud scripts, one per date, with an index
 ├── paper/                             # Paper 1 (frozen) and the post-paper extensions paper
-├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events, config/scenario consistency) -- 853 passing offline (880 with both optional dependencies, zero_trust and aml, installed; 178 more skip by design without a live backend or model)
+├── tests/unit/                        # Unit tests (CLI, Registry, HookBus, Plugins, Events, config/scenario consistency) -- 879 passing offline (896 with both optional dependencies, zero_trust and aml, installed; 201 more skip by design without a live backend or model)
 ├── golden_runs/                       # WP0: Immutable Frozen LLM execution traces
 ├── banking_baseline_inventory.yaml    # WP0: Full system inventory
 ├── baseline_metrics.json              # WP0: Performance and behavioral metrics
@@ -347,7 +347,7 @@ There are four layers of automated tests, plus a fifth layer of live validation 
 
 | Layer | Location | Count | Command | Needs backend? | Needs LLM key? |
 |---|---|---|---|---|---|
-| MANTIS unit tests | `tests/unit/` | 853 passing, 178 skipped by design (880 passing with both the optional `zero_trust` and `aml` dependencies installed) | `pytest tests/unit/` | Two tests exercise the real CLI/ADK/MCP pipeline under a mock model (see below); the rest are pure offline | No |
+| MANTIS unit tests | `tests/unit/` | 879 passing, 201 skipped by design (896 passing with both the optional `zero_trust` and `aml` dependencies installed) | `pytest tests/unit/` | Two tests exercise the real CLI/ADK/MCP pipeline under a mock model (see below); the rest are pure offline | No |
 | WP0 regression guard | `refactor_guard_tests/` | 49 | `pytest refactor_guard_tests/` | No | No |
 | Banking backend | `citi_banking_backend/tests/` | 15 | `cd citi_banking_backend && pytest tests/` | No (uses an in-process test DB) | No |
 | MCP tool server | `citi_banking_mcp_server/tests/` | 3 | `cd citi_banking_mcp_server && pytest tests/` | No | No |

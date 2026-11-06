@@ -33,9 +33,19 @@ ui = [
     "fastapi",
     "uvicorn"
 ]
-zero_trust = [
-    "zero-trust-pdp-task4-secure @ git+https://github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane.git#subdirectory=zero_trust_pdp_task4_secure"
-]
+# There is deliberately no `zero_trust` extra here. The Backplane's 2026-10
+# rewrite (v1.0.0/v1.0.1) replaced the old task-specific PDP microservice
+# with a generic Zero Trust system for any Google ADK application: a real
+# `ZeroTrustPlugin`, built from ~7 packages that locate their own data files
+# (schemas, policy templates, dev keys) with `Path(__file__).resolve()`
+# relative to a *source checkout* -- every one of them requires an editable
+# install from a real clone, which a declarative `name @ git+URL` dependency
+# here cannot express (confirmed: a non-editable wheel build of zt-interface
+# alone fails at runtime looking for its schema under site-packages, not
+# where it actually ships). extensions/zero_trust/setup.sh does the editable
+# installs from the pinned submodule at extensions/zero_trust/backplane
+# (tag v1.0.1), exactly mirroring the upstream project's own documented
+# install recipe.
 aml = [
     "networkx>=3.0"
 ]

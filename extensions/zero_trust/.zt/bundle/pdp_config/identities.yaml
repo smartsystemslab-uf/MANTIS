@@ -1,0 +1,557 @@
+identities:
+- id: ingress
+  canonical_id: service.external.ingress
+  type: service
+  roles:
+  - ingress
+  domain: external
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    zt_adk_role: ingress
+- id: back_office_eod_workflow
+  canonical_id: agent.back_office_router.back_office_eod_workflow
+  type: agent
+  roles:
+  - adk_agent
+  - adk_custom
+  domain: back_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: custom
+    adk_class: mantis.banking.agents.workflow_agents.BackOfficeEodWorkflowAgent
+    reached_via: tree
+    workflow: null
+- id: back_office_router
+  canonical_id: agent.back_office_router.back_office_router
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: back_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: null
+- id: chatbot_intent_agent
+  canonical_id: agent.front_office_router.chatbot_intent_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: customer_service_chatbot_workflow
+- id: compliance_agent
+  canonical_id: agent.front_office_router.compliance_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: front_office_transaction_workflow
+- id: customer_service_agent
+  canonical_id: agent.front_office_router.customer_service_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: customer_service_chatbot_workflow
+- id: customer_service_chatbot_workflow
+  canonical_id: agent.front_office_router.customer_service_chatbot_workflow
+  type: agent
+  roles:
+  - adk_agent
+  - adk_custom
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: custom
+    adk_class: mantis.banking.agents.workflow_agents.CustomerServiceChatbotWorkflowAgent
+    reached_via: tree
+    workflow: null
+- id: data_analysis_agent
+  canonical_id: agent.mid_office_router.data_analysis_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: mid_office_planning_workflow
+- id: decision_making_agent
+  canonical_id: agent.front_office_router.decision_making_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: front_office_transaction_workflow
+- id: dispute_resolution_agent
+  canonical_id: agent.front_office_router.dispute_resolution_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: null
+- id: eod_processing_agent
+  canonical_id: agent.back_office_router.eod_processing_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: back_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: back_office_eod_workflow
+- id: exception_agent
+  canonical_id: agent.back_office_router.exception_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: back_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: back_office_eod_workflow
+- id: financial_data_agent
+  canonical_id: agent.mid_office_router.financial_data_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: representative_assist_parallel
+- id: forecasting_agent
+  canonical_id: agent.mid_office_router.forecasting_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: mid_office_planning_workflow
+- id: fraud_detection_agent
+  canonical_id: agent.front_office_router.fraud_detection_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: front_office_transaction_workflow
+- id: front_office_router
+  canonical_id: agent.front_office_router.front_office_router
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: null
+- id: front_office_transaction_workflow
+  canonical_id: agent.front_office_router.front_office_transaction_workflow
+  type: agent
+  roles:
+  - adk_agent
+  - adk_custom
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: custom
+    adk_class: mantis.banking.agents.workflow_agents.FrontOfficeTransactionWorkflowAgent
+    reached_via: tree
+    workflow: null
+- id: knowledge_base_agent
+  canonical_id: agent.front_office_router.knowledge_base_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: customer_service_chatbot_workflow
+- id: ledger_update_agent
+  canonical_id: agent.back_office_router.ledger_update_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: back_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: back_office_eod_workflow
+- id: loan_agent
+  canonical_id: agent.mid_office_router.loan_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: representative_assist_parallel
+- id: loan_preapproval_agent
+  canonical_id: agent.mid_office_router.loan_preapproval_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: null
+- id: mid_office_planning_parallel
+  canonical_id: agent.mid_office_router.mid_office_planning_parallel
+  type: agent
+  roles:
+  - adk_agent
+  - adk_parallel
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: parallel
+    adk_class: google.adk.agents.parallel_agent.ParallelAgent
+    reached_via: tree
+    workflow: mid_office_planning_workflow
+- id: mid_office_planning_workflow
+  canonical_id: agent.mid_office_router.mid_office_planning_workflow
+  type: agent
+  roles:
+  - adk_agent
+  - adk_sequential
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: sequential
+    adk_class: google.adk.agents.sequential_agent.SequentialAgent
+    reached_via: tree
+    workflow: null
+- id: mid_office_router
+  canonical_id: agent.mid_office_router.mid_office_router
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: null
+- id: planning_summary_agent
+  canonical_id: agent.mid_office_router.planning_summary_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: mid_office_planning_workflow
+- id: recommender_agent
+  canonical_id: agent.mid_office_router.recommender_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: representative_assist_parallel
+- id: reconciliation_agent
+  canonical_id: agent.back_office_router.reconciliation_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: back_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: back_office_eod_workflow
+- id: report_writing_agent
+  canonical_id: agent.back_office_router.report_writing_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: back_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: back_office_eod_workflow
+- id: representative_assist_parallel
+  canonical_id: agent.mid_office_router.representative_assist_parallel
+  type: agent
+  roles:
+  - adk_agent
+  - adk_parallel
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: parallel
+    adk_class: google.adk.agents.parallel_agent.ParallelAgent
+    reached_via: tree
+    workflow: representative_assistant_workflow
+- id: representative_assistant_workflow
+  canonical_id: agent.mid_office_router.representative_assistant_workflow
+  type: agent
+  roles:
+  - adk_agent
+  - adk_sequential
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: sequential
+    adk_class: google.adk.agents.sequential_agent.SequentialAgent
+    reached_via: tree
+    workflow: null
+- id: representative_merge_agent
+  canonical_id: agent.mid_office_router.representative_merge_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: representative_assistant_workflow
+- id: risk_compliance_agent
+  canonical_id: agent.mid_office_router.risk_compliance_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: representative_assist_parallel
+- id: sar_escalation_agent
+  canonical_id: agent.back_office_router.sar_escalation_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: back_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: null
+- id: staff_scheduling_agent
+  canonical_id: agent.mid_office_router.staff_scheduling_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: mid_office_planning_workflow
+- id: support_guidance_agent
+  canonical_id: agent.mid_office_router.support_guidance_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: mid_office_planning_parallel
+- id: transaction_monitoring_agent
+  canonical_id: agent.front_office_router.transaction_monitoring_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: front_office_transaction_workflow
+- id: transaction_processing_agent
+  canonical_id: agent.front_office_router.transaction_processing_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: front_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: customer_service_chatbot_workflow
+- id: user_proxy_agent
+  canonical_id: agent.core.user_proxy_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: core
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: null
+- id: validation_agent
+  canonical_id: agent.mid_office_router.validation_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: mid_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: mid_office_planning_parallel
+- id: validation_checkpoint_agent
+  canonical_id: agent.back_office_router.validation_checkpoint_agent
+  type: agent
+  roles:
+  - adk_agent
+  - adk_llm
+  domain: back_office_router
+  enabled: true
+  attributes:
+    manifest_status: confirmed
+    adk_kind: llm
+    adk_class: google.adk.agents.llm_agent.LlmAgent
+    reached_via: tree
+    workflow: back_office_eod_workflow

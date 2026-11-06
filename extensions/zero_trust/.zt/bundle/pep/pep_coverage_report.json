@@ -1,0 +1,12 @@
+{
+  "coverage_claim_scope": "Known interaction edges in the unified manifest only",
+  "deduplicated_component_savings": 135,
+  "interaction_edges_total": 140,
+  "known_direct_bypass_paths": 0,
+  "logical_pep_count": 140,
+  "physical_pep_count": 5,
+  "protected_sensitive_edges": 140,
+  "sensitive_interaction_edges": 140,
+  "sensitive_inventory_resources_without_discovered_edges": [],
+  "sensitive_path_coverage_percent": 100.0
+}

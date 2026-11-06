@@ -1,0 +1,66 @@
+{
+  "approvals": {
+    "critical": "none",
+    "lifetime_seconds": 300,
+    "poll_seconds": 1.0,
+    "wait_seconds": 120.0
+  },
+  "content": {
+    "custom": {},
+    "detectors": {
+      "api_key": {
+        "input": "flag",
+        "output": "deny",
+        "tool_result": "flag"
+      },
+      "credit_card": {
+        "input": "off",
+        "output": "deny",
+        "tool_result": "off"
+      },
+      "email": {
+        "input": "off",
+        "output": "flag",
+        "tool_result": "off"
+      },
+      "iban": {
+        "input": "off",
+        "output": "flag",
+        "tool_result": "off"
+      },
+      "phone": {
+        "input": "off",
+        "output": "flag",
+        "tool_result": "off"
+      },
+      "private_key": {
+        "input": "flag",
+        "output": "deny",
+        "tool_result": "flag"
+      },
+      "ssn": {
+        "input": "off",
+        "output": "deny",
+        "tool_result": "off"
+      }
+    },
+    "max_input_chars": 100000,
+    "prompt_injection": {
+      "agent_message": "flag",
+      "extra_patterns": [],
+      "input": "deny",
+      "tool_result": "flag"
+    },
+    "taint_on_flag": true
+  },
+  "environment": "dev",
+  "identity": {
+    "trust_domain": "zt-adk.local"
+  },
+  "mode": "enforce",
+  "model_override": null,
+  "session": {
+    "require_session": false,
+    "roles": []
+  }
+}

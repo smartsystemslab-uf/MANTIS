@@ -1,119 +1,121 @@
 """Regression guards for the Zero Trust Backplane integration.
 
-Not the same job as test_zero_trust_enforcement.py (which checks the
-plugin's own apply() logic against a mocked PDP) or
+Not the same job as test_zero_trust_enforcement.py (which checks the real
+plugin's actual authorization decisions) or
 test_zero_trust_toggle_without_dependency.py (the missing-dependency error
 path). This file exists so that a future, unrelated change elsewhere in
-MANTIS -- renaming an agent, reshaping HookContext, editing the plugin
-registry, adding a domain -- fails loudly here instead of silently
-breaking Zero Trust enforcement or the on/off toggle. Three risk
-categories, one class each:
+MANTIS -- renaming an agent, reshaping the plugin-ordering contract,
+editing the config model, adding a domain -- fails loudly here instead of
+silently breaking Zero Trust enforcement, the on/off toggle, or its
+SecurityEvent classification. Three risk categories, one class each:
 
-1. MANTIS-side drift: the generated policy's guarantee (same-domain allow,
-   everything else denied) still matches MANTIS's actual *live* inventory,
-   not just the last-generated snapshot -- so if someone adds an agent,
-   tool, or domain without re-running generate_policy.py, this notices.
-2. Toggle wiring drift: `zero_trust:` and the equivalent `policies:` form
-   keep registering the identical plugin, and the registry
-   visibility/_POLICY_PLUGIN_NAMES symmetry (on which "fired vs blocked"
-   trace classification depends) stays intact -- this class runs even
-   without the optional dependency installed, since that's precisely the
-   state most future changes will be tested in.
+1. MANTIS-side drift: the committed, signed bundle still matches MANTIS's
+   actual *live* agent/tool graph -- so if someone adds an agent or tool
+   without re-running `zt-adk build`, this notices (via the real
+   `fingerprint_matches_running_code` check `ZeroTrustPlugin.from_profile`
+   itself performs -- not reimplemented here), and a genuinely mismatched
+   graph is confirmed to still raise, by deliberately building against the
+   wrong root agent.
+2. Toggle wiring drift: `zero_trust: {enabled: true}` keeps threading
+   through to LegacyBankingHandle's enable_zero_trust flag the same way
+   aml_office's does, and the registry visibility / _POLICY_PLUGIN_NAMES /
+   MantisHookPlugin.after_tool_callback synthesized security_actions
+   symmetry (on which "denied vs a normal tool result" trace
+   classification depends, since Zero Trust denies outside HookBus
+   entirely -- see runner.py's plugin-ordering comment) stays intact --
+   this class runs even without the optional dependency installed, since
+   that's precisely the state most future changes will be tested in.
 3. External contract drift: the real project's own API surface this
-   integration calls by name (HTTP routes, PDPRequest's shape,
-   build_signed_request's signature) hasn't silently changed underneath
-   us. We don't control that project's release cadence -- see
-   extensions/zero_trust/README.md's "Keeping this in sync" note, carried
-   over from the earlier local-only slice.
+   integration calls by name (ZeroTrustPlugin.from_profile's signature,
+   before_tool_callback's kwargs, the denial dict's shape) hasn't silently
+   changed underneath us. We don't control that project's release cadence
+   -- see extensions/zero_trust/README.md's "Keeping this in sync" note.
 """
+import asyncio
 import inspect
+from unittest.mock import MagicMock
 
 import pytest
 
-from mantis.core.registry import plugin_registry
 from mantis.config.models import ExperimentConfig, ZeroTrustConfig
+from mantis.observability.plugin import _POLICY_PLUGIN_NAMES
 
 
 # ---------------------------------------------------------------------------
-# 1. MANTIS-side drift: generated policy vs. the system's actual live state
+# 1. MANTIS-side drift: the committed bundle vs. the system's actual live state
+#
+# pytest.importorskip("zt_adk") is called *inside* each test below, not at
+# module level -- a module-level importorskip skips the whole file's
+# collection, which would also skip category 2's tests that must run
+# without the optional dependency installed.
 # ---------------------------------------------------------------------------
 
-def test_generated_identities_cover_every_live_agent_in_its_declared_domain():
-    """Catches: a new agent added to DOMAIN_AGENTS without re-running
-    generate_policy.py -- that agent would be unrecognized by the PDP and
-    silently denied everything, including legitimate calls."""
-    from mantis.banking.domains import DOMAIN_AGENTS
-    from extensions.zero_trust.generate_policy import build_identities
 
-    generated = {i["canonical_id"]: i for i in build_identities()["identities"]}
-    for domain, agents in DOMAIN_AGENTS.items():
-        for agent in agents:
-            canonical = f"agent.{domain}.{agent}"
-            assert canonical in generated, (
-                f"{agent!r} ({domain}) has no generated identity -- "
-                "re-run extensions/zero_trust/generate_policy.py"
-            )
-            assert generated[canonical]["id"] == agent
-            assert generated[canonical]["enabled"] is True
+def test_the_committed_bundle_matches_the_live_agent_graph_right_now():
+    """Catches: an agent/tool added to MANTIS's banking code without
+    re-running `zt-adk build` (from extensions/zero_trust/) -- the plugin
+    would otherwise either run with a silently-stale graph, or refuse to
+    start. If this fails, run `zt-adk build` and commit the regenerated
+    extensions/zero_trust/.zt/bundle/. Uses create_app_for_scan(), not
+    create_app(): the bundle was built against a real MCP session (one
+    extra passthrough tool per MCP tool on user_proxy_agent -- see that
+    function's own docstring), so this spawns the real MCP server
+    subprocess, the same as a live run would."""
+    pytest.importorskip("zt_adk")
+    from mantis.banking.app import create_app_for_scan
+    from mantis.plugins.policies.zero_trust_enforcement import build_zero_trust_plugin
 
-
-def test_generated_resources_cover_every_live_domain_tool():
-    """Catches: a new tool added to _DOMAIN_TOOL_NAMES without
-    regenerating -- same failure mode as above, for tool calls."""
-    from mantis.runtime.adapter import _DOMAIN_TOOL_NAMES
-    from extensions.zero_trust.generate_policy import build_resources
-
-    generated = {r["canonical_id"]: r for r in build_resources()["resources"]}
-    for domain, tools in _DOMAIN_TOOL_NAMES.items():
-        for tool in tools:
-            canonical = f"resource.{domain}.{tool}"
-            assert canonical in generated, (
-                f"{tool!r} ({domain}) has no generated resource -- "
-                "re-run extensions/zero_trust/generate_policy.py"
-            )
-            assert generated[canonical]["id"] == f"{domain}.{tool}"
+    build_zero_trust_plugin(create_app_for_scan().root_agent)  # raises StaleBundleError if mismatched
 
 
-def test_generated_policy_is_still_default_deny_by_domain_only():
-    """Catches: a future hand-edit of generate_policy.py (or the committed
-    policy_store/*.yaml) quietly widening the rule beyond same-domain --
-    e.g. a typo granting a front-office agent back-office resources."""
-    from mantis.banking.domains import DOMAIN_AGENTS
-    from mantis.runtime.adapter import _DOMAIN_TOOL_NAMES
-    from extensions.zero_trust.generate_policy import build_policy
+def test_the_aml_inclusive_bundle_also_matches_its_own_live_agent_graph():
+    """The AML office router is a 4th sub_agent, which changes the live
+    graph's fingerprint -- a run with both zero_trust and aml_office
+    enabled needs the *other* committed bundle (zt_adk_aml.yaml's), not the
+    one above. If this fails, rebuild it:
+    `zt-adk --profile extensions/zero_trust/zt_adk_aml.yaml build`.
+    Uses create_app_with_aml_for_scan() for the same reason the test above
+    uses create_app_for_scan() -- see that function's own docstring."""
+    pytest.importorskip("zt_adk")
+    from mantis.banking.app import create_app_with_aml_for_scan
+    from mantis.plugins.policies.zero_trust_enforcement import build_zero_trust_plugin
 
-    policies = build_policy()["policies"]
-    assert len(policies) == len([d for d in DOMAIN_AGENTS if d in _DOMAIN_TOOL_NAMES])
-    for policy in policies:
-        assert policy["effect"] == "ALLOW"
-        domain = policy["id"].removeprefix("policy.mantis.").removesuffix("_same_domain_access")
-        for subject in policy["match"]["subjects"]:
-            assert subject.startswith(f"agent.{domain}."), f"{subject} leaked into the {domain} policy's subjects"
-        for resource in policy["match"]["resources"]:
-            assert resource.startswith(f"resource.{domain}."), f"{resource} leaked into the {domain} policy's resources"
+    build_zero_trust_plugin(create_app_with_aml_for_scan().root_agent, enable_aml=True)
 
 
-def test_committed_policy_files_match_what_the_generator_produces_right_now():
-    """Catches: the committed extensions/zero_trust/config/*.yaml and
-    policy_store/*.yaml going stale relative to the live system -- the
-    thing a contributor must remember to re-run after changing agents or
-    tools (see extensions/zero_trust/README.md's 'Regenerating the
-    policy'). This is the sentinel that should fail and say so plainly."""
-    import yaml
-    from pathlib import Path
-    from extensions.zero_trust.generate_policy import build_identities, build_resources, build_policy, OUT
+def test_enable_aml_selects_the_matching_bundle_not_the_mismatched_one():
+    """Catches: build_zero_trust_plugin's enable_aml flag not actually
+    switching which profile/bundle loads -- each graph is only valid
+    against its own bundle, so the wrong pairing must raise, and the
+    right pairing must not."""
+    pytest.importorskip("zt_adk")
+    from zt_adk.plugin import StaleBundleError
 
-    committed_identities = yaml.safe_load((OUT / "config" / "identities.yaml").read_text())
-    committed_resources = yaml.safe_load((OUT / "config" / "resources.yaml").read_text())
-    committed_policy = yaml.safe_load((OUT / "policy_store" / "mantis_default_deny_by_domain.yaml").read_text())
+    from mantis.banking.app import create_app
+    from mantis.plugins.policies.zero_trust_enforcement import build_zero_trust_plugin
 
-    assert committed_identities == build_identities(), (
-        "extensions/zero_trust/config/identities.yaml is stale -- run "
-        "`python extensions/zero_trust/generate_policy.py` and "
-        "`python extensions/zero_trust/bootstrap_keys.py`, then commit the result"
-    )
-    assert committed_resources == build_resources()
-    assert committed_policy == build_policy()
+    aml_root = create_app(enable_aml=True).root_agent
+    with pytest.raises(StaleBundleError):
+        build_zero_trust_plugin(aml_root, enable_aml=False)  # AML graph, non-AML bundle
+
+    plain_root = create_app().root_agent
+    with pytest.raises(StaleBundleError):
+        build_zero_trust_plugin(plain_root, enable_aml=True)  # plain graph, AML bundle
+
+
+def test_a_genuinely_different_agent_graph_is_rejected_as_stale():
+    """Deliberately injects drift (a different root agent than the bundle
+    was built for) and confirms the real StaleBundleError actually fires --
+    the thing the test above relies on to ever catch a real mismatch."""
+    pytest.importorskip("zt_adk")
+    from zt_adk.plugin import StaleBundleError
+
+    from mantis.banking.app import create_app
+    from mantis.plugins.policies.zero_trust_enforcement import build_zero_trust_plugin
+
+    wrong_root = create_app().root_agent.sub_agents[0]  # a real agent, just not the bundle's root
+    with pytest.raises(StaleBundleError):
+        build_zero_trust_plugin(wrong_root)
 
 
 # ---------------------------------------------------------------------------
@@ -121,118 +123,137 @@ def test_committed_policy_files_match_what_the_generator_produces_right_now():
 # ---------------------------------------------------------------------------
 
 def test_zero_trust_config_defaults_are_unchanged():
-    """Catches: someone changing ZeroTrustConfig's defaults, silently
-    changing what a bare `zero_trust: {}` means, or pointing the default
-    PDP url at a different port than extensions/zero_trust/run_pdp.sh's
-    own default."""
+    """Catches: someone changing ZeroTrustConfig's default, silently
+    changing what a bare `zero_trust: {}` means."""
     cfg = ZeroTrustConfig()
     assert cfg.enabled is True
-    assert cfg.pdp_url == "http://127.0.0.1:8600"
 
 
-def test_dedicated_toggle_and_the_generic_policies_form_are_equivalent(tmp_path):
-    """Catches: a future refactor of run_experiment()'s policy-assembly
-    logic breaking the sugar -- zero_trust: {enabled: true} must keep
-    resolving to exactly the same plugin + parameters the explicit
-    policies: form does."""
-    toggle_cfg = ExperimentConfig(**{
+def test_toggle_threads_through_to_enable_zero_trust_exactly_like_aml_office(monkeypatch):
+    """Catches: a future refactor of LegacyBankingHandle.run_message (or
+    runner.run_message's signature) breaking the config -> flag wiring --
+    mirrors how test_aml_office's own regression guard checks enable_aml."""
+    from mantis.runtime.adapter import LegacyBankingHandle
+
+    captured = {}
+
+    async def fake_run_message(message, **kwargs):
+        captured.update(kwargs)
+        return {}
+
+    monkeypatch.setattr("mantis.banking.runner.run_message", fake_run_message)
+
+    cfg_on = ExperimentConfig(**{
         "experiment": {"name": "x", "domain": "front_office", "workflow": "w", "scenario": "s"},
-        "zero_trust": {"enabled": True, "pdp_url": "http://127.0.0.1:9999"},
+        "zero_trust": {"enabled": True},
     })
-    explicit_cfg = ExperimentConfig(**{
-        "experiment": {"name": "x", "domain": "front_office", "workflow": "w", "scenario": "s"},
-        "policies": [{"plugin": "zero_trust_enforcement", "parameters": {"pdp_url": "http://127.0.0.1:9999"}}],
-    })
+    asyncio.run(LegacyBankingHandle(config=cfg_on).run_message("hi"))
+    assert captured["enable_zero_trust"] is True
 
-    # Mirrors the assembly in cli/main.py's run_experiment() without
-    # actually running an experiment -- if that assembly logic changes
-    # shape, update it here too, deliberately, rather than this test
-    # silently passing against stale logic.
-    def resolved_policies(cfg):
-        policies = list(cfg.policies or [])
-        if cfg.zero_trust and cfg.zero_trust.enabled:
-            from mantis.config.models import PolicyConfig
-            policies.append(PolicyConfig(plugin="zero_trust_enforcement", parameters={"pdp_url": cfg.zero_trust.pdp_url}))
-        return [(p.plugin, p.parameters) for p in policies]
-
-    assert resolved_policies(toggle_cfg) == resolved_policies(explicit_cfg) == [
-        ("zero_trust_enforcement", {"pdp_url": "http://127.0.0.1:9999"})
-    ]
-
-
-def test_toggle_disabled_produces_no_policies_at_all():
-    """Catches: `enabled: false` (or an absent zero_trust: block) ever
-    growing a side effect -- off must mean exactly what every other
-    MANTIS config without a policies: entry already means."""
-    cfg = ExperimentConfig(**{
+    captured.clear()
+    cfg_off = ExperimentConfig(**{
         "experiment": {"name": "x", "domain": "front_office", "workflow": "w", "scenario": "s"},
         "zero_trust": {"enabled": False},
     })
-    assert not (cfg.policies or [])
-    assert cfg.zero_trust.enabled is False
+    asyncio.run(LegacyBankingHandle(config=cfg_off).run_message("hi"))
+    assert captured["enable_zero_trust"] is False
+
+    captured.clear()
+    cfg_absent = ExperimentConfig(**{
+        "experiment": {"name": "x", "domain": "front_office", "workflow": "w", "scenario": "s"},
+    })
+    asyncio.run(LegacyBankingHandle(config=cfg_absent).run_message("hi"))
+    assert captured["enable_zero_trust"] is False
 
 
-def test_registry_visibility_and_policy_event_classification_stay_symmetric():
-    """Catches: core/registry.py's optional-import guard and
-    observability/plugin.py's _POLICY_PLUGIN_NAMES drifting apart -- if
-    zero_trust_enforcement is ever registered without also being in
-    _POLICY_PLUGIN_NAMES, its denials would be misclassified as
-    ATTACK_INJECTED instead of POLICY_EVENT in every trace."""
-    from mantis.observability.plugin import _POLICY_PLUGIN_NAMES
+def test_registry_visibility_flag_reflects_whether_the_dependency_is_importable():
+    """Catches: ZERO_TRUST_AVAILABLE (the single source of truth
+    cli/main.py's validate_config checks) drifting out of sync with
+    whether zt_adk is actually importable."""
+    from mantis.core import registry
 
+    try:
+        import zt_adk  # noqa: F401
+        importable = True
+    except ImportError:
+        importable = False
+    assert registry.ZERO_TRUST_AVAILABLE is importable
+
+
+def test_policy_event_classification_stays_wired_for_a_zero_trust_denial():
+    """Catches: _POLICY_PLUGIN_NAMES dropping "zero_trust_enforcement", or
+    MantisHookPlugin.after_tool_callback's synthesized security_actions
+    marker drifting out of the shape ObservabilityPlugin reads -- either
+    one would silently misclassify a real Zero Trust denial as an
+    indistinguishable normal tool result instead of a POLICY_EVENT."""
     assert "zero_trust_enforcement" in _POLICY_PLUGIN_NAMES
-    if "zero_trust_enforcement" in plugin_registry.all():
-        # Dependency installed: it must actually be reachable, not just
-        # named in the set with nothing behind it.
-        from mantis.plugins.policies.zero_trust_enforcement import ZeroTrustEnforcementPlugin
-        assert plugin_registry.get("zero_trust_enforcement") is ZeroTrustEnforcementPlugin
+
+    from mantis.hooks import HookBus
+    from mantis.runtime.plugin import MantisHookPlugin
+
+    bus = HookBus()
+    seen = {}
+
+    class _Spy:
+        name = "spy"
+        supported_stages = {"tool"}
+        def apply(self, ctx):
+            from mantis.hooks import HookAction, HookResult
+            seen["security_actions"] = ctx.metadata.get("security_actions")
+            return HookResult(action=HookAction.CONTINUE)
+
+    bus.register(_Spy())
+    plugin = MantisHookPlugin(bus)
+    tool_context = MagicMock(agent_name="transaction_monitoring_agent", function_call_id="c1")
+    tool = MagicMock()
+    tool.name = "get_eod_batch"
+    asyncio.run(plugin.after_tool_callback(
+        tool=tool, tool_args={},
+        tool_context=tool_context,
+        result={"status": "zero_trust_denied", "boundary": "tool", "reason": "NO_GENERATED_PEP", "decision": "DENY"},
+    ))
+    assert seen["security_actions"] == [{"plugin": "zero_trust_enforcement", "action": "deny"}]
 
 
 # ---------------------------------------------------------------------------
 # 3. External contract drift -- the real project's API surface we call by name
 # ---------------------------------------------------------------------------
 
-pytest.importorskip("zt_backplane")
+def test_zero_trust_plugin_from_profile_still_accepts_the_arguments_this_code_passes():
+    """Catches: the real project renaming or dropping from_profile's
+    `root_agent` keyword -- the exact argument build_zero_trust_plugin
+    calls it with."""
+    pytest.importorskip("zt_adk")
+    from zt_adk import ZeroTrustPlugin
+
+    params = set(inspect.signature(ZeroTrustPlugin.from_profile).parameters)
+    assert "root_agent" in params
 
 
-def test_the_real_pdp_service_still_exposes_the_routes_this_integration_calls(monkeypatch):
-    """Catches: the real Citi_P3_Zero_Trust_Backplane project renaming or
-    removing /health, /v1/challenge, or /v1/authorize out from under us."""
-    from pathlib import Path
-    # pdp_service builds its app (and resolves config paths) at import time;
-    # point it at our generated directory the same way run_pdp.sh does,
-    # rather than its own default (source-checkout-relative) paths.
-    monkeypatch.setenv("ZT_PROJECT_ROOT", str(Path(__file__).resolve().parents[2] / "extensions" / "zero_trust"))
-    import importlib
-    import zt_backplane.pdp_service as pdp_service_module
-    importlib.reload(pdp_service_module)
-    app = pdp_service_module.app
+def test_before_tool_callback_still_accepts_the_kwargs_adk_calls_it_with():
+    """Catches: the real project's before_tool_callback signature drifting
+    out of sync with what ADK's PluginManager (and our own synthetic tests
+    in test_zero_trust_enforcement.py) call it with."""
+    pytest.importorskip("zt_adk")
+    from zt_adk import ZeroTrustPlugin
 
-    paths = {route.path for route in app.routes}
-    for required in ("/health", "/v1/challenge", "/v1/authorize"):
-        assert required in paths, f"the installed zt_backplane no longer exposes {required}"
+    params = set(inspect.signature(ZeroTrustPlugin.before_tool_callback).parameters)
+    assert {"tool", "tool_args", "tool_context"} <= params
 
 
-def test_build_signed_request_still_accepts_the_arguments_this_plugin_passes():
-    """Catches: the real project renaming or dropping a parameter of
-    build_signed_request -- the exact keyword arguments
-    zero_trust_enforcement.py's apply() calls it with."""
-    from zt_backplane.dev_evidence import build_signed_request
+def test_a_denial_still_has_the_shape_this_integration_reads():
+    """Catches: the real project renaming status/decision in its denial
+    dict -- the exact fields MantisHookPlugin.after_tool_callback's
+    zero_trust_denied check, and this integration's docs/papers, read."""
+    pytest.importorskip("zt_adk")
+    from mantis.banking.app import create_app_for_scan
+    from mantis.plugins.policies.zero_trust_enforcement import build_zero_trust_plugin
 
-    required = {
-        "nonce", "subject_canonical_id", "subject_runtime_id",
-        "resource_canonical_id", "resource_runtime_id", "action",
-        "workflow_id", "workflow_instance_id", "risk_score", "auth_factors",
-    }
-    params = set(inspect.signature(build_signed_request).parameters)
-    missing = required - params
-    assert not missing, f"zt_backplane.dev_evidence.build_signed_request dropped: {missing}"
-
-
-def test_pdp_request_model_still_reports_decision_and_reason():
-    """Catches: the real project renaming the authorize response fields
-    this plugin reads (body['decision'], body['reason'])."""
-    from zt_backplane.models import PDPResponse
-
-    fields = set(PDPResponse.model_fields)
-    assert {"decision", "reason"} <= fields, f"PDPResponse no longer has decision/reason: {fields}"
+    plugin = build_zero_trust_plugin(create_app_for_scan().root_agent)
+    tool_context = MagicMock(agent_name="not_a_real_mantis_agent", invocation_id="contract-check", function_call_id="c1", node_path="")
+    tool = MagicMock()
+    tool.name = "get_eod_batch"
+    result = asyncio.run(plugin.before_tool_callback(tool=tool, tool_args={}, tool_context=tool_context))
+    assert result is not None
+    assert {"status", "boundary", "reason", "decision"} <= set(result)
+    assert result["status"] == "zero_trust_denied"

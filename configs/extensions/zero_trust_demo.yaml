@@ -4,14 +4,13 @@
 #
 # No attack here on purpose: this config exists to show the toggle adds a
 # real, independent security layer -- a full legitimate workflow, with the
-# real PDP checking every tool call -- WITHOUT changing the outcome. Compare
-# against configs/baselines/front_office_baseline.yaml (same scenario, no
-# zero_trust_enforcement): same expected tools, same terminal state.
+# real Zero Trust Backplane plugin checking every tool call -- WITHOUT
+# changing the outcome. Compare against
+# configs/baselines/front_office_baseline.yaml (same scenario, no
+# zero_trust): same expected tools, same terminal state.
 #
-# Requires: pip install -e ".[zero_trust]", then in separate terminals,
-# python extensions/zero_trust/bootstrap_keys.py (once) and
-# ./extensions/zero_trust/run_pdp.sh (left running on port 8600), plus the
-# usual banking backend and a live LLM.
+# Requires: extensions/zero_trust/setup.sh (once), plus the usual banking
+# backend and a live LLM.
 experiment:
   name: zero_trust_demo
   seed: 110
@@ -24,7 +23,6 @@ experiment:
 # this config, and MANTIS's own behavior, stays identical either way.
 zero_trust:
   enabled: true
-  pdp_url: http://127.0.0.1:8600
 
 observability:
   mode: full

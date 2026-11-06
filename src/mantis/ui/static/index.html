@@ -94,8 +94,7 @@
       <label style="display:flex; align-items:center; gap:6px; font-weight:normal;">
         <input type="checkbox" id="zt-enabled" style="width:auto;"> Enable for this run
       </label>
-      <label>PDP URL</label><input id="zt-pdp-url" value="http://127.0.0.1:8600">
-      <p class="schema-note">Requires <code>pip install -e ".[zero_trust]"</code> and <code>./extensions/zero_trust/run_pdp.sh</code> running — see extensions/zero_trust/README.md.</p>
+      <p class="schema-note">Requires <code>extensions/zero_trust/setup.sh</code> having been run once — see extensions/zero_trust/README.md.</p>
     </fieldset>
 
     <fieldset>
@@ -193,10 +192,7 @@ function buildConfig() {
     }];
   }
   if (document.getElementById("zt-enabled").checked) {
-    cfg.zero_trust = {
-      enabled: true,
-      pdp_url: document.getElementById("zt-pdp-url").value || "http://127.0.0.1:8600",
-    };
+    cfg.zero_trust = { enabled: true };
   }
   if (document.getElementById("aml-enabled").checked) {
     cfg.aml_office = { enabled: true };

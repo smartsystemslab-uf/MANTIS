@@ -120,7 +120,7 @@ def test_legacy_banking_handle_derives_enable_aml_from_config(monkeypatch):
 
     captured = {}
 
-    async def fake_run_message(message, mcp_session=None, mcp_tools=None, compact=True, mantis_plugin=None, enable_aml=False):
+    async def fake_run_message(message, mcp_session=None, mcp_tools=None, compact=True, mantis_plugin=None, enable_aml=False, enable_zero_trust=False):
         captured["enable_aml"] = enable_aml
         return "ok"
 

@@ -123,19 +123,43 @@ async def run_message(
     compact: bool = True,
     mantis_plugin=None,
     enable_aml: bool = False,
+    enable_zero_trust: bool = False,
 ):
     app = create_app(mcp_session=mcp_session, mcp_tools=mcp_tools, enable_aml=enable_aml)
+
+    # Zero Trust is built here, not by the caller, because it needs the
+    # *built* app's own root_agent object (ZeroTrustPlugin.from_profile's
+    # bundle-vs-running-code fingerprint check is against this exact graph,
+    # not a generic one) -- create_app() only just ran, above.
+    extra_plugins = []
+    if enable_zero_trust:
+        from mantis.plugins.policies.zero_trust_enforcement import build_zero_trust_plugin
+        extra_plugins.append(build_zero_trust_plugin(app.root_agent, enable_aml=enable_aml))
 
     # Modern ADK: plugins are part of App. Compatibility fallback: older ADK
     # releases accepted plugins on Runner instead. Do not silently construct an
     # unprotected Runner if App ignored the plugins field.
+    #
+    # mantis_plugin goes first, extra_plugins (Zero Trust) after: ADK runs
+    # plugins in order and the first before_tool_callback to return a value
+    # short-circuits the rest, so MantisHookPlugin must see and dispatch
+    # every call to the hook bus (attacks, policies, observability, trace
+    # completeness) unconditionally before Zero Trust gets a chance to deny
+    # it -- the reverse of the Backplane's own protected_runner() helper,
+    # which puts its plugin first. after_tool_callback runs for every
+    # plugin regardless of where before_tool_callback short-circuited (ADK's
+    # functions.py: step 4 always runs after step 1-3), so a Zero Trust
+    # denial is still dispatched to the hook bus as after_tool and recorded
+    # in the trace either way.
     configured_plugins = list(getattr(app, "_mantis_configured_plugins", None) or [])
     if mantis_plugin:
         configured_plugins.append(mantis_plugin)
+    configured_plugins.extend(extra_plugins)
 
     app_plugins = list(getattr(app, "plugins", None) or [])
     if mantis_plugin:
         app_plugins.append(mantis_plugin)
+    app_plugins.extend(extra_plugins)
 
     if configured_plugins and not app_plugins:
         # Legacy ADK compatibility: Runner cannot receive both `app=` and

@@ -35,6 +35,7 @@ class LegacyBankingHandle:
             disabled_agents=disabled_agents,
         )
         enable_aml = bool(self.config and self.config.aml_office and self.config.aml_office.enabled)
+        enable_zero_trust = bool(self.config and self.config.zero_trust and self.config.zero_trust.enabled)
         return await run_message(
             message,
             mcp_session=self.mcp_session,
@@ -42,6 +43,7 @@ class LegacyBankingHandle:
             compact=True,
             mantis_plugin=plugin,
             enable_aml=enable_aml,
+            enable_zero_trust=enable_zero_trust,
         )
 
 # Tool modules that make up the real banking tool surface. Listed here (not

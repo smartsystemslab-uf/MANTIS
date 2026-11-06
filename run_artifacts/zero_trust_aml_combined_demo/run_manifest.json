@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-11-06T00:49:06.465519Z",
+  "config_hash": "a8fa1b4963da463489e2c62d522a9046e7cb085ff9f43e1237d41f05b9a6e56f",
+  "seed": 121,
+  "config": {
+    "experiment": {
+      "name": "zero_trust_aml_combined_demo",
+      "seed": 121,
+      "domain": "aml_office",
+      "workflow": "aml_office_structuring_investigation",
+      "scenario": "aml_office_structuring_investigation"
+    },
+    "zero_trust": {
+      "enabled": true
+    },
+    "aml_office": {
+      "enabled": true
+    },
+    "observability": {
+      "mode": "full",
+      "export": [
+        "jsonl"
+      ]
+    },
+    "evaluation": {
+      "expected_tools": [
+        "detect_structuring"
+      ],
+      "forbidden_tools": []
+    }
+  },
+  "environment": {
+    "python_version": "3.12.7",
+    "platform": "macOS-26.6.2-x86_64-i386-64bit",
+    "packages": {
+      "mantis": "0.1.0",
+      "google-adk": "2.7.1",
+      "litellm": "1.97.0",
+      "mcp": "1.29.0",
+      "pydantic": "2.14.3"
+    },
+    "git_commit": "e957b10a3dc34cc022e606fd5b7a37e7f2e72293",
+    "llm": {
+      "mock": false,
+      "model": "gpt-oss-20b",
+      "endpoint_host": "api.ai.it.ufl.edu"
+    }
+  }
+}

@@ -2,120 +2,118 @@
 real github.com/smartsystemslab-uf/Citi_P3_Zero_Trust_Backplane project --
 see src/mantis/plugins/policies/zero_trust_enforcement.py).
 
-Entirely offline: the real PDP's HTTP calls (httpx.post) are mocked here,
-so these tests need neither the zero_trust optional dependency's PDP
-service running nor a live model/backend -- they check the plugin's own
-dispatch logic (which stage/target it acts on, how it maps a decision to
-HookResult, and that it fails closed), not the real project's own
-authorization logic (which is its own code, exercised live and manually --
-see extensions/zero_trust/README.md -- not reimplemented or re-tested
-here). Skipped entirely if the optional dependency isn't installed, same
-as the other optional-dependency exporter tests in this suite.
+Entirely offline and genuinely real, not mocked: build_zero_trust_plugin()
+loads the actual committed, signed bundle and the plugin's own decision
+engine, so these tests exercise the real project's own authorization
+decisions (not reimplemented or re-tested here) directly, with no live
+model/backend and no network call -- `before_tool_callback` reads its
+caller from a plain `tool_context.agent_name` attribute (see
+`ZeroTrustPlugin._tool_owner`), so a MagicMock stands in for ADK's own
+object without needing a full Runner/session. Skipped entirely if the
+optional dependency isn't installed, same as the other optional-dependency
+exporter tests in this suite.
+
+Finding worth stating plainly: the new generic scanner's placements are
+per-agent (which agent's own `tools=[]` list the tool is actually wired
+into), not per-domain -- *stricter* than the old integration's "agent may
+act on a tool in its own domain" claim, which was a domain-wide grant.
+test_same_domain_sibling_agent_without_the_tool_is_still_denied below is
+exactly that: same domain, different agent, no access. Cross-domain denial
+(the old claim) still holds -- it's a strict consequence of per-agent
+placement, just not the only boundary enforced now.
 """
+import asyncio
+from unittest.mock import MagicMock
+
 import pytest
 
-pytest.importorskip("zt_backplane")
+pytest.importorskip("zt_adk")
 
-from unittest.mock import patch, MagicMock
-
-from mantis.core.registry import plugin_registry
-from mantis.hooks import HookContext, HookAction
-from mantis.plugins.policies.zero_trust_enforcement import ZeroTrustEnforcementPlugin
+from mantis.banking.app import create_app_for_scan
+from mantis.plugins.policies.zero_trust_enforcement import build_zero_trust_plugin
 
 
-def _ctx(target="get_transaction_context", source="transaction_monitoring_agent", hook="before_tool"):
-    return HookContext(
-        run_id="r1", trace_id="t1", workflow_id="front_office_monitoring", stage="tool",
-        source=source, target=target, payload={}, metadata={"specific_hook": hook},
-    )
+def _tool_ctx(agent_name, call_id="c1", inv="inv1"):
+    tc = MagicMock()
+    tc.agent_name = agent_name
+    tc.invocation_id = inv
+    tc.function_call_id = call_id
+    tc.node_path = ""
+    return tc
 
 
-def test_registered_in_the_real_plugin_registry():
-    assert "zero_trust_enforcement" in plugin_registry.all()
-    assert plugin_registry.get("zero_trust_enforcement") is ZeroTrustEnforcementPlugin
+def _tool(name):
+    t = MagicMock()
+    t.name = name
+    return t
 
 
-def test_ignores_stages_other_than_before_tool():
-    plugin = ZeroTrustEnforcementPlugin()
-    with patch("httpx.post") as mock_post:
-        result = plugin.apply(_ctx(hook="after_tool"))
-    assert result.action == HookAction.CONTINUE
-    mock_post.assert_not_called()
+@pytest.fixture(scope="module")
+def plugin():
+    # create_app_for_scan(), not create_app(): the committed bundle is
+    # built against a real MCP session (build_root_agent attaches one
+    # extra passthrough tool per MCP tool onto user_proxy_agent only then
+    # -- see create_app_for_scan's docstring), so matching it here means
+    # spawning the real MCP server subprocess, the same as a live run.
+    app = create_app_for_scan()
+    return build_zero_trust_plugin(app.root_agent)
 
 
-def test_out_of_scope_target_is_never_checked():
-    """transfer_to_agent is the routing tool, not a domain-owned resource --
-    see the module docstring for why risk_aware_routing_guard covers it
-    instead. The PDP is never even called for it."""
-    plugin = ZeroTrustEnforcementPlugin()
-    with patch("httpx.post") as mock_post:
-        result = plugin.apply(_ctx(target="transfer_to_agent"))
-    assert result.action == HookAction.CONTINUE
-    mock_post.assert_not_called()
+def _call(plugin, agent_name, tool_name, tool_args=None, inv="inv"):
+    return asyncio.run(plugin.before_tool_callback(
+        tool=_tool(tool_name), tool_args=tool_args or {},
+        tool_context=_tool_ctx(agent_name, inv=inv),
+    ))
 
 
-def test_unknown_agent_denies_without_calling_the_pdp():
-    plugin = ZeroTrustEnforcementPlugin()
-    with patch("httpx.post") as mock_post:
-        result = plugin.apply(_ctx(source="not_a_real_mantis_agent"))
-    assert result.action == HookAction.DENY
-    assert "not a known MANTIS agent" in result.payload["error"]
-    mock_post.assert_not_called()
+def test_an_agent_calling_its_own_real_tool_is_allowed(plugin):
+    # compliance_agent/search_policies is a real placement (see
+    # extensions/zero_trust/.zt/bundle/REPORT.md) -- None means ADK proceeds
+    # to call the real tool.
+    assert _call(plugin, "compliance_agent", "search_policies", inv="allow") is None
 
 
-def test_allow_decision_continues():
-    plugin = ZeroTrustEnforcementPlugin()
-    challenge_resp = MagicMock(status_code=200)
-    challenge_resp.json.return_value = {"nonce": "n1"}
-    authorize_resp = MagicMock()
-    authorize_resp.json.return_value = {"decision": "ALLOW", "reason": "matched_policy:x"}
-    with patch("httpx.post", side_effect=[challenge_resp, authorize_resp]):
-        result = ZeroTrustEnforcementPlugin().apply(_ctx())
-    assert result.action == HookAction.CONTINUE
+def test_cross_domain_call_is_denied(plugin):
+    # transaction_monitoring_agent is front office; get_eod_batch belongs to
+    # eod_processing_agent, back office.
+    result = _call(plugin, "transaction_monitoring_agent", "get_eod_batch", inv="cross")
+    assert result is not None
+    assert result["status"] == "zero_trust_denied"
+    assert result["decision"] == "DENY"
 
 
-def test_allow_with_obligations_also_continues():
-    plugin = ZeroTrustEnforcementPlugin()
-    challenge_resp = MagicMock(status_code=200)
-    challenge_resp.json.return_value = {"nonce": "n1"}
-    authorize_resp = MagicMock()
-    authorize_resp.json.return_value = {"decision": "ALLOW_WITH_OBLIGATIONS", "reason": "matched_policy:x"}
-    with patch("httpx.post", side_effect=[challenge_resp, authorize_resp]):
-        result = plugin.apply(_ctx())
-    assert result.action == HookAction.CONTINUE
+def test_same_domain_sibling_agent_without_the_tool_is_still_denied(plugin):
+    # fraud_detection_agent is front office, same domain as compliance_agent
+    # (search_policies' real owner) -- but never wired to call it. Per-agent
+    # placement denies this even though a domain-wide grant would not.
+    result = _call(plugin, "fraud_detection_agent", "search_policies", inv="sibling")
+    assert result is not None
+    assert result["status"] == "zero_trust_denied"
+    assert result["decision"] == "DENY"
 
 
-def test_deny_decision_denies():
-    challenge_resp = MagicMock(status_code=200)
-    challenge_resp.json.return_value = {"nonce": "n1"}
-    authorize_resp = MagicMock()
-    authorize_resp.json.return_value = {"decision": "DENY", "reason": "default_deny_no_matching_policy"}
-    with patch("httpx.post", side_effect=[challenge_resp, authorize_resp]):
-        result = ZeroTrustEnforcementPlugin().apply(_ctx())
-    assert result.action == HookAction.DENY
-    assert "default_deny_no_matching_policy" in result.payload["error"]
+def test_unrecognized_agent_is_denied(plugin):
+    result = _call(plugin, "not_a_real_mantis_agent", "get_eod_batch", inv="unknown")
+    assert result is not None
+    assert result["status"] == "zero_trust_denied"
+    assert result["decision"] == "DENY"
 
 
-def test_unrecognized_subject_at_challenge_stage_denies():
-    challenge_resp = MagicMock(status_code=404)
-    with patch("httpx.post", return_value=challenge_resp):
-        result = ZeroTrustEnforcementPlugin().apply(_ctx())
-    assert result.action == HookAction.DENY
+def test_transfer_to_agent_routing_is_unconstrained_by_this_toggle(plugin):
+    # transfer_to_agent is deliberately out of scope for this toggle's
+    # profile (policies.deny_cross_domain_routes: false in zt_adk.yaml) --
+    # MANTIS's own agent tree uses legitimate cross-domain routing (e.g.
+    # back_office_router handing off to front_office_router) as normal
+    # behavior, and risk_aware_routing_guard already covers routing
+    # decisions. See zero_trust_enforcement.py's module docstring.
+    result = _call(plugin, "front_office_router", "transfer_to_agent",
+                    tool_args={"agent_name": "mid_office_router"}, inv="transfer")
+    assert result is None
 
 
-def test_pdp_unreachable_fails_closed():
-    """A down security layer must deny, not silently allow."""
-    import httpx
-    with patch("httpx.post", side_effect=httpx.ConnectError("refused")):
-        result = ZeroTrustEnforcementPlugin().apply(_ctx())
-    assert result.action == HookAction.DENY
-    assert "PDP unavailable" in result.payload["error"]
+def test_the_dedicated_toggle_validates(tmp_path, monkeypatch):
+    from pathlib import Path
 
-
-def test_the_dedicated_toggle_validates_and_resolves_to_the_same_plugin(tmp_path, monkeypatch):
-    """zero_trust: {enabled: true} is sugar over the generic policies: list
-    -- same plugin, same validation path, just a clearer single switch to
-    flip for someone configuring an attack."""
     from mantis.cli.main import validate_config
 
     cfg = tmp_path / "zt_toggle.yaml"
@@ -124,16 +122,16 @@ def test_the_dedicated_toggle_validates_and_resolves_to_the_same_plugin(tmp_path
         "  workflow: front_office_monitoring\n  scenario: front_office_monitoring\n"
         "zero_trust:\n  enabled: true\n"
     )
-    from pathlib import Path
     monkeypatch.chdir(Path(__file__).resolve().parents[2])
     assert validate_config(str(cfg)) is True
 
 
-def test_toggle_disabled_does_not_require_the_plugin_at_all(tmp_path, monkeypatch):
-    """enabled: false must validate even if zero_trust_enforcement were
-    somehow unavailable -- the whole point of a toggle is that off means off."""
-    from mantis.cli.main import validate_config
+def test_toggle_disabled_does_not_require_the_dependency_at_all(tmp_path, monkeypatch):
+    """enabled: false must validate even if the dependency were somehow
+    unavailable -- the whole point of a toggle is that off means off."""
     import mantis.core.registry as registry
+    from mantis.cli.main import validate_config
+    from pathlib import Path
 
     cfg = tmp_path / "zt_toggle_off.yaml"
     cfg.write_text(
@@ -141,9 +139,12 @@ def test_toggle_disabled_does_not_require_the_plugin_at_all(tmp_path, monkeypatc
         "  workflow: front_office_monitoring\n  scenario: front_office_monitoring\n"
         "zero_trust:\n  enabled: false\n"
     )
-    original = dict(registry.plugin_registry._registry)
+    monkeypatch.chdir(Path(__file__).resolve().parents[2])
+    original = registry.ZERO_TRUST_AVAILABLE
     try:
-        del registry.plugin_registry._registry["zero_trust_enforcement"]
+        registry.ZERO_TRUST_AVAILABLE = False
+        import mantis.cli.main as cli_main
+        monkeypatch.setattr(cli_main, "ZERO_TRUST_AVAILABLE", False)
         assert validate_config(str(cfg)) is True
     finally:
-        registry.plugin_registry._registry = original
+        registry.ZERO_TRUST_AVAILABLE = original
